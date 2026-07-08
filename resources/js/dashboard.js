@@ -86,7 +86,6 @@ let siswaChart = null;
 
 function setSidebarState(state) {
     const filters = document.getElementById('sidebar-filters');
-    const filtersInfo = document.getElementById('sidebar-filters-info');
     const tableComponent = document.getElementById('table-component');
     const rightSidebar = document.getElementById('right-sidebar');
     const sidebarSlot = document.getElementById('sidebar-table-slot');
@@ -94,12 +93,10 @@ function setSidebarState(state) {
     if (state === 'default') {
         rightSidebar.appendChild(tableComponent);
         filters.classList.remove('hidden');
-        filtersInfo.classList.remove('hidden');
         rightSidebar.classList.remove('hidden');
     } else {
         sidebarSlot.appendChild(tableComponent);
         filters.classList.add('hidden');
-        filtersInfo.classList.add('hidden');
         rightSidebar.classList.add('hidden');
     }
     sidebarState = state;

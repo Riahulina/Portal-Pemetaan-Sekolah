@@ -4,7 +4,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>SatuPeta — Dashboard</title>
+
+    <title>Satu Peta — Peta Pendidikan Indonesia</title>
+
     @fonts
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/dashboard.js'])
@@ -17,10 +21,17 @@
                 <img src="{{ asset('assets/logo.png') }}" alt="Logo Kidsnesia" class="brand-logo-img">
                 <div class="brand-text">
                     <div class="brand-text--top">
+
                         <span class="brand-kids">Satu</span><span class="brand-nesia">Peta</span>
                     </div>
                     <div class="brand-text--bottom">
                         <span class="brand-edu">Peta Pendidikan Indonesia</span>
+
+
+                    </div>
+                    <div class="brand-text--bottom">
+                        <span class="brand-petapendik whitespace-nowrap text-xs"></span>
+
                     </div>
                 </div>
             </div>
@@ -71,6 +82,9 @@
                         d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
                 </svg>
                 <span>Filter di atas untuk menampilkan data sekolah berdasarkan kategori yang diinginkan.</span>
+
+
+
             </div>
 
             <!-- State B: Table slot — menerima #table-component saat detail aktif -->
@@ -151,7 +165,7 @@
                 </div>
 
                 <div id="right-sidebar">
-                    <div id="table-component">
+                    <div id="table-component" class="w-full">
                         <div class="sidebar-table__header">
                             <h3 class="sidebar-table__title">Daftar Sekolah Ditemukan (<span
                                     id="result-count">0</span>)</h3>
@@ -178,7 +192,7 @@
                                 <tbody id="table-body"></tbody>
                             </table>
                         </div>
-                        <div id="pagination" class="pagination"></div>
+                        <div id="pagination" class="pagination flex-wrap justify-center"></div>
                     </div>
                 </div>
             </div>

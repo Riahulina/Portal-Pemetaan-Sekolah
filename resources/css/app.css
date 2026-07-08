@@ -94,7 +94,7 @@
 }
 
 .brand-logo-img {
-    width: 75px;
+    width: 85px;
     height: auto;
     flex-shrink: 0;
 }
@@ -125,6 +125,20 @@
     color: var(--teal-700);
 }
 
+.brand-satu {
+    font-family: var(--font-inter);
+    font-weight: 700;
+    color: var(--color-secondary);
+    font-size: 2.35rem;
+}
+
+.brand-peta {
+    font-family: var(--font-lora);
+    font-weight: 600;
+    color: var(--color-tertiary);
+    font-size: 2.35rem;
+}
+
 .brand-text--bottom {
     font-size: 1.2rem;
     line-height: 1;
@@ -132,7 +146,7 @@
 
 .brand-edu {
     font-family: "Inter", sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
     color: var(--ink-600);
     letter-spacing: 0.3px;
@@ -142,6 +156,11 @@
     font-family: var(--font-inter);
     font-weight: 700;
     color: var(--color-secondary);
+}
+.brand-petapendik {
+    font-family: var(--font-lora);
+    font-weight: 400;
+    font-size: 0.8rem;
 }
 
 /* === SIDEBAR FILTERS === */
@@ -587,24 +606,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     padding-top: 14px;
     border-top: 1px solid var(--color-border);
     margin-top: auto;
     flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 .pagination button {
-    padding: 5px 10px;
+    padding: 4px 8px;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     background: #fff;
     cursor: pointer;
     font-family: var(--font-public-sans);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--color-primary);
     transition: background 0.2s;
-    min-width: 30px;
+    min-width: 26px;
     text-align: center;
 }
 
