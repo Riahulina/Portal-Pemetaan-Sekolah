@@ -1,27 +1,35 @@
-@import 'tailwindcss';
-@import 'leaflet/dist/leaflet.css';
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-public-sans: 'Public Sans', sans-serif;
-    --font-space-grotesk: 'Space Grotesk', sans-serif;
-    --font-inter: 'Inter', sans-serif;
-    --font-lora: 'Lora', serif;
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-public-sans: "Public Sans", sans-serif;
+    --font-space-grotesk: "Space Grotesk", sans-serif;
+    --font-inter: "Inter", sans-serif;
+    --font-lora: "Lora", serif;
 
-    --color-primary: #1A1C1E;
-    --color-secondary: #FF9F44;
-    --color-tertiary: #0D9296;
-    --color-on-tertiary: #FFFFFF;
-    --color-border: #E5E0D8;
-    --color-card-bg: #C7EEEE;
+    --color-primary: #1a1c1e;
+    --color-secondary: #ff9f44;
+    --color-secondaryy: #00000;
+    --color-tertiary: #0d9296;
+    --color-on-tertiary: #ffffff;
+    --color-border: #e5e0d8;
+    --color-card-bg: #c7eeee;
+    --teal-700: #146b68;
+    --orange-500: #f2a53a;
+    --line: #dfe9e7;
 }
 
 @layer base {
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
         box-sizing: border-box;
     }
 
@@ -104,15 +112,17 @@
 }
 
 .brand-kids {
-    font-family: var(--font-inter);
+    font-family: "Poppins", sans-serif;
+    font-size: 2rem;
     font-weight: 700;
-    color: var(--color-secondary);
+    color: var(--orange-500);
 }
 
 .brand-nesia {
-    font-family: var(--font-lora);
-    font-weight: 400;
-    color: var(--color-tertiary);
+    font-family: "Lora", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--teal-700);
 }
 
 .brand-text--bottom {
@@ -121,9 +131,11 @@
 }
 
 .brand-edu {
-    font-family: var(--font-lora);
-    font-weight: 700;
-    color: var(--color-secondary);
+    font-family: "Inter", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink-600);
+    letter-spacing: 0.3px;
 }
 
 .brand-map {
@@ -211,25 +223,47 @@
     cursor: not-allowed;
 }
 
-.btn-reset {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 20px;
-    background: transparent;
-    color: var(--color-primary);
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    font-family: var(--font-public-sans);
-    font-size: 0.85rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: background 0.2s;
+.btn-apply {
+    width: 100%;
+    background: var(--teal-700);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 8px;
+    border: none;
 }
 
-.btn-reset:hover {
-    background: #f5f3f0;
+.btn-reset {
+    width: 100%;
+    background: #fff;
+    border: 2px solid var(--line);
+    color: var(--ink-600);
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 9px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 8px;
 }
+.btn-back {
+    width: 100%;
+    background: #fff;
+    border: 2px solid var(--line);
+    color: var(--ink-600);
+    font-weight: 700;
+    font-size: 12.5px;
+    padding: 9px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* .btn-reset:hover {
+        background: #f5f3f0;
+    } */
 
 /* === INFO BOX === */
 
@@ -291,7 +325,7 @@
     font-family: var(--font-public-sans);
     font-size: 0.8rem;
     font-weight: 400;
-    color: #9CA3AF;
+    color: #9ca3af;
 }
 
 .header-right {
@@ -419,7 +453,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0, 0, 0, 0.12);
     flex-shrink: 0;
 }
 
@@ -592,7 +626,7 @@
 .pagination__info {
     font-family: var(--font-public-sans);
     font-size: 0.72rem;
-    color: #9CA3AF;
+    color: #9ca3af;
     margin-left: 6px;
     white-space: nowrap;
 }
@@ -624,7 +658,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: -8px 0 32px rgba(0,0,0,0.18);
+    box-shadow: -8px 0 32px rgba(0, 0, 0, 0.18);
 }
 
 .detail-panel__header {
@@ -1013,7 +1047,9 @@
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition:
+        background 0.2s,
+        color 0.2s;
     align-self: center;
 }
 
