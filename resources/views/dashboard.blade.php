@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kidsnesia EduMap — Dashboard</title>
+    <title>Satu Peta — Peta Pendidikan Indonesia</title>
     @fonts
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/dashboard.js'])
@@ -15,10 +15,10 @@
                 <img src="{{ asset('assets/logo.png') }}" alt="Logo Kidsnesia" class="brand-logo-img">
                 <div class="brand-text">
                     <div class="brand-text--top">
-                        <span class="brand-kids">KIDS</span><span class="brand-nesia">nesia</span>
+                        <span class="brand-satu">Satu</span><span class="brand-peta">Peta</span>
                     </div>
                     <div class="brand-text--bottom">
-                        <span class="brand-edu">Edu</span><span class="brand-map">Map</span>
+                        <span class="brand-petapendik whitespace-nowrap text-xs">Peta Pendidikan Indonesia</span>
                     </div>
                 </div>
             </div>
@@ -59,15 +59,14 @@
                     <button id="btn-terapkan" class="btn-primary">Terapkan Filter</button>
                     <button id="btn-reset" class="btn-reset">Reset</button>
                 </div>
-            </div>
-
-            <div id="sidebar-filters-info" class="filter-info sidebar-state-a">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9F44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 18h6"/>
-                    <path d="M10 22h4"/>
-                    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
-                </svg>
-                <span>Filter di atas untuk menampilkan data sekolah berdasarkan kategori yang diinginkan.</span>
+                <div id="sidebar-filters-info" class="filter-info">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF9F44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18h6"/>
+                        <path d="M10 22h4"/>
+                        <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
+                    </svg>
+                    <span>Filter di atas untuk menampilkan data sekolah berdasarkan kategori yang diinginkan.</span>
+                </div>
             </div>
 
             <!-- State B: Table slot — menerima #table-component saat detail aktif -->
@@ -144,7 +143,7 @@
                 </div>
 
                 <div id="right-sidebar">
-                    <div id="table-component">
+                    <div id="table-component" class="w-full">
                         <div class="sidebar-table__header">
                             <h3 class="sidebar-table__title">Daftar Sekolah Ditemukan (<span id="result-count">0</span>)</h3>
                         </div>
@@ -167,7 +166,7 @@
                                 <tbody id="table-body"></tbody>
                             </table>
                         </div>
-                        <div id="pagination" class="pagination"></div>
+                        <div id="pagination" class="pagination flex-wrap justify-center"></div>
                     </div>
                 </div>
             </div>
