@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SekolahController;
 
 Route::get('/', function () {
     return view('landing');
@@ -9,3 +10,5 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 });
+
+Route::get('/api/sekolah', [SekolahController::class, 'index']);

@@ -68,8 +68,8 @@
                         <option value="">Pilih Kelurahan</option>
                     </select>
                 </div>
-                <button class="btn-apply">Terapkan Filter</button>
-                <button class="btn-reset">Reset</button>
+                <button id="btn-terapkan" class="btn-apply">Terapkan Filter</button>
+                <button id="btn-reset" class="btn-reset">Reset</button>
                 <a href="/"> <button class="btn-back">Back Home</button></a>
             </div>
 
@@ -259,7 +259,7 @@
                                             style="background:#F97316;"></span> Kelas 8 SMP - <strong>350</strong>
                                     </div>
                                     <div class="legend-row"><span class="legend-dot"
-                                            style="background:#3B82F6;"></span> Kelas 9 SMP - <strong>350</strong>
+                                            style="background:#10a5b0;"></span> Kelas 9 SMP - <strong>350</strong>
                                     </div>
                                 </div>
                                 <div class="detail-chart__form">
