@@ -1,4 +1,5 @@
 import L from "leaflet";
+import "leaflet.markercluster";
 
 const JENJANG_COLORS = {
     KB: "#EF4444",
@@ -7,6 +8,70 @@ const JENJANG_COLORS = {
     SMP: "#A855F7",
     "SMA/SMK": "#F97316",
 };
+
+const INDONESIA_BOUNDS = L.latLngBounds([-15.0, 90.0], [12.0, 145.0]);
+const TABLE_PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 300;
+
+let schools = [];
+let regionTree = {};
+let provinces = [];
+
+let map, clusterGroup, aggregatedLayer;
+let currentFilters = {};
+let markerRefs = new Map();
+let pendingPopupSchoolId = null;
+let sidebarState = "filters";
+let siswaChart = null;
+
+let detailLayer;
+let _detailMarkerSchoolId = null;
+
+let _filterCacheKey = null;
+let _filterCacheResult = null;
+
+function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+function filterSchools(filters) {
+    const key = JSON.stringify(filters);
+    if (_filterCacheKey === key) return _filterCacheResult;
+
+    const result = schools.filter((s) => {
+        if (
+            filters.jenjang &&
+            filters.jenjang !== "Semua" &&
+            s.jenjang !== filters.jenjang
+        )
+            return false;
+        if (
+            filters.status &&
+            filters.status !== "Semua" &&
+            s.status !== filters.status
+        )
+            return false;
+        if (filters.provinsi && s.provinsi !== filters.provinsi) return false;
+        if (filters.kabupaten && s.kabupaten !== filters.kabupaten)
+            return false;
+        if (filters.kecamatan && s.kecamatan !== filters.kecamatan)
+            return false;
+        return true;
+    });
+
+    _filterCacheKey = key;
+    _filterCacheResult = result;
+    return result;
+}
+
+function invalidateFilterCache() {
+    _filterCacheKey = null;
+    _filterCacheResult = null;
+}
 
 function mapSekolahRecord(row) {
     let social = {};
@@ -66,52 +131,100 @@ async function fetchSchools() {
 
 function buildRegionTree(schools) {
     const tree = {};
-    schools.forEach((s) => {
-        if (!tree[s.provinsi]) tree[s.provinsi] = {};
-        if (!tree[s.provinsi][s.kabupaten]) tree[s.provinsi][s.kabupaten] = {};
-        if (!tree[s.provinsi][s.kabupaten][s.kecamatan])
-            tree[s.provinsi][s.kabupaten][s.kecamatan] = new Set();
-        tree[s.provinsi][s.kabupaten][s.kecamatan].add(s.kelurahan);
-    });
-    for (const prov in tree) {
-        for (const kab in tree[prov]) {
-            for (const kec in tree[prov][kab]) {
-                tree[prov][kab][kec] = [...tree[prov][kab][kec]].sort();
-            }
+    for (let i = 0; i < schools.length; i++) {
+        const s = schools[i];
+        const prov = s.provinsi;
+        const kab = s.kabupaten;
+        const kec = s.kecamatan;
+
+        if (!tree[prov]) tree[prov] = {};
+        if (!tree[prov][kab]) tree[prov][kab] = {};
+        tree[prov][kab][kec] = true;
+    }
+
+    const provKeys = Object.keys(tree);
+    for (let p = 0; p < provKeys.length; p++) {
+        const kabKeys = Object.keys(tree[provKeys[p]]);
+        for (let k = 0; k < kabKeys.length; k++) {
+            tree[provKeys[p]][kabKeys[k]] = Object.keys(
+                tree[provKeys[p]][kabKeys[k]],
+            ).sort();
         }
     }
+
     return tree;
 }
 
-const INDONESIA_BOUNDS = L.latLngBounds([-11.0, 94.0], [6.0, 141.0]);
+function buildPopupContent(s) {
+    return `<div style="font-family:'Public Sans',sans-serif;min-width:180px;">
+        <strong style="font-size:1rem;color:#1A1C1E;">${s.nama}</strong>
+        <div style="margin:6px 0;font-size:0.85rem;color:#4b5563;">
+            ${s.jenjang} &middot; ${s.status}
+        </div>
+        <div style="font-size:0.85rem;color:#4b5563;">
+            ${s.kelurahan}, ${s.kecamatan}
+        </div>
+        <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:0.85rem;">
+            <span>Murid Aktif:</span>
+            <strong style="color:#0D9296;">${s.murid.toLocaleString()}</strong>
+        </div>
+    </div>`;
+}
 
-let schools = [];
-let regionTree = {};
-let provinces = [];
+function createMarkerIcon(color) {
+    return L.divIcon({
+        className: "",
+        html: `<svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.268 21.732 0 14 0z" fill="${color}" stroke="#fff" stroke-width="2"/><circle cx="14" cy="14" r="5" fill="#fff"/></svg>`,
+        iconSize: [28, 40],
+        iconAnchor: [14, 40],
+        popupAnchor: [0, -42],
+    });
+}
 
-let map, markersLayer;
-let currentFilters = {};
-let markerRefs = new Map();
-let pendingPopupSchoolId = null;
-let sidebarState = "filters";
-let siswaChart = null;
+function createClusterIcon(cluster) {
+    const count = cluster.getChildCount();
+    const size = count < 10 ? 40 : count < 100 ? 50 : 60;
+    const innerR = Math.round(size * 0.3);
+    const fontSize = count < 100 ? 13 : 11;
+    return L.divIcon({
+        html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(13,146,150,0.15);border:2px solid #0D9296;display:flex;align-items:center;justify-content:center;"><div style="width:${innerR * 2}px;height:${innerR * 2}px;border-radius:50%;background:#0D9296;display:flex;align-items:center;justify-content:center;font-family:'Public Sans',sans-serif;font-weight:700;font-size:${fontSize}px;color:#fff;">${count}</div></div>`,
+        className: "",
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+    });
+}
 
-function setSidebarState(state) {
-    const filters = document.getElementById("sidebar-filters");
-    const tableComponent = document.getElementById("table-component");
-    const rightSidebar = document.getElementById("right-sidebar");
-    const sidebarSlot = document.getElementById("sidebar-table-slot");
+function hasRegionFilter(filters) {
+    return !!(
+        filters.provinsi ||
+        filters.kabupaten ||
+        filters.kecamatan
+    );
+}
 
-    if (state === "default") {
-        rightSidebar.appendChild(tableComponent);
-        filters.classList.remove("hidden");
-        rightSidebar.classList.remove("hidden");
+function flyToSchool(lat, lng, schoolId) {
+    pendingPopupSchoolId = schoolId;
+    map.flyTo([lat, lng], 16);
+}
+
+function showClusterView() {
+    if (!map.hasLayer(clusterGroup)) map.addLayer(clusterGroup);
+    if (map.hasLayer(aggregatedLayer)) map.removeLayer(aggregatedLayer);
+}
+
+function showAggregatedView() {
+    if (map.hasLayer(clusterGroup)) map.removeLayer(clusterGroup);
+    if (!map.hasLayer(aggregatedLayer)) map.addLayer(aggregatedLayer);
+}
+
+function updateLayerVisibility() {
+    if (!map) return;
+    const zoom = map.getZoom();
+    if (zoom >= 7) {
+        showClusterView();
     } else {
-        sidebarSlot.appendChild(tableComponent);
-        filters.classList.add("hidden");
-        rightSidebar.classList.add("hidden");
+        showAggregatedView();
     }
-    sidebarState = state;
 }
 
 function initMap() {
@@ -132,77 +245,75 @@ function initMap() {
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
 
-    markersLayer = L.layerGroup().addTo(map);
+    clusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        chunkInterval: 100,
+        chunkDelay: 10,
+        maxClusterRadius: 60,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        iconCreateFunction: createClusterIcon,
+    });
 
-    map.on("zoomend", syncMarkersToZoom);
+    aggregatedLayer = L.layerGroup().addTo(map);
+    detailLayer = L.layerGroup().addTo(map);
+
+    map.on("zoomend", updateLayerVisibility);
 
     map.on("moveend", () => {
         if (pendingPopupSchoolId !== null) {
-            const marker = markerRefs.get(pendingPopupSchoolId);
-            if (marker) marker.openPopup();
+            const schoolId = pendingPopupSchoolId;
             pendingPopupSchoolId = null;
+            setTimeout(() => {
+                const marker = markerRefs.get(schoolId);
+                if (marker && clusterGroup.hasLayer(marker)) {
+                    clusterGroup.zoomToShowLayer(marker, () => {
+                        marker.openPopup();
+                    });
+                }
+            }, 200);
         }
     });
 }
 
-function createMarkerIcon(color) {
-    return L.divIcon({
-        className: "",
-        html: `<svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.268 21.732 0 14 0z" fill="${color}" stroke="#fff" stroke-width="2"/><circle cx="14" cy="14" r="5" fill="#fff"/></svg>`,
-        iconSize: [28, 40],
-        iconAnchor: [14, 40],
-        popupAnchor: [0, -42],
-    });
-}
-
-function createClusterIcon(count, color) {
-    return L.divIcon({
-        className: "",
-        html: `<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="16" fill="${color}" fill-opacity="0.2" stroke="${color}" stroke-width="2"/><circle cx="18" cy="18" r="10" fill="${color}"/><text x="18" y="22" text-anchor="middle" fill="#fff" font-family="'Public Sans',sans-serif" font-weight="700" font-size="11">${count}</text></svg>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -18],
-    });
-}
-
-function hasRegionFilter(filters) {
-    return !!(
-        filters.provinsi ||
-        filters.kabupaten ||
-        filters.kecamatan ||
-        filters.kelurahan
-    );
-}
-
-function flyToSchool(lat, lng, schoolId) {
-    pendingPopupSchoolId = schoolId;
-    map.flyTo([lat, lng], 16);
-}
-
-function syncMarkersToZoom() {
-    if (!map) return;
-    const zoom = map.getZoom();
-    const filtered = filterSchools(currentFilters);
-    if (zoom >= 7) {
-        renderMarkers(filtered);
-    } else {
-        renderAggregatedMarkers(filtered);
-    }
-}
-
-function renderAggregatedMarkers(schools) {
-    markersLayer.clearLayers();
+function renderMarkers(schoolsList) {
+    clusterGroup.clearLayers();
     markerRefs.clear();
+    for (let i = 0; i < schoolsList.length; i++) {
+        const s = schoolsList[i];
+        const color = JENJANG_COLORS[s.jenjang] || "#6B7280";
+        const marker = L.marker([s.lat, s.lng], {
+            icon: createMarkerIcon(color),
+        });
+        marker.bindPopup(buildPopupContent(s), {
+            autoPan: true,
+            autoPanPadding: [50, 50],
+        });
+        markerRefs.set(s.id, marker);
+        marker.on("click", () => openSchoolDetail(s));
+        clusterGroup.addLayer(marker);
+    }
+    updateInfoBadge();
+}
+
+function renderAggregatedMarkers(schoolsList) {
+    aggregatedLayer.clearLayers();
+    markerRefs.clear();
+
     const groups = {};
-    schools.forEach((s) => {
+    for (let i = 0; i < schoolsList.length; i++) {
+        const s = schoolsList[i];
         const key = s.provinsi;
-        if (!groups[key])
-            groups[key] = { schools: [], lat: 0, lng: 0, count: 0 };
-        groups[key].schools.push(s);
+        if (!groups[key]) {
+            groups[key] = { lat: 0, lng: 0, count: 0, jenjang: {} };
+        }
         groups[key].lat += s.lat;
         groups[key].lng += s.lng;
         groups[key].count++;
-    });
+        groups[key].jenjang[s.jenjang] =
+            (groups[key].jenjang[s.jenjang] || 0) + 1;
+    }
+
     const jenjangColorPool = [
         "#EF4444",
         "#3B82F6",
@@ -211,68 +322,41 @@ function renderAggregatedMarkers(schools) {
         "#F97316",
         "#0D9296",
     ];
-    Object.keys(groups).forEach((prov, i) => {
+    const groupKeys = Object.keys(groups);
+    for (let i = 0; i < groupKeys.length; i++) {
+        const prov = groupKeys[i];
         const g = groups[prov];
         const avgLat = g.lat / g.count;
         const avgLng = g.lng / g.count;
         const color = jenjangColorPool[i % jenjangColorPool.length];
+
         const marker = L.marker([avgLat, avgLng], {
-            icon: createClusterIcon(g.count, color),
+            icon: createMarkerIcon(color),
         });
-        const jenjangCounts = {};
-        g.schools.forEach((s) => {
-            jenjangCounts[s.jenjang] = (jenjangCounts[s.jenjang] || 0) + 1;
-        });
-        const detail = Object.entries(jenjangCounts)
+
+        const detail = Object.entries(g.jenjang)
             .map(([j, c]) => `${j}: ${c}`)
             .join(" &middot; ");
-        marker.bindPopup(`
-            <div style="font-family:'Public Sans',sans-serif;min-width:160px;">
+        marker.bindPopup(
+            `<div style="font-family:'Public Sans',sans-serif;min-width:160px;">
                 <strong style="font-size:1rem;color:#1A1C1E;">${prov}</strong>
                 <div style="margin:6px 0;font-size:0.85rem;color:#4b5563;">${detail}</div>
                 <div style="font-size:0.85rem;color:#0D9296;font-weight:600;">Total: ${g.count} sekolah</div>
-            </div>
-        `);
-        markersLayer.addLayer(marker);
-    });
+            </div>`,
+            { autoPan: true, autoPanPadding: [50, 50] },
+        );
+        aggregatedLayer.addLayer(marker);
+    }
+    updateInfoBadge();
 }
 
-function renderMarkers(schools) {
-    markersLayer.clearLayers();
-    markerRefs.clear();
-    schools.forEach((s) => {
-        const color = JENJANG_COLORS[s.jenjang] || "#6B7280";
-        const marker = L.marker([s.lat, s.lng], {
-            icon: createMarkerIcon(color),
-        });
-        marker.bindPopup(`
-            <div style="font-family:'Public Sans',sans-serif;min-width:180px;">
-                <strong style="font-size:1rem;color:#1A1C1E;">${s.nama}</strong>
-                <div style="margin:6px 0;font-size:0.85rem;color:#4b5563;">
-                    ${s.jenjang} &middot; ${s.status}
-                </div>
-                <div style="font-size:0.85rem;color:#4b5563;">
-                    ${s.kelurahan}, ${s.kecamatan}
-                </div>
-                <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:0.85rem;">
-                    <span>Murid Aktif:</span>
-                    <strong style="color:#0D9296;">${s.murid.toLocaleString()}</strong>
-                </div>
-            </div>
-        `);
-        markerRefs.set(s.id, marker);
-        marker.on("click", () => openSchoolDetail(s));
-        markersLayer.addLayer(marker);
-    });
-}
-
-function updateStatCards(schools) {
+function updateStatCards(schoolsList) {
     const totalSekolah = document.getElementById("total-sekolah");
     const totalMurid = document.getElementById("total-murid");
     if (totalSekolah)
-        totalSekolah.textContent = schools.length.toLocaleString();
+        totalSekolah.textContent = schoolsList.length.toLocaleString();
     if (totalMurid)
-        totalMurid.textContent = schools
+        totalMurid.textContent = schoolsList
             .reduce((sum, s) => sum + s.murid, 0)
             .toLocaleString();
 }
@@ -336,12 +420,12 @@ function initSiswaChart(totalMurid) {
     const legendContainer = document.getElementById("chart-legend");
     if (legendContainer) {
         legendContainer.innerHTML = "";
-        labels.forEach((label, i) => {
+        for (let i = 0; i < labels.length; i++) {
             const row = document.createElement("div");
             row.className = "legend-row";
-            row.innerHTML = `<span class="legend-dot" style="background:${colors[i]};"></span> ${label} - <strong>${values[i].toLocaleString()}</strong>`;
+            row.innerHTML = `<span class="legend-dot" style="background:${colors[i]};"></span> ${labels[i]} - <strong>${values[i].toLocaleString()}</strong>`;
             legendContainer.appendChild(row);
-        });
+        }
     }
 }
 
@@ -378,11 +462,57 @@ function openSchoolDetail(school) {
     document.getElementById("school-detail-overlay").classList.add("open");
     setSidebarState("detail");
     initSiswaChart(school.murid);
+
+    if (!hasRegionFilter(currentFilters)) {
+        detailLayer.clearLayers();
+        const color = JENJANG_COLORS[school.jenjang] || "#6B7280";
+        const marker = L.marker([school.lat, school.lng], {
+            icon: createMarkerIcon(color),
+        });
+        marker.bindPopup(buildPopupContent(school), {
+            autoPan: true,
+            autoPanPadding: [50, 50],
+        });
+        marker.on("click", () => openSchoolDetail(school));
+        detailLayer.addLayer(marker);
+        _detailMarkerSchoolId = school.id;
+        pendingPopupSchoolId = null;
+        map.flyTo([school.lat, school.lng], 16);
+        setTimeout(() => marker.openPopup(), 400);
+    } else {
+        _detailMarkerSchoolId = null;
+        pendingPopupSchoolId = school.id;
+        map.flyTo([school.lat, school.lng], 16);
+    }
+
+    updateInfoBadge();
 }
 
 function closeSchoolDetail() {
     document.getElementById("school-detail-overlay").classList.remove("open");
     setSidebarState("default");
+
+    if (_detailMarkerSchoolId !== null) {
+        detailLayer.clearLayers();
+        _detailMarkerSchoolId = null;
+    }
+    pendingPopupSchoolId = null;
+
+    updateInfoBadge();
+}
+
+function updateInfoBadge() {
+    const badge = document.getElementById("map-info-badge");
+    if (!badge) return;
+    const isDetailOpen = document
+        .getElementById("school-detail-overlay")
+        .classList.contains("open");
+    const hasFilter = hasRegionFilter(currentFilters);
+    if (isDetailOpen || hasFilter) {
+        badge.classList.add("hidden");
+    } else {
+        badge.classList.remove("hidden");
+    }
 }
 
 function updateLegend(filteredJenjang) {
@@ -393,31 +523,6 @@ function updateLegend(filteredJenjang) {
         } else {
             el.style.display = jenjang === filteredJenjang ? "flex" : "none";
         }
-    });
-}
-
-function filterSchools(filters) {
-    return schools.filter((s) => {
-        if (
-            filters.jenjang &&
-            filters.jenjang !== "Semua" &&
-            s.jenjang !== filters.jenjang
-        )
-            return false;
-        if (
-            filters.status &&
-            filters.status !== "Semua" &&
-            s.status !== filters.status
-        )
-            return false;
-        if (filters.provinsi && s.provinsi !== filters.provinsi) return false;
-        if (filters.kabupaten && s.kabupaten !== filters.kabupaten)
-            return false;
-        if (filters.kecamatan && s.kecamatan !== filters.kecamatan)
-            return false;
-        if (filters.kelurahan && s.kelurahan !== filters.kelurahan)
-            return false;
-        return true;
     });
 }
 
@@ -432,14 +537,12 @@ function populateSelect(selectId, options, placeholder) {
     });
 }
 
-function updateCascading(prov, kab, kec) {
+function updateCascading(prov, kab) {
     const kabSel = document.getElementById("filter-kabupaten");
     const kecSel = document.getElementById("filter-kecamatan");
-    const kelSel = document.getElementById("filter-kelurahan");
 
     kabSel.innerHTML = '<option value="">Pilih Kabupaten/Kota</option>';
     kecSel.innerHTML = '<option value="">Pilih Kecamatan</option>';
-    kelSel.innerHTML = '<option value="">Pilih Kelurahan</option>';
 
     if (prov && regionTree[prov]) {
         const kabList = Object.keys(regionTree[prov]).sort();
@@ -451,23 +554,13 @@ function updateCascading(prov, kab, kec) {
         });
         if (kab && regionTree[prov][kab]) {
             kabSel.value = kab;
-            const kecList = Object.keys(regionTree[prov][kab]).sort();
+            const kecList = regionTree[prov][kab];
             kecList.forEach((k) => {
                 const opt = document.createElement("option");
                 opt.value = k;
                 opt.textContent = k;
                 kecSel.appendChild(opt);
             });
-            if (kec && regionTree[prov][kab][kec]) {
-                kecSel.value = kec;
-                const kelList = regionTree[prov][kab][kec];
-                kelList.forEach((k) => {
-                    const opt = document.createElement("option");
-                    opt.value = k;
-                    opt.textContent = k;
-                    kelSel.appendChild(opt);
-                });
-            }
         }
     }
 }
@@ -488,19 +581,17 @@ function setupFilters() {
     document
         .getElementById("filter-provinsi")
         .addEventListener("change", function () {
-            updateCascading(this.value, "", "");
+            updateCascading(this.value, "");
             document.getElementById("filter-kabupaten").value = "";
             document.getElementById("filter-kecamatan").value = "";
-            document.getElementById("filter-kelurahan").value = "";
         });
 
     document
         .getElementById("filter-kabupaten")
         .addEventListener("change", function () {
             const prov = document.getElementById("filter-provinsi").value;
-            updateCascading(prov, this.value, "");
+            updateCascading(prov, this.value);
             document.getElementById("filter-kecamatan").value = "";
-            document.getElementById("filter-kelurahan").value = "";
         });
 
     document
@@ -508,8 +599,7 @@ function setupFilters() {
         .addEventListener("change", function () {
             const prov = document.getElementById("filter-provinsi").value;
             const kab = document.getElementById("filter-kabupaten").value;
-            updateCascading(prov, kab, this.value);
-            document.getElementById("filter-kelurahan").value = "";
+            updateCascading(prov, kab);
         });
 
     document
@@ -520,15 +610,36 @@ function setupFilters() {
         .addEventListener("click", resetFilters);
 }
 
+function setSidebarState(state) {
+    const filters = document.getElementById("sidebar-filters");
+    const tableComponent = document.getElementById("table-component");
+    const rightSidebar = document.getElementById("right-sidebar");
+    const sidebarSlot = document.getElementById("sidebar-table-slot");
+
+    if (state === "default") {
+        rightSidebar.appendChild(tableComponent);
+        filters.classList.remove("hidden");
+        rightSidebar.classList.remove("hidden");
+    } else {
+        sidebarSlot.appendChild(tableComponent);
+        filters.classList.add("hidden");
+        rightSidebar.classList.add("hidden");
+    }
+    sidebarState = state;
+}
+
 function applyFilters() {
     closeSchoolDetail();
+    invalidateFilterCache();
+    detailLayer.clearLayers();
+    _detailMarkerSchoolId = null;
+
     const filters = {
         jenjang: document.getElementById("filter-jenjang").value,
         status: document.getElementById("filter-status").value,
         provinsi: document.getElementById("filter-provinsi").value,
         kabupaten: document.getElementById("filter-kabupaten").value,
         kecamatan: document.getElementById("filter-kecamatan").value,
-        kelurahan: document.getElementById("filter-kelurahan").value,
     };
 
     currentFilters = Object.fromEntries(
@@ -551,6 +662,7 @@ function applyFilters() {
         renderAggregatedMarkers(filtered);
         map.setView([-2.5, 118.0], 5);
     }
+
     updateStatCards(filtered);
     updateLegend(filters.jenjang);
     renderTable(filtered);
@@ -558,6 +670,8 @@ function applyFilters() {
 
 function resetFilters() {
     closeSchoolDetail();
+    invalidateFilterCache();
+
     document.getElementById("filter-jenjang").value = "";
     document.getElementById("filter-status").value = "";
     document.getElementById("filter-provinsi").value = "";
@@ -565,11 +679,13 @@ function resetFilters() {
         '<option value="">Pilih Kabupaten/Kota</option>';
     document.getElementById("filter-kecamatan").innerHTML =
         '<option value="">Pilih Kecamatan</option>';
-    document.getElementById("filter-kelurahan").innerHTML =
-        '<option value="">Pilih Kelurahan</option>';
 
     currentFilters = {};
     pendingPopupSchoolId = null;
+
+    clusterGroup.clearLayers();
+    detailLayer.clearLayers();
+    _detailMarkerSchoolId = null;
     renderAggregatedMarkers(schools);
     updateStatCards(schools);
     updateLegend("Semua");
@@ -585,22 +701,20 @@ function renderTable(schoolsList) {
         ? schoolsList.filter((s) => s.nama.toLowerCase().includes(searchQuery))
         : schoolsList;
 
-    const itemsPerPage = 50;
-    let currentPage = 1;
-
     function paginate(page) {
-        currentPage = page;
         const totalPages = Math.max(
             1,
-            Math.ceil(filtered.length / itemsPerPage),
+            Math.ceil(filtered.length / TABLE_PAGE_SIZE),
         );
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
+        const start = (page - 1) * TABLE_PAGE_SIZE;
+        const end = start + TABLE_PAGE_SIZE;
         const pageData = filtered.slice(start, end);
 
         const tbody = document.getElementById("table-body");
-        tbody.innerHTML = "";
-        pageData.forEach((s) => {
+        const fragment = document.createDocumentFragment();
+
+        for (let i = 0; i < pageData.length; i++) {
+            const s = pageData[i];
             const tr = document.createElement("tr");
             tr.style.cursor = "pointer";
             tr.dataset.id = s.id;
@@ -616,11 +730,13 @@ function renderTable(schoolsList) {
                 <td style="text-align:right;font-weight:600;">${s.murid.toLocaleString()}</td>
             `;
             tr.addEventListener("click", () => {
-                flyToSchool(s.lat, s.lng, s.id);
                 openSchoolDetail(s);
             });
-            tbody.appendChild(tr);
-        });
+            fragment.appendChild(tr);
+        }
+
+        tbody.innerHTML = "";
+        tbody.appendChild(fragment);
 
         document.getElementById("result-count").textContent = filtered.length;
         renderPagination(page, totalPages, paginate);
@@ -633,13 +749,14 @@ function renderPagination(current, total, callback) {
     const container = document.getElementById("pagination");
     container.innerHTML = "";
 
+    const fragment = document.createDocumentFragment();
+
     const prevBtn = document.createElement("button");
-    prevBtn.textContent = "←";
+    prevBtn.textContent = "\u2190";
     prevBtn.disabled = current <= 1;
     prevBtn.addEventListener("click", () => callback(current - 1));
-    container.appendChild(prevBtn);
+    fragment.appendChild(prevBtn);
 
-    // Batasi nomor halaman yang ditampilkan supaya tidak ratusan tombol sekaligus
     const maxButtons = 7;
     let startPage = Math.max(1, current - Math.floor(maxButtons / 2));
     let endPage = Math.min(total, startPage + maxButtons - 1);
@@ -651,12 +768,12 @@ function renderPagination(current, total, callback) {
         const firstBtn = document.createElement("button");
         firstBtn.textContent = "1";
         firstBtn.addEventListener("click", () => callback(1));
-        container.appendChild(firstBtn);
+        fragment.appendChild(firstBtn);
         if (startPage > 2) {
             const dots = document.createElement("span");
             dots.textContent = "...";
             dots.className = "pagination__dots";
-            container.appendChild(dots);
+            fragment.appendChild(dots);
         }
     }
 
@@ -665,7 +782,7 @@ function renderPagination(current, total, callback) {
         btn.textContent = i;
         if (i === current) btn.classList.add("active");
         btn.addEventListener("click", () => callback(i));
-        container.appendChild(btn);
+        fragment.appendChild(btn);
     }
 
     if (endPage < total) {
@@ -673,31 +790,37 @@ function renderPagination(current, total, callback) {
             const dots = document.createElement("span");
             dots.textContent = "...";
             dots.className = "pagination__dots";
-            container.appendChild(dots);
+            fragment.appendChild(dots);
         }
         const lastBtn = document.createElement("button");
         lastBtn.textContent = total;
         lastBtn.addEventListener("click", () => callback(total));
-        container.appendChild(lastBtn);
+        fragment.appendChild(lastBtn);
     }
 
     const nextBtn = document.createElement("button");
-    nextBtn.textContent = "→";
+    nextBtn.textContent = "\u2192";
     nextBtn.disabled = current >= total;
     nextBtn.addEventListener("click", () => callback(current + 1));
-    container.appendChild(nextBtn);
+    fragment.appendChild(nextBtn);
 
     const info = document.createElement("span");
     info.className = "pagination__info";
     info.textContent = `Halaman ${current} dari ${total}`;
-    container.appendChild(info);
+    fragment.appendChild(info);
+
+    container.appendChild(fragment);
 }
 
 function setupTableSearch() {
-    document.getElementById("table-search").addEventListener("input", () => {
-        const filtered = filterSchools(currentFilters);
-        renderTable(filtered);
-    });
+    const searchInput = document.getElementById("table-search");
+    searchInput.addEventListener(
+        "input",
+        debounce(() => {
+            const filtered = filterSchools(currentFilters);
+            renderTable(filtered);
+        }, SEARCH_DEBOUNCE_MS),
+    );
 }
 
 function setupPanelClose() {
@@ -726,7 +849,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 150);
     });
 
-    // Tampilkan status loading di dropdown & counter selama data dimuat
     const resultCount = document.getElementById("result-count");
     if (resultCount) resultCount.textContent = "...";
     populateSelect("filter-jenjang", [], "Memuat data...");

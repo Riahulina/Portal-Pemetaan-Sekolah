@@ -62,12 +62,6 @@
                         <option value="">Pilih Kecamatan</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label for="filter-kelurahan">Pilih Kelurahan</label>
-                    <select id="filter-kelurahan">
-                        <option value="">Pilih Kelurahan</option>
-                    </select>
-                </div>
                 <button id="btn-terapkan" class="btn-apply">Terapkan Filter</button>
                 <button id="btn-reset" class="btn-reset">Reset</button>
                 <a href="/"> <button class="btn-back">Back Home</button></a>
@@ -138,6 +132,14 @@
 
                     <div id="map-wrapper">
                         <div id="map"></div>
+                        <div id="map-info-badge" class="map-info-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="16" x2="12" y2="12"/>
+                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            <span>Terapkan filter wilayah untuk melihat sebaran titik sekolah</span>
+                        </div>
                     </div>
 
                     <div id="legend-bar">
