@@ -894,6 +894,89 @@
     height: 18px;
 }
 
+/* === DATA WARNING CARD === */
+
+.data-warning-card {
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.data-warning-card.hidden {
+    display: none;
+}
+
+.data-warning-card__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #fecaca;
+    background: #fef2f2;
+}
+
+.data-warning-card__title {
+    font-family: var(--font-space-grotesk);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.data-warning-card__body {
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.data-warning-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.data-warning-row__label {
+    font-family: var(--font-public-sans);
+    font-size: 0.78rem;
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.data-warning-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-family: var(--font-space-grotesk);
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.data-warning-badge--red {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.data-warning-badge--orange {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.data-warning-badge--green {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.data-warning-card__footer {
+    padding: 8px 14px;
+    border-top: 1px solid #fecaca;
+    background: #fef2f2;
+    font-family: var(--font-public-sans);
+    font-size: 0.7rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
 /* Right col - school photo */
 .detail-panel__col--right {
     min-height: 0;

@@ -232,19 +232,41 @@
                                     <span id="panel-email">-</span>
                                 </div>
                             </div>
-                            <div class="detail-panel__social">
-                                <a href="#" id="panel-ig" class="social-icon-link" target="_blank"
-                                    rel="noopener">
+                            <div id="social-media-section" class="detail-panel__social hidden">
+                                <a href="#" id="btn-sosmed-ig" class="social-icon-link hidden" target="_blank"
+                                    rel="noopener noreferrer">
                                     <img src="{{ asset('assets/iconig.png') }}" alt="Instagram">
                                 </a>
-                                <a href="#" id="panel-fb" class="social-icon-link" target="_blank"
-                                    rel="noopener">
+                                <a href="#" id="btn-sosmed-fb" class="social-icon-link hidden" target="_blank"
+                                    rel="noopener noreferrer">
                                     <img src="{{ asset('assets/iconfb.png') }}" alt="Facebook">
                                 </a>
-                                <a href="#" id="panel-tiktok" class="social-icon-link" target="_blank"
-                                    rel="noopener">
+                                <a href="#" id="btn-sosmed-tiktok" class="social-icon-link hidden" target="_blank"
+                                    rel="noopener noreferrer">
                                     <img src="{{ asset('assets/icontiktok.png') }}" alt="TikTok">
                                 </a>
+                                <a href="#" id="btn-sosmed-web" class="social-icon-link hidden" target="_blank"
+                                    rel="noopener noreferrer" title="Kunjungi Website">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="2" y1="12" x2="22" y2="12"/>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                    </svg>
+                                </a>
+                            </div>
+
+                            <div id="data-warning-card" class="data-warning-card hidden">
+                                <div class="data-warning-card__header">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                    </svg>
+                                    <span class="data-warning-card__title">Pemberitahuan Data</span>
+                                </div>
+                                <div class="data-warning-card__body" id="data-warning-body"></div>
+                                <div class="data-warning-card__footer">
+                                    Silahkan hubungi admin atau pihak sekolah untuk melengkapi data yang kurang.
+                                </div>
                             </div>
                         </div>
                         <div class="detail-panel__col detail-panel__col--right">

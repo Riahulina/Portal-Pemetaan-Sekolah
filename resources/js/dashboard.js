@@ -108,6 +108,7 @@ function mapSekolahRecord(row) {
         lng: parseFloat(row.longitude),
         telepon: row.no_telepon || "-",
         email: row.email || "-",
+        social_media: row.social_media || "",
         ig: social.instagram || "#",
         fb: social.facebook || "#",
         tiktok: social.tiktok || "#",
@@ -447,9 +448,75 @@ function openSchoolDetail(school) {
     document.getElementById("panel-telepon").textContent = school.telepon;
     document.getElementById("panel-email").textContent = school.email;
 
-    document.getElementById("panel-ig").href = school.ig;
-    document.getElementById("panel-fb").href = school.fb;
-    document.getElementById("panel-tiktok").href = school.tiktok;
+    const sosmedSection = document.getElementById("social-media-section");
+    if (sosmedSection) sosmedSection.style.display = "none";
+    ["btn-sosmed-ig", "btn-sosmed-fb", "btn-sosmed-tiktok", "btn-sosmed-web"].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.style.display = "none";
+    });
+
+    const urlRegex = /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/.*)?$/i;
+    const rawUrl = (school.social_media || school.ig || school.fb || school.tiktok || "").trim();
+    const isSosmedEmpty = !rawUrl || !urlRegex.test(rawUrl);
+
+    if (!isSosmedEmpty) {
+        let cleanedUrl = rawUrl;
+        if (!/^https?:\/\//i.test(cleanedUrl)) {
+            cleanedUrl = "https://" + cleanedUrl;
+        }
+
+        const lower = cleanedUrl.toLowerCase();
+        if (sosmedSection) sosmedSection.style.display = "flex";
+
+        if (lower.includes("instagram.com")) {
+            const btn = document.getElementById("btn-sosmed-ig");
+            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+        } else if (lower.includes("facebook.com") || lower.includes("fb.com")) {
+            const btn = document.getElementById("btn-sosmed-fb");
+            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+        } else if (lower.includes("tiktok.com")) {
+            const btn = document.getElementById("btn-sosmed-tiktok");
+            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+        } else {
+            const btn = document.getElementById("btn-sosmed-web");
+            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+        }
+    }
+
+    const warningCard = document.getElementById("data-warning-card");
+    const warningBody = document.getElementById("data-warning-body");
+
+    const isPhoneEmpty = !school.telepon || school.telepon === "-" || school.telepon === "" || school.telepon === null || school.telepon === undefined;
+    const isEmailEmpty = !school.email || school.email === "-" || school.email === "" || school.email === null || school.email === undefined;
+    const isMuridIncomplete = !school.murid || school.murid === null || school.murid === undefined || school.murid <= 2;
+    const isKoordinatEmpty = !school.lat || !school.lng || isNaN(school.lat) || isNaN(school.lng);
+
+    const hasIncompleteData = isPhoneEmpty || isEmailEmpty || isMuridIncomplete || isKoordinatEmpty || isSosmedEmpty;
+
+    if (hasIncompleteData) {
+        warningCard.classList.remove("hidden");
+        let rows = "";
+        if (isPhoneEmpty) {
+            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Nomor Telepon</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+        }
+        if (isEmailEmpty) {
+            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Email</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+        }
+        if (isMuridIncomplete) {
+            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Jumlah Siswa</span><span class="data-warning-badge data-warning-badge--orange">Belum Lengkap</span></div>`;
+        }
+        if (isKoordinatEmpty) {
+            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Titik Koordinat</span><span class="data-warning-badge data-warning-badge--orange">Belum Terdaftar</span></div>`;
+        }
+        if (isSosmedEmpty) {
+            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Media Sosial</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+        }
+        rows += `<div class="data-warning-row"><span class="data-warning-row__label">Status Sekolah</span><span class="data-warning-badge data-warning-badge--green">Terverifikasi</span></div>`;
+        warningBody.innerHTML = rows;
+    } else {
+        warningCard.classList.add("hidden");
+        warningBody.innerHTML = "";
+    }
 
     const gmapsBtn = document.getElementById("btn-gmaps");
     gmapsBtn.onclick = () => {
@@ -491,6 +558,11 @@ function openSchoolDetail(school) {
 function closeSchoolDetail() {
     document.getElementById("school-detail-overlay").classList.remove("open");
     setSidebarState("default");
+
+    const warningCard = document.getElementById("data-warning-card");
+    const warningBody = document.getElementById("data-warning-body");
+    if (warningCard) warningCard.classList.add("hidden");
+    if (warningBody) warningBody.innerHTML = "";
 
     if (_detailMarkerSchoolId !== null) {
         detailLayer.clearLayers();
