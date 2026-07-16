@@ -11,6 +11,7 @@
 
     <!-- 2. Baru kemudian file CSS kamu sendiri di bawahnya -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth-custom.css') }}">
 </head>
 
 <body>
