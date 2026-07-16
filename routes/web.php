@@ -9,6 +9,8 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-});
+})->name('dashboard');
 
 Route::get('/api/sekolah', [SekolahController::class, 'index']);
+
+require __DIR__.'/auth.php';
