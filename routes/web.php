@@ -11,38 +11,63 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('landing');
+})->name('landing');
+
+
+/*
+|--------------------------------------------------------------------------
+| 2. Rute Terproteksi Auth (User Harus Login)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // --- DASHBOARD GROUP ---
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::get('/user/dashboard', function () {
+        return view('User.dashboardUser');
+    })->name('dashboard.user');
+
+    // --- MANAJEMEN DATA SEKOLAH USER ---
+    // A. Halaman TABEL Daftar Sekolah Saya
+    Route::get('/sekolah-saya', [SekolahController::class, 'index'])->name('sekolah.index');
+
+    // B. Halaman FORMULIR Pendaftaran Sekolah
+    Route::get('/user/Form', function () {
+        return view('User.Form');
+    })->name('Form.user');
+
+    // C. PROSES SIMPAN Data Form ke Database (POST) -> Disinkronkan ke sekolah.store
+    Route::post('/user/form/store', [SekolahController::class, 'store'])->name('sekolah.store');
+
+    // D. Halaman STATUS STEPPER Verifikasi
+    Route::get('/user/status-verifikasi', [SekolahController::class, 'statusVerifikasi'])->name('status.user');
+
+    // E. Halaman Form Edit (Menampilkan data lama)
+    Route::get('/sekolah/edit/{id}', [SekolahController::class, 'edit'])->name('sekolah.edit');
+
+    // F. Proses Simpan Perubahan Data (PUT/PATCH)
+    Route::put('/sekolah/update/{id}', [SekolahController::class, 'update'])->name('sekolah.update');
+
+    // G. Proses Hapus Data Pengajuan (DELETE)
+    Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
 });
 
-/*
-|--------------------------------------------------------------------------
-| 2. Dashboard Default / Utama (File dashboard.blade.php)
-|--------------------------------------------------------------------------
-*/
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
-| 3. Dashboard Khusus User (File User/dashboardUser.blade.php)
+| 3. Rute API Data JSON Peta
 |--------------------------------------------------------------------------
 */
-Route::get('/user/dashboard', function () {
-    return view('User.dashboardUser');
-})->middleware(['auth', 'verified'])->name('dashboard.user');
+// Mengambil data spasial utama untuk peta (membaca dari method apiPeta)
+Route::get('/api/sekolah', [SekolahController::class, 'apiPeta'])->name('sekolah.api');
 
-
-Route::get('/user/Form', function () {
-    return view('User.Form');
-})->middleware(['auth', 'verified'])->name('Form.user');
 
 /*
 |--------------------------------------------------------------------------
-| 4. Rute API / Data Sekolah
+| 4. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-Route::get('/api/sekolah', [SekolahController::class, 'index']);
-
-
-// Rute Autentikasi bawaan Laravel (Login, Register, Logout, dll)
 require __DIR__ . '/auth.php';
