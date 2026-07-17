@@ -50,6 +50,14 @@
                         <x-input-error :messages="$errors->get('email')" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
                     </div>
 
+                    <!-- Nomor Telepon -->
+                    <div class="auth-form-group">
+                        <label for="phone_number" class="auth-label">Nomor Telepon</label>
+                        <input id="phone_number" type="tel" name="phone_number" value="{{ old('phone_number') }}" required
+                            class="auth-input" placeholder="Nomor Telepon">
+                        <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
+                    </div>
+
                     <!-- Password -->
                     <div class="auth-form-group">
                         <label for="password" class="auth-label">Password</label>
@@ -58,6 +66,16 @@
                                 placeholder="Password">
                         </div>
                         <x-input-error :messages="$errors->get('password')" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
+                    </div>
+
+                    <!-- Konfirmasi Password -->
+                    <div class="auth-form-group">
+                        <label for="password_confirmation" class="auth-label">Konfirmasi Password</label>
+                        <div class="auth-input-wrapper">
+                            <input id="password_confirmation" type="password" name="password_confirmation" required class="auth-input"
+                                placeholder="Ulangi Password">
+                        </div>
+                        <x-input-error :messages="$errors->get('password_confirmation')" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
                     </div>
 
                     <!-- Tombol Register (Pendek & Di Tengah) -->
@@ -74,7 +92,7 @@
 
                     <!-- Tombol Google Lonjong -->
                     <div class="auth-btn-google-container">
-                        <a href="#" class="auth-btn-google">
+                        <a href="{{ route('google.redirect') }}" class="auth-btn-google">
                             <!-- Icon Google Putih -->
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                 <path

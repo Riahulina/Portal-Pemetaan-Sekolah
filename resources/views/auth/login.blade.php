@@ -71,7 +71,7 @@
 
                     <!-- Tombol Google Lonjong -->
                     <div class="auth-btn-google-container">
-                        <a href="#" class="auth-btn-google">
+                        <a href="{{ route('google.redirect') }}" class="auth-btn-google">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                 <path
                                     d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.227C18.26 1.76 15.44 1 12.24 1 6.18 1 1.25 5.93 1.25 12s4.93 11 10.99 11c6.32 0 10.53-4.43 10.53-10.72 0-.72-.08-1.27-.17-1.71h-10.36z"
