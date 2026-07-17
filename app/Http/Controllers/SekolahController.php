@@ -6,6 +6,7 @@ use App\Models\Sekolah;
 use App\Models\SekolahTemporary; // Panggil model temporary baru di sini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class SekolahController extends Controller
 {
@@ -27,8 +28,10 @@ class SekolahController extends Controller
     public function apiPeta()
     {
         set_time_limit(300);
-        $sekolah = Sekolah::select('npsn', 'nama_sekolah', 'jenjang', 'status', 'provinsi', 'kabupaten_kota', 'kecamatan', 'kelurahan', 'alamat', 'latitude', 'longitude', 'no_telepon', 'email', 'social_media', 'total_siswa')
-            ->whereNotNull('latitude')->whereNotNull('longitude')->get();
+        $sekolah = Cache::remember('sekolah_map_data', now()->addHours(4), function () {
+            return Sekolah::select('npsn', 'nama_sekolah', 'jenjang', 'status', 'provinsi', 'kabupaten_kota', 'kecamatan', 'kelurahan', 'alamat', 'latitude', 'longitude', 'no_telepon', 'email', 'social_media', 'total_siswa')
+                ->whereNotNull('latitude')->whereNotNull('longitude')->get();
+        });
 
         return response()->json($sekolah);
     }
@@ -39,28 +42,28 @@ class SekolahController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'npsn'         => 'required|string|max:10',
+            'npsn' => 'required|string|max:10',
             'nama_sekolah' => 'required|string|max:150',
         ]);
 
         // Simpan ke tabel sekolah_temporary
         SekolahTemporary::create([
-            'user_id'           => Auth::id(),
-            'npsn'              => $request->npsn,
-            'nama_sekolah'      => $request->nama_sekolah,
-            'jenjang'           => $request->jenjang,
-            'status'            => $request->status,
-            'provinsi'          => $request->provinsi,
-            'kabupaten_kota'    => $request->kabupaten_kota,
-            'kecamatan'         => $request->kecamatan,
-            'kelurahan'         => $request->kelurahan ?? null, // Diantisipasi jika kelurahan kosong/null
-            'alamat'            => $request->alamat,
-            'latitude'          => $request->latitude,
-            'longitude'         => $request->longitude,
-            'no_telepon'        => $request->no_telepon,
-            'email'             => $request->email,
-            'social_media'      => $request->social_media,
-            'total_siswa'       => $request->total_siswa ?? 0,
+            'user_id' => Auth::id(),
+            'npsn' => $request->npsn,
+            'nama_sekolah' => $request->nama_sekolah,
+            'jenjang' => $request->jenjang,
+            'status' => $request->status,
+            'provinsi' => $request->provinsi,
+            'kabupaten_kota' => $request->kabupaten_kota,
+            'kecamatan' => $request->kecamatan,
+            'kelurahan' => $request->kelurahan ?? null, // Diantisipasi jika kelurahan kosong/null
+            'alamat' => $request->alamat,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'no_telepon' => $request->no_telepon,
+            'email' => $request->email,
+            'social_media' => $request->social_media,
+            'total_siswa' => $request->total_siswa ?? 0,
             'status_verifikasi' => 'pending', // Awal pendaftaran otomatis berstatus pending
         ]);
 
@@ -94,27 +97,27 @@ class SekolahController extends Controller
         $sekolah = SekolahTemporary::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
         $request->validate([
-            'npsn'         => 'required|string|max:10',
+            'npsn' => 'required|string|max:10',
             'nama_sekolah' => 'required|string|max:150',
         ]);
 
         // Update data dengan nilai baru dari form
         $sekolah->update([
-            'npsn'           => $request->npsn,
-            'nama_sekolah'   => $request->nama_sekolah,
-            'jenjang'        => $request->jenjang,
-            'status'         => $request->status,
-            'provinsi'       => $request->provinsi,
+            'npsn' => $request->npsn,
+            'nama_sekolah' => $request->nama_sekolah,
+            'jenjang' => $request->jenjang,
+            'status' => $request->status,
+            'provinsi' => $request->provinsi,
             'kabupaten_kota' => $request->kabupaten_kota,
-            'kecamatan'      => $request->kecamatan,
-            'kelurahan'      => $request->kelurahan ?? null,
-            'alamat'         => $request->alamat,
-            'latitude'       => $request->latitude,
-            'longitude'      => $request->longitude,
-            'no_telepon'     => $request->no_telepon,
-            'email'          => $request->email,
-            'social_media'   => $request->social_media,
-            'total_siswa'    => $request->total_siswa ?? 0,
+            'kecamatan' => $request->kecamatan,
+            'kelurahan' => $request->kelurahan ?? null,
+            'alamat' => $request->alamat,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'no_telepon' => $request->no_telepon,
+            'email' => $request->email,
+            'social_media' => $request->social_media,
+            'total_siswa' => $request->total_siswa ?? 0,
             'status_verifikasi' => 'pending', // Set kembali ke pending jika user mengubah data
         ]);
 
