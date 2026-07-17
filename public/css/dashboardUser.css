@@ -1,0 +1,308 @@
+/* public/css/dashboard.css */
+body {
+    background-color: #f8fafc;
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Dashboard Layout */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem 1.5rem;
+    box-sizing: border-box;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 1rem;
+    color: #475569;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+}
+
+.sidebar-item:hover,
+.sidebar-item.active {
+    background-color: #e0f2f1; /* Hijau toska muda */
+    color: #0d9488; /* Toska tua */
+    font-weight: 600;
+}
+
+.sidebar-logout {
+    color: #ef4444;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1.5rem;
+}
+
+/* Main Content Wrapper */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header/Navbar di atas */
+.dashboard-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo {
+    height: 40px;
+}
+
+.brand-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0d9488;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-initial {
+    width: 38px;
+    height: 38px;
+    background-color: #0d9488;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.username {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.9rem;
+}
+
+/* Area Isi Konten */
+.content-body {
+    padding: 2.5rem;
+    box-sizing: border-box;
+}
+
+.welcome-section {
+    margin-bottom: 2rem;
+}
+
+.welcome-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.25rem 0;
+}
+
+.welcome-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Grid Tiga Statistik */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-blue {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+.icon-orange {
+    background-color: #ffedd5;
+    color: #ea580c;
+}
+.icon-green {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.stat-unit {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Bagian Bawah Layout */
+.dashboard-row {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr;
+    gap: 1.5rem;
+}
+
+/* Empty State Card (Pendaftaran Sekolah) */
+.empty-state-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-state-desc {
+    font-size: 0.8rem;
+    color: #64748b;
+    max-width: 320px;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.4;
+}
+
+.btn-teal {
+    background-color: #0d9488;
+    color: #ffffff;
+    padding: 0.6rem 1.5rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-teal:hover {
+    background-color: #0f766e;
+}
+
+/* Support/Bantuan Card */
+.support-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+}
+
+.support-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0d9488;
+    margin: 0 0 0.5rem 0;
+}
+
+.support-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 1.25rem;
+    line-height: 1.4;
+}
+
+.support-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.support-item-icon {
+    color: #0d9488;
+    margin-top: 2px;
+}
+
+.support-item-text {
+    font-size: 0.75rem;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+.support-item-link {
+    color: #0284c7;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.support-item-link:hover {
+    text-decoration: underline;
+}

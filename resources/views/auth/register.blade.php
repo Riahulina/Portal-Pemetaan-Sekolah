@@ -60,6 +60,16 @@
                         <x-input-error :messages="$errors->get('password')" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
                     </div>
 
+                    <!--Confirm Password -->
+                    <div class="auth-form-group" style="margin-top: 1rem;">
+                        <label for="password_confirmation" class="auth-label">Konfirmasi Password</label>
+                        <div class="auth-input-wrapper">
+                            <input id="password_confirmation" type="password" name="password_confirmation" required
+                                class="auth-input" placeholder="Ulangi Password">
+                        </div>
+                        <x-input-error :messages="$errors->get('password_confirmation')" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem;" />
+                    </div>
+
                     <!-- Tombol Register (Pendek & Di Tengah) -->
                     <div class="auth-btn-container">
                         <button type="submit" class="auth-btn-primary">
