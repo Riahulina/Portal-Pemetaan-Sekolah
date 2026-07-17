@@ -19,7 +19,7 @@
         <nav class="nav-links">
             <a href="/">Home</a>
             <a href="#tentang">Tentang Kami</a>
-            <a href="#peta">Peta Data</a>
+            <a href="{{ request()->routeIs('landing') ? '#peta' : route('dashboard') }}">Peta Data</a>
             <a href="#kontak">Kontak</a>
         </nav>
 
