@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminSchoolController;
 use App\Http\Controllers\SekolahController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('/user/dashboard', function () {
+        if (auth()->user()->is_admin) {
+            return redirect('/admin/dashboard');
+        }
+
         return view('User.dashboardUser');
     })->name('dashboard.user');
 
@@ -55,19 +60,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
 });
 
+/*
+|--------------------------------------------------------------------------
+| 3. Rute Admin (Butuh Auth + Admin Middleware)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/sekolah/{id}/approve', [AdminSchoolController::class, 'approve'])
+        ->name('sekolah.approve')
+        ->middleware('throttle:10,1');
+
+    Route::post('/sekolah/{id}/reject', [AdminSchoolController::class, 'reject'])
+        ->name('sekolah.reject')
+        ->middleware('throttle:10,1');
+});
 
 /*
 |--------------------------------------------------------------------------
-| 3. Rute API Data JSON Peta
+| 4. Rute API Data JSON Peta
 |--------------------------------------------------------------------------
 */
-// Mengambil data spasial utama untuk peta (membaca dari method apiPeta)
+// Mengambil data wilayah unik untuk dropdown filter (cache permanen)
+Route::get('/api/wilayah', [SekolahController::class, 'getWilayah'])->name('sekolah.wilayah');
+
+// Mengambil data sekolah untuk peta — membutuhkan minimal ?provinsi=...
 Route::get('/api/sekolah', [SekolahController::class, 'apiPeta'])->name('sekolah.api');
 
+// Mengambil detail lengkap satu sekolah (on-demand, tanpa cache)
+Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail'])->name('sekolah.detail');
 
 /*
 |--------------------------------------------------------------------------
-| 4. Rute Otentikasi Bawaan Laravel
+| 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

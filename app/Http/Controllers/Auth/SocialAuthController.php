@@ -44,6 +44,10 @@ class SocialAuthController extends Controller
 
         Auth::login($user, true);
 
+        if ($user->is_admin) {
+            return redirect()->to(route('admin.dashboard'));
+        }
+
         return redirect()->to(route('dashboard.user'));
     }
 }

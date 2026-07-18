@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Sekolah;
-use App\Models\SekolahTemporary; // Panggil model temporary baru di sini
+use App\Models\SekolahTemporary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class SekolahController extends Controller
 {
@@ -22,16 +24,87 @@ class SekolahController extends Controller
     }
 
     /**
-     * Method terpisah khusus untuk mengambil data JSON Peta.
-     * (Membaca dari tabel utama sekolah yang berisi 53 ribu data)
+     * Mengambil data wilayah (provinsi → kabupaten → kecamatan) yang unik.
+     * Hasil di-cache permanen karena data wilayah sangat jarang berubah.
      */
-    public function apiPeta()
+    public function getWilayah()
     {
-        set_time_limit(300);
-        $sekolah = Cache::remember('sekolah_map_data', now()->addHours(4), function () {
-            return Sekolah::select('npsn', 'nama_sekolah', 'jenjang', 'status', 'provinsi', 'kabupaten_kota', 'kecamatan', 'kelurahan', 'alamat', 'latitude', 'longitude', 'no_telepon', 'email', 'social_media', 'total_siswa')
-                ->whereNotNull('latitude')->whereNotNull('longitude')->get();
+        $wilayah = Cache::rememberForever('sekolah_wilayah_v2', function () {
+            return DB::table('sekolah')
+                ->select('provinsi', 'kabupaten_kota', 'kecamatan')
+                ->whereNotNull('provinsi')
+                ->whereNotNull('kabupaten_kota')
+                ->whereNotNull('kecamatan')
+                ->distinct()
+                ->get()
+                ->toArray();
         });
+
+        return response()->json($wilayah);
+    }
+
+    /**
+     * Mengambil data sekolah untuk peta — HANYA jika filter provinsi disertakan.
+     * Tanpa provinsi, mengembalikan [] untuk melindungi Supabase egress.
+     * Hasil di-cache per kombinasi filter (4 jam).
+     */
+    public function apiPeta(Request $request)
+    {
+        $provinsi = $request->query('provinsi');
+        $kabupaten = $request->query('kabupaten');
+        $kecamatan = $request->query('kecamatan');
+
+        if (! $provinsi) {
+            return response()->json([]);
+        }
+
+        $cacheKey = 'sekolah_map_v2_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '']));
+
+        $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan) {
+            $query = DB::table('sekolah')
+                ->select(
+                    'npsn',
+                    'nama_sekolah',
+                    'jenjang',
+                    'status',
+                    'provinsi',
+                    'kabupaten_kota',
+                    'kecamatan',
+                    'kelurahan',
+                    'latitude',
+                    'longitude'
+                )
+                ->selectRaw('total_siswa::integer as total_siswa')
+                ->where('provinsi', $provinsi)
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude');
+
+            if ($kabupaten) {
+                $query->where('kabupaten_kota', $kabupaten);
+            }
+            if ($kecamatan) {
+                $query->where('kecamatan', $kecamatan);
+            }
+
+            return $query->get()->toArray();
+        });
+
+        return response()->json($sekolah);
+    }
+
+    /**
+     * Mengambil detail lengkap satu sekolah berdasarkan NPSN.
+     * Dipanggil on-demand saat user klik marker/paging.
+     */
+    public function getDetail(string $npsn)
+    {
+        $sekolah = DB::table('sekolah')
+            ->where('npsn', $npsn)
+            ->first();
+
+        if (! $sekolah) {
+            return response()->json(['message' => 'Sekolah tidak ditemukan'], 404);
+        }
 
         return response()->json($sekolah);
     }
@@ -46,7 +119,6 @@ class SekolahController extends Controller
             'nama_sekolah' => 'required|string|max:150',
         ]);
 
-        // Simpan ke tabel sekolah_temporary
         SekolahTemporary::create([
             'user_id' => Auth::id(),
             'npsn' => $request->npsn,
@@ -56,7 +128,7 @@ class SekolahController extends Controller
             'provinsi' => $request->provinsi,
             'kabupaten_kota' => $request->kabupaten_kota,
             'kecamatan' => $request->kecamatan,
-            'kelurahan' => $request->kelurahan ?? null, // Diantisipasi jika kelurahan kosong/null
+            'kelurahan' => $request->kelurahan ?? null,
             'alamat' => $request->alamat,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
@@ -64,8 +136,15 @@ class SekolahController extends Controller
             'email' => $request->email,
             'social_media' => $request->social_media,
             'total_siswa' => $request->total_siswa ?? 0,
-            'status_verifikasi' => 'pending', // Awal pendaftaran otomatis berstatus pending
+            'status_verifikasi' => 'pending',
         ]);
+
+        ActivityLog::create([
+            'school_name' => $request->nama_sekolah,
+            'action' => 'mendaftar',
+        ]);
+
+        Cache::forget('admin_dashboard_data');
 
         return redirect()->route('status.user')->with('success', 'Pendaftaran berhasil dikirim, menunggu tinjauan admin.');
     }

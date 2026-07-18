@@ -30,6 +30,6 @@ class SekolahTemporary extends Model
         'social_media',
         'total_siswa',
         'status_verifikasi',
-        'catatan_admin'
+        'catatan_admin',
     ];
 }

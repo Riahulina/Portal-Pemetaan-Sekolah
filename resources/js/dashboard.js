@@ -74,14 +74,6 @@ function invalidateFilterCache() {
 }
 
 function mapSekolahRecord(row) {
-    let social = {};
-    try {
-        const parsed = row.social_media ? JSON.parse(row.social_media) : null;
-        social = parsed && typeof parsed === "object" ? parsed : {};
-    } catch (e) {
-        social = {};
-    }
-
     const statusRaw = (row.status || "").trim().toLowerCase();
     const statusNormalized =
         statusRaw === "negeri"
@@ -103,40 +95,60 @@ function mapSekolahRecord(row) {
         kabupaten: (row.kabupaten_kota || "").trim(),
         kecamatan: (row.kecamatan || "").trim(),
         kelurahan: (row.kelurahan || "").trim(),
-        alamat: row.alamat || "-",
         lat: parseFloat(row.latitude),
         lng: parseFloat(row.longitude),
-        telepon: row.no_telepon || "-",
-        email: row.email || "-",
-        social_media: row.social_media || "",
-        ig: social.instagram || "#",
-        fb: social.facebook || "#",
-        tiktok: social.tiktok || "#",
-        murid: row.total_siswa || 0,
+        murid: parseInt(row.total_siswa, 10) || 0,
     };
 }
 
-async function fetchSchools() {
+async function fetchWilayah() {
     try {
-        const res = await fetch("/api/sekolah");
-        if (!res.ok) throw new Error("Gagal mengambil data sekolah");
+        const res = await fetch("/api/wilayah");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            throw new Error("Response bukan JSON (kemungkinan HTML error)");
+        }
+        return await res.json();
+    } catch (err) {
+        console.error("[SatuPeta] Gagal memuat data wilayah:", err.message || err);
+        return [];
+    }
+}
+
+async function fetchFilteredSchools(filters) {
+    try {
+        const params = new URLSearchParams();
+        if (filters.provinsi) params.set("provinsi", filters.provinsi);
+        if (filters.kabupaten) params.set("kabupaten", filters.kabupaten);
+        if (filters.kecamatan) params.set("kecamatan", filters.kecamatan);
+
+        if (params.toString() === "") return [];
+
+        const res = await fetch(`/api/sekolah?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            throw new Error("Response bukan JSON (kemungkinan HTML error)");
+        }
         const data = await res.json();
         return data
             .map(mapSekolahRecord)
             .filter((s) => !isNaN(s.lat) && !isNaN(s.lng));
     } catch (err) {
-        console.error(err);
+        console.error("[SatuPeta] Gagal memuat data sekolah:", err.message || err);
         return [];
     }
 }
 
-function buildRegionTree(schools) {
+function buildRegionTreeFromWilayah(wilayah) {
     const tree = {};
-    for (let i = 0; i < schools.length; i++) {
-        const s = schools[i];
-        const prov = s.provinsi;
-        const kab = s.kabupaten;
-        const kec = s.kecamatan;
+    for (let i = 0; i < wilayah.length; i++) {
+        const w = wilayah[i];
+        const prov = (w.provinsi || "").trim();
+        const kab = (w.kabupaten_kota || "").trim();
+        const kec = (w.kecamatan || "").trim();
+        if (!prov || !kab || !kec) continue;
 
         if (!tree[prov]) tree[prov] = {};
         if (!tree[prov][kab]) tree[prov][kab] = {};
@@ -430,7 +442,7 @@ function initSiswaChart(totalMurid) {
     }
 }
 
-function openSchoolDetail(school) {
+async function openSchoolDetail(school) {
     document.getElementById("panel-nama").textContent = school.nama;
 
     const badge = document.getElementById("panel-status-badge");
@@ -444,9 +456,9 @@ function openSchoolDetail(school) {
     document.getElementById("panel-murid").textContent =
         school.murid.toLocaleString() + " Siswa";
     document.getElementById("panel-address").textContent =
-        `${school.alamat}, ${school.kelurahan}, ${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
-    document.getElementById("panel-telepon").textContent = school.telepon;
-    document.getElementById("panel-email").textContent = school.email;
+        `${school.kelurahan}, ${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
+    document.getElementById("panel-telepon").textContent = "Memuat...";
+    document.getElementById("panel-email").textContent = "Memuat...";
 
     const sosmedSection = document.getElementById("social-media-section");
     if (sosmedSection) sosmedSection.style.display = "none";
@@ -455,68 +467,10 @@ function openSchoolDetail(school) {
         if (btn) btn.style.display = "none";
     });
 
-    const urlRegex = /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/.*)?$/i;
-    const rawUrl = (school.social_media || school.ig || school.fb || school.tiktok || "").trim();
-    const isSosmedEmpty = !rawUrl || !urlRegex.test(rawUrl);
-
-    if (!isSosmedEmpty) {
-        let cleanedUrl = rawUrl;
-        if (!/^https?:\/\//i.test(cleanedUrl)) {
-            cleanedUrl = "https://" + cleanedUrl;
-        }
-
-        const lower = cleanedUrl.toLowerCase();
-        if (sosmedSection) sosmedSection.style.display = "flex";
-
-        if (lower.includes("instagram.com")) {
-            const btn = document.getElementById("btn-sosmed-ig");
-            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
-        } else if (lower.includes("facebook.com") || lower.includes("fb.com")) {
-            const btn = document.getElementById("btn-sosmed-fb");
-            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
-        } else if (lower.includes("tiktok.com")) {
-            const btn = document.getElementById("btn-sosmed-tiktok");
-            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
-        } else {
-            const btn = document.getElementById("btn-sosmed-web");
-            if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
-        }
-    }
-
     const warningCard = document.getElementById("data-warning-card");
     const warningBody = document.getElementById("data-warning-body");
-
-    const isPhoneEmpty = !school.telepon || school.telepon === "-" || school.telepon === "" || school.telepon === null || school.telepon === undefined;
-    const isEmailEmpty = !school.email || school.email === "-" || school.email === "" || school.email === null || school.email === undefined;
-    const isMuridIncomplete = !school.murid || school.murid === null || school.murid === undefined || school.murid <= 2;
-    const isKoordinatEmpty = !school.lat || !school.lng || isNaN(school.lat) || isNaN(school.lng);
-
-    const hasIncompleteData = isPhoneEmpty || isEmailEmpty || isMuridIncomplete || isKoordinatEmpty || isSosmedEmpty;
-
-    if (hasIncompleteData) {
-        warningCard.classList.remove("hidden");
-        let rows = "";
-        if (isPhoneEmpty) {
-            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Nomor Telepon</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
-        }
-        if (isEmailEmpty) {
-            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Email</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
-        }
-        if (isMuridIncomplete) {
-            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Jumlah Siswa</span><span class="data-warning-badge data-warning-badge--orange">Belum Lengkap</span></div>`;
-        }
-        if (isKoordinatEmpty) {
-            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Titik Koordinat</span><span class="data-warning-badge data-warning-badge--orange">Belum Terdaftar</span></div>`;
-        }
-        if (isSosmedEmpty) {
-            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Media Sosial</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
-        }
-        rows += `<div class="data-warning-row"><span class="data-warning-row__label">Status Sekolah</span><span class="data-warning-badge data-warning-badge--green">Terverifikasi</span></div>`;
-        warningBody.innerHTML = rows;
-    } else {
-        warningCard.classList.add("hidden");
-        warningBody.innerHTML = "";
-    }
+    if (warningCard) warningCard.classList.add("hidden");
+    if (warningBody) warningBody.innerHTML = "";
 
     const gmapsBtn = document.getElementById("btn-gmaps");
     gmapsBtn.onclick = () => {
@@ -553,6 +507,101 @@ function openSchoolDetail(school) {
     }
 
     updateInfoBadge();
+
+    try {
+        const res = await fetch(`/api/sekolah/${school.id}/detail`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            throw new Error("Response bukan JSON");
+        }
+        const detail = await res.json();
+
+        const telepon = detail.no_telepon || "-";
+        const email = detail.email || "-";
+        const alamat = detail.alamat || "-";
+        const socialMedia = detail.social_media || "";
+
+        document.getElementById("panel-telepon").textContent = telepon;
+        document.getElementById("panel-email").textContent = email;
+        document.getElementById("panel-address").textContent =
+            `${alamat}, ${school.kelurahan}, ${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
+
+        let social = {};
+        try {
+            const parsed = socialMedia ? JSON.parse(socialMedia) : null;
+            social = parsed && typeof parsed === "object" ? parsed : {};
+        } catch (e) {
+            social = {};
+        }
+
+        const ig = social.instagram || "";
+        const fb = social.facebook || "";
+        const tiktok = social.tiktok || "";
+
+        const urlRegex = /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/.*)?$/i;
+        const rawUrl = (socialMedia || ig || fb || tiktok || "").trim();
+        const isSosmedEmpty = !rawUrl || !urlRegex.test(rawUrl);
+
+        if (!isSosmedEmpty) {
+            let cleanedUrl = rawUrl;
+            if (!/^https?:\/\//i.test(cleanedUrl)) {
+                cleanedUrl = "https://" + cleanedUrl;
+            }
+
+            const lower = cleanedUrl.toLowerCase();
+            if (sosmedSection) sosmedSection.style.display = "flex";
+
+            if (lower.includes("instagram.com")) {
+                const btn = document.getElementById("btn-sosmed-ig");
+                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+            } else if (lower.includes("facebook.com") || lower.includes("fb.com")) {
+                const btn = document.getElementById("btn-sosmed-fb");
+                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+            } else if (lower.includes("tiktok.com")) {
+                const btn = document.getElementById("btn-sosmed-tiktok");
+                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+            } else {
+                const btn = document.getElementById("btn-sosmed-web");
+                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+            }
+        }
+
+        const isPhoneEmpty = !telepon || telepon === "-";
+        const isEmailEmpty = !email || email === "-";
+        const isMuridIncomplete = !school.murid || school.murid <= 2;
+        const isKoordinatEmpty = !school.lat || !school.lng || isNaN(school.lat) || isNaN(school.lng);
+        const hasIncompleteData = isPhoneEmpty || isEmailEmpty || isMuridIncomplete || isKoordinatEmpty || isSosmedEmpty;
+
+        if (hasIncompleteData) {
+            warningCard.classList.remove("hidden");
+            let rows = "";
+            if (isPhoneEmpty) {
+                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Nomor Telepon</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+            }
+            if (isEmailEmpty) {
+                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Email</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+            }
+            if (isMuridIncomplete) {
+                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Jumlah Siswa</span><span class="data-warning-badge data-warning-badge--orange">Belum Lengkap</span></div>`;
+            }
+            if (isKoordinatEmpty) {
+                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Titik Koordinat</span><span class="data-warning-badge data-warning-badge--orange">Belum Terdaftar</span></div>`;
+            }
+            if (isSosmedEmpty) {
+                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Media Sosial</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+            }
+            rows += `<div class="data-warning-row"><span class="data-warning-row__label">Status Sekolah</span><span class="data-warning-badge data-warning-badge--green">Terverifikasi</span></div>`;
+            warningBody.innerHTML = rows;
+        } else {
+            warningCard.classList.add("hidden");
+            warningBody.innerHTML = "";
+        }
+    } catch (err) {
+        console.error("[SatuPeta] Gagal memuat detail sekolah:", err.message || err);
+        document.getElementById("panel-telepon").textContent = "-";
+        document.getElementById("panel-email").textContent = "-";
+    }
 }
 
 function closeSchoolDetail() {
@@ -700,7 +749,7 @@ function setSidebarState(state) {
     sidebarState = state;
 }
 
-function applyFilters() {
+async function applyFilters() {
     closeSchoolDetail();
     invalidateFilterCache();
     detailLayer.clearLayers();
@@ -719,25 +768,32 @@ function applyFilters() {
     );
     pendingPopupSchoolId = null;
 
-    const filtered = filterSchools(filters);
-
-    if (hasRegionFilter(currentFilters)) {
-        renderMarkers(filtered);
-        if (filtered.length > 0) {
-            const midLat =
-                filtered.reduce((s, x) => s + x.lat, 0) / filtered.length;
-            const midLng =
-                filtered.reduce((s, x) => s + x.lng, 0) / filtered.length;
-            map.setView([midLat, midLng], filtered.length === 1 ? 15 : 10);
-        }
-    } else {
-        renderAggregatedMarkers(filtered);
+    if (!hasRegionFilter(currentFilters)) {
+        schools = [];
+        renderAggregatedMarkers(schools);
+        updateStatCards(schools);
+        updateLegend(filters.jenjang);
+        renderTable(schools);
         map.setView([-2.5, 118.0], 5);
+        return;
     }
 
-    updateStatCards(filtered);
+    const resultCount = document.getElementById("result-count");
+    if (resultCount) resultCount.textContent = "Memuat...";
+    schools = await fetchFilteredSchools(currentFilters);
+
+    renderMarkers(schools);
+    if (schools.length > 0) {
+        const midLat =
+            schools.reduce((s, x) => s + x.lat, 0) / schools.length;
+        const midLng =
+            schools.reduce((s, x) => s + x.lng, 0) / schools.length;
+        map.setView([midLat, midLng], schools.length === 1 ? 15 : 10);
+    }
+
+    updateStatCards(schools);
     updateLegend(filters.jenjang);
-    renderTable(filtered);
+    renderTable(schools);
 }
 
 function resetFilters() {
@@ -754,6 +810,7 @@ function resetFilters() {
 
     currentFilters = {};
     pendingPopupSchoolId = null;
+    schools = [];
 
     clusterGroup.clearLayers();
     detailLayer.clearLayers();
@@ -922,13 +979,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const resultCount = document.getElementById("result-count");
-    if (resultCount) resultCount.textContent = "...";
+    if (resultCount) resultCount.textContent = "0";
     populateSelect("filter-jenjang", [], "Memuat data...");
     populateSelect("filter-status", [], "Memuat data...");
     populateSelect("filter-provinsi", [], "Memuat data...");
 
-    schools = await fetchSchools();
-    regionTree = buildRegionTree(schools);
+    const wilayah = await fetchWilayah();
+    regionTree = buildRegionTreeFromWilayah(wilayah);
     provinces = Object.keys(regionTree).sort();
 
     setupFilters();
@@ -937,6 +994,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     setSidebarState("default");
 
+    schools = [];
     renderAggregatedMarkers(schools);
     updateStatCards(schools);
     updateLegend("Semua");
