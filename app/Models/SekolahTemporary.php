@@ -28,6 +28,8 @@ class SekolahTemporary extends Model
         'no_telepon',
         'email',
         'social_media',
+        'siswa_laki',
+        'siswa_perempuan',
         'total_siswa',
         'status_verifikasi',
         'catatan_admin',

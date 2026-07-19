@@ -21,51 +21,90 @@
                     </p>
                 </div>
 
-                <!-- Tiga Grid Card Statistik -->
+                <!-- Tiga Grid Card Statistik Dinamis -->
                 <div class="stats-grid">
                     <!-- Total Pendaftaran -->
                     <div class="stat-card">
-
-                        <img src="{{ asset('assets/TotalPendaftar.png') }}"class="brand-logo-imguser1">
-
+                        <img src="{{ asset('assets/TotalPendaftar.png') }}" class="brand-logo-imguser1">
                         <div class="stat-info">
                             <span class="stat-title">Total Pendaftaran</span>
-                            <h3 class="stat-value">0</h3>
+                            <h3 class="stat-value">{{ $totalPendaftaran }}</h3>
                             <span class="stat-unit">Sekolah</span>
                         </div>
                     </div>
 
                     <!-- Menunggu Verifikasi -->
                     <div class="stat-card">
-                        <img src="{{ asset('assets/Menunggu.png') }}"class="brand-logo-imguser1">
+                        <img src="{{ asset('assets/Menunggu.png') }}" class="brand-logo-imguser1">
                         <div class="stat-info">
                             <span class="stat-title">Menunggu Verifikasi</span>
-                            <h3 class="stat-value">0</h3>
+                            <h3 class="stat-value">{{ $menungguVerifikasi }}</h3>
                             <span class="stat-unit">Sekolah</span>
                         </div>
                     </div>
 
                     <!-- Disetujui -->
                     <div class="stat-card">
-                        <img src="{{ asset('assets/Disetujui.png') }}"class="brand-logo-imguser1">
+                        <img src="{{ asset('assets/Disetujui.png') }}" class="brand-logo-imguser1">
                         <div class="stat-info">
                             <span class="stat-title">Disetujui</span>
-                            <h3 class="stat-value">0</h3>
+                            <h3 class="stat-value">{{ $disetujui }}</h3>
                             <span class="stat-unit">Sekolah</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Row Dua Kolom (Empty State & Butuh Bantuan) -->
+                <!-- Row Dua Kolom (Dinamis: Tampilkan Empty State ATAU Tabel Data) -->
                 <div class="dashboard-row">
-                    <!-- Box Kiri: Empty State Belum Daftar -->
-                    <div class="empty-state-card">
-                        <img src="{{ asset('assets/MendaftarSekolah.png') }}"class="brand-logo-imguser2">
-                        <h4 class="empty-state-title">Anda Belum Mendaftarkan Sekolah</h4>
-                        <p class="empty-state-desc">Daftarkan Sekolah Anda Sekarang Untuk Ditampilkan di SatuPeta Pendidikan
-                            Indonesia.</p>
-                        <a href="#" class="btn-teal">+ Mulai Peta Data</a>
-                    </div>
+
+                    <!-- Box Kiri Dinamis -->
+                    @if ($sekolahDaftar->isEmpty())
+                        <!-- TAMPILKAN INI JIKA BELUM ADA DATA -->
+                        <div class="empty-state-card">
+                            <img src="{{ asset('assets/MendaftarSekolah.png') }}" class="brand-logo-imguser2">
+                            <h4 class="empty-state-title">Anda Belum Mendaftarkan Sekolah</h4>
+                            <p class="empty-state-desc">Daftarkan Sekolah Anda Sekarang Untuk Ditampilkan di SatuPeta
+                                Pendidikan Indonesia.</p>
+                            <a href="{{ route('Form.user') }}" class="btn-teal">+ Mulai Peta Data</a>
+                        </div>
+                    @else
+                        <!-- TAMPILKAN TABEL DAFTAR SEKOLAH JIKA SUDAH ADA DATA -->
+                        <div class="empty-state-card" style="text-align: left; display: block;">
+                            <h4 class="empty-state-title" style="margin-bottom: 15px;">Daftar Sekolah Anda</h4>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 2px solid #e2e8f0; text-align: left;">
+                                            <th style="padding: 10px;">Nama Sekolah</th>
+                                            <th style="padding: 10px;">NPSN</th>
+                                            <th style="padding: 10px;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($sekolahDaftar as $sekolah)
+                                            <tr style="border-bottom: 1px solid #edf2f7;">
+                                                <td style="padding: 10px;">{{ $sekolah->nama_sekolah }}</td>
+                                                <td style="padding: 10px;">{{ $sekolah->npsn }}</td>
+                                                <td style="padding: 10px;">
+                                                    {{-- Menggunakan status_verifikasi dari DB --}}
+                                                    @if (strtolower($sekolah->status_verifikasi) == 'approved' || strtolower($sekolah->status_verifikasi) == 'disetujui')
+                                                        <span style="color: #48bb78; font-weight: bold;">Disetujui</span>
+                                                    @elseif(strtolower($sekolah->status_verifikasi) == 'rejected' || strtolower($sekolah->status_verifikasi) == 'ditolak')
+                                                        <span style="color: #f56565; font-weight: bold;">Ditolak</span>
+                                                    @else
+                                                        {{-- Jika statusnya 'pending', maka tampilkan Menunggu --}}
+                                                        <span style="color: #ecc94b; font-weight: bold;">Menunggu</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <a href="{{ route('Form.user') }}" class="btn-teal"
+                                style="margin-top: 15px; display: inline-block;">+ Tambah Sekolah Lagi</a>
+                        </div>
+                    @endif
 
                     <!-- Box Kanan: Butuh Bantuan -->
                     <div class="support-card">

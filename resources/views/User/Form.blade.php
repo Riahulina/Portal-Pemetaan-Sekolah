@@ -2,6 +2,11 @@
 
 @section('title', isset($sekolah) ? 'Edit Pendaftaran - SatuPeta' : 'Form Pendaftaran - SatuPeta')
 
+{{-- Menyisipkan CSS Leaflet di bagian atas --}}
+@section('styles')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+@endsection
+
 @section('content')
     <div class="dashboard-layout">
 
@@ -146,12 +151,38 @@
                             </div>
                         </div>
 
+                        <!-- Input Siswa Laki & Perempuan berdampingan -->
                         <div class="form-grid col-2">
                             <div class="form-group">
-                                <label for="total_siswa">Total Siswa <span class="required">*</span></label>
+                                <label for="siswa_laki">Siswa Laki-Laki <span class="required">*</span></label>
+                                <input type="number" id="siswa_laki" name="siswa_laki" min="0"
+                                    value="{{ old('siswa_laki', $sekolah->siswa_laki ?? 0) }}"
+                                    placeholder="Jumlah siswa laki-laki" required>
+                                @error('siswa_laki')
+                                    <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="siswa_perempuan">Siswa Perempuan <span class="required">*</span></label>
+                                <input type="number" id="siswa_perempuan" name="siswa_perempuan" min="0"
+                                    value="{{ old('siswa_perempuan', $sekolah->siswa_perempuan ?? 0) }}"
+                                    placeholder="Jumlah siswa perempuan" required>
+                                @error('siswa_perempuan')
+                                    <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Menampilkan Total Siswa (Otomatis terjumlahkan & Readonly) -->
+                        <div class="form-grid col-2">
+                            <div class="form-group">
+                                <label for="total_siswa">Total Peserta Didik</label>
                                 <input type="number" id="total_siswa" name="total_siswa"
-                                    value="{{ old('total_siswa', $sekolah->total_siswa ?? '') }}"
-                                    placeholder="Masukkan Total Siswa" required>
+                                    value="{{ old('total_siswa', $sekolah->total_siswa ?? 0) }}"
+                                    style="background-color: #f3f4f6; cursor: not-allowed;" readonly>
+                                <span class="input-helper text-muted"
+                                    style="font-size: 12px; display: block; margin-top: 4px;">Terhitung otomatis dari
+                                    jumlah siswa laki-laki + perempuan</span>
                             </div>
                             <div></div>
                         </div>
@@ -183,35 +214,51 @@
                                     value="{{ old('kecamatan', $sekolah->kecamatan ?? '') }}"
                                     placeholder="Masukkan Kecamatan" required>
                             </div>
-                            <div class="form-group">
-                                <label for="longitude">Longitude <span class="required">*</span></label>
-                                <input type="text" id="longitude" name="longitude"
-                                    value="{{ old('longitude', $sekolah->longitude ?? '') }}"
-                                    placeholder="Contoh: 106.8456" required>
-                                <span class="input-helper text-warning"
-                                    style="font-size: 12px; display: block; mt-1;">Longitude Harus Format Standar Google
-                                    Maps</span>
-                            </div>
-                        </div>
-
-                        <div class="form-grid col-2">
-                            <div class="form-group">
-                                <label for="latitude">Latitude <span class="required">*</span></label>
-                                <input type="text" id="latitude" name="latitude"
-                                    value="{{ old('latitude', $sekolah->latitude ?? '') }}" placeholder="Contoh: -6.2088"
-                                    required>
-                                <span class="input-helper text-warning"
-                                    style="font-size: 12px; display: block; mt-1;">Latitude Harus Format Standar Google
-                                    Maps</span>
-                            </div>
                             <div></div>
                         </div>
 
                         <div class="form-group full-width">
                             <label for="alamat">Alamat Sekolah <span class="required">*</span></label>
                             <textarea id="alamat" name="alamat" rows="4" placeholder="Masukkan Alamat Lengkap Sekolah" required>{{ old('alamat', $sekolah->alamat ?? '') }}</textarea>
-                            <span class="input-helper text-warning" style="font-size: 12px; display: block; mt-1;">Tulis
-                                alamat lengkap termasuk nama jalan, RT/RW, Kode Pos, dll</span>
+                            <span class="input-helper text-warning"
+                                style="font-size: 12px; display: block; margin-top: 4px; margin-bottom: 12px;">Tulis alamat
+                                lengkap termasuk nama jalan, RT/RW, Kode Pos, dll</span>
+                        </div>
+
+                        <!-- Wadah Peta Interaktif Leaflet -->
+                        <div class="form-group full-width" style="margin-bottom: 20px;">
+                            <label style="font-weight: 600; margin-bottom: 6px; display: block;">Titik Koordinat Peta <span
+                                    class="required">*</span></label>
+                            <span class="input-helper text-muted"
+                                style="font-size: 12px; display: block; margin-bottom: 10px;">Silakan cari lokasi sekolah
+                                Anda, perbesar (zoom in), lalu <strong>klik pada titik lokasi bangunan sekolah</strong>
+                                untuk mengisi koordinat secara otomatis.</span>
+                            <div id="map"
+                                style="height: 350px; border-radius: 8px; border: 1px solid #d1d5db; z-index: 1;"></div>
+                        </div>
+
+                        <!-- Input Koordinat Terisi Otomatis (Readonly) -->
+                        <div class="form-grid col-2">
+                            <div class="form-group">
+                                <label for="longitude">Longitude <span class="required">*</span></label>
+                                <input type="text" id="longitude" name="longitude"
+                                    value="{{ old('longitude', $sekolah->longitude ?? '') }}"
+                                    placeholder="Klik pada peta untuk mengisi otomatis"
+                                    style="background-color: #f3f4f6; cursor: not-allowed;" readonly required>
+                                @error('longitude')
+                                    <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="latitude">Latitude <span class="required">*</span></label>
+                                <input type="text" id="latitude" name="latitude"
+                                    value="{{ old('latitude', $sekolah->latitude ?? '') }}"
+                                    placeholder="Klik pada peta untuk mengisi otomatis"
+                                    style="background-color: #f3f4f6; cursor: not-allowed;" readonly required>
+                                @error('latitude')
+                                    <span class="text-danger" style="font-size: 12px;">{{ $message }}</span>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
@@ -236,4 +283,72 @@
 
         </main>
     </div>
+@endsection
+
+@section('scripts')
+    {{-- Memanggil JS Leaflet --}}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ==========================================
+            // LOGIKA 1: PENJUMLAHAN OTOMATIS SISWA
+            // ==========================================
+            const inputLaki = document.getElementById('siswa_laki');
+            const inputPerempuan = document.getElementById('siswa_perempuan');
+            const inputTotal = document.getElementById('total_siswa');
+
+            function hitungTotal() {
+                const laki = parseInt(inputLaki.value) || 0;
+                const perempuan = parseInt(inputPerempuan.value) || 0;
+                inputTotal.value = laki + perempuan;
+            }
+
+            inputLaki.addEventListener('input', hitungTotal);
+            inputPerempuan.addEventListener('input', hitungTotal);
+
+
+            // ==========================================
+            // LOGIKA 2: PETA INTERAKTIF (LEAFLET)
+            // ==========================================
+            // Mengambil titik koordinat awal. Jika edit data gunakan data lama, jika baru arahkan ke koordinat default pusat Indonesia.
+            const defaultLat = parseFloat(document.getElementById('latitude').value) || -0.789275;
+            const defaultLng = parseFloat(document.getElementById('longitude').value) || 113.921327;
+            const defaultZoom = document.getElementById('latitude').value ? 16 :
+            5; // Zoom dekat jika sudah ada titik lokasi
+
+            // Inisialisasi peta ke elemen #map
+            const map = L.map('map').setView([defaultLat, defaultLng], defaultZoom);
+
+            // Menambahkan layer peta OpenStreetMap gratisan
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            let marker;
+
+            // Jika sedang dalam mode edit dan datanya sudah ada, pasang penanda pin di peta sejak awal
+            if (document.getElementById('latitude').value && document.getElementById('longitude').value) {
+                marker = L.marker([defaultLat, defaultLng]).addTo(map);
+            }
+
+            // Fungsi ketika peta diklik oleh user
+            map.on('click', function(e) {
+                const lat = e.latlng.lat.toFixed(
+                7); // Dibatasi 7 angka di belakang koma demi presisi database
+                const lng = e.latlng.lng.toFixed(7);
+
+                // Sinkronisasi otomatis ke kolom input text form
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+
+                // Memindahkan pin atau membuat pin baru jika belum ada
+                if (marker) {
+                    marker.setLatLng(e.latlng);
+                } else {
+                    marker = L.marker(e.latlng).addTo(map);
+                }
+            });
+        });
+    </script>
 @endsection
