@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SekolahTemporary extends Model
 {
@@ -34,4 +35,24 @@ class SekolahTemporary extends Model
         'status_verifikasi',
         'catatan_admin',
     ];
+
+    /**
+     * Konversi tipe data otomatis (Casting)
+     */
+    protected $casts = [
+        'siswa_laki' => 'integer',
+        'siswa_perempuan' => 'integer',
+        'total_siswa' => 'integer',
+        'latitude' => 'double',
+        'longitude' => 'double',
+    ];
+
+    /**
+     * Relasi ke model User
+     * Menghubungkan kolom user_id di tabel sekolah_temporary ke id di tabel users
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
