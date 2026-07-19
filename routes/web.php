@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminSchoolController;
+use App\Http\Controllers\Admin\AdminSekolahController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\DashboardUserController;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +69,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 */
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // --- MANAJEMEN SEKOLAH ---
+    Route::get('/sekolah', [AdminSekolahController::class, 'index'])->name('sekolah.index');
+    Route::put('/sekolah/{npsn}', [AdminSekolahController::class, 'update'])->name('sekolah.update');
+    Route::delete('/sekolah/{npsn}', [AdminSekolahController::class, 'destroy'])->name('sekolah.destroy');
+
     Route::post('/sekolah/{id}/approve', [AdminSchoolController::class, 'approve'])
         ->name('sekolah.approve')
         ->middleware('throttle:10,1');
@@ -74,6 +82,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/sekolah/{id}/reject', [AdminSchoolController::class, 'reject'])
         ->name('sekolah.reject')
         ->middleware('throttle:10,1');
+
+    // --- MANAJEMEN PENGGUNA ---
+    Route::get('/pengguna', [AdminUserController::class, 'index'])->name('pengguna.index');
+    Route::delete('/pengguna/{id}', [AdminUserController::class, 'destroy'])->name('pengguna.destroy');
 });
 
 /*
