@@ -16,6 +16,10 @@ class AdminDashboardController extends Controller
         $cached = Cache::remember('admin_dashboard_data', now()->addMinutes(5), function () {
             $totalSekolah = Sekolah::count();
 
+            $sekolahTanpaKoordinat = Sekolah::whereNull('latitude')
+                ->orWhereNull('longitude')
+                ->count();
+
             $menungguVerifikasi = SekolahTemporary::count();
 
             $disetujui = ActivityLog::where('action', 'disetujui')->count();
@@ -37,6 +41,7 @@ class AdminDashboardController extends Controller
 
             return compact(
                 'totalSekolah',
+                'sekolahTanpaKoordinat',
                 'menungguVerifikasi',
                 'disetujui',
                 'ditolak',

@@ -124,15 +124,27 @@
                 <div class="grid grid-cols-4 gap-5">
 
                     <!-- Total Sekolah -->
-                    <div class="bg-white border border-gray-200 rounded-xl p-5 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center shrink-0">
-                            <svg class="w-6 h-6 text-[#0d9296]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
+                    <div class="bg-white border border-gray-200 rounded-xl p-5">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center shrink-0">
+                                <svg class="w-6 h-6 text-[#0d9296]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Total Sekolah</p>
+                                <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ number_format($totalSekolah) }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Total Sekolah</p>
-                            <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ number_format($totalSekolah) }}</p>
+                        <div class="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500 flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <span>Berkoordinat:</span>
+                                <span class="font-medium text-emerald-600">{{ number_format($totalSekolah - $sekolahTanpaKoordinat, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>Tanpa Koordinat:</span>
+                                <span class="font-medium text-amber-600">{{ number_format($sekolahTanpaKoordinat, 0, ',', '.') }}</span>
+                            </div>
                         </div>
                     </div>
 

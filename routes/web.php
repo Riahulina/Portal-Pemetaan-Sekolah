@@ -84,6 +84,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 // Mengambil data wilayah unik untuk dropdown filter (cache permanen)
 Route::get('/api/wilayah', [SekolahController::class, 'getWilayah'])->name('sekolah.wilayah');
 
+// Mengambil ringkasan nasional per provinsi (cache permanen, lightweight)
+Route::get('/api/sekolah/summary', [SekolahController::class, 'getProvinsiSummary'])->name('sekolah.summary');
+
 // Mengambil data sekolah untuk peta — membutuhkan minimal ?provinsi=...
 Route::get('/api/sekolah', [SekolahController::class, 'apiPeta'])->name('sekolah.api');
 

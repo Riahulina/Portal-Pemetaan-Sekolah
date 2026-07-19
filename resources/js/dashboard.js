@@ -17,7 +17,7 @@ let schools = [];
 let regionTree = {};
 let provinces = [];
 
-let map, clusterGroup, aggregatedLayer;
+let map, clusterGroup, aggregatedLayer, summaryLayer;
 let currentFilters = {};
 let markerRefs = new Map();
 let pendingPopupSchoolId = null;
@@ -122,6 +122,8 @@ async function fetchFilteredSchools(filters) {
         if (filters.provinsi) params.set("provinsi", filters.provinsi);
         if (filters.kabupaten) params.set("kabupaten", filters.kabupaten);
         if (filters.kecamatan) params.set("kecamatan", filters.kecamatan);
+        if (filters.jenjang && filters.jenjang !== "Semua") params.set("jenjang", filters.jenjang);
+        if (filters.status && filters.status !== "Semua") params.set("status", filters.status);
 
         if (params.toString() === "") return [];
 
@@ -138,6 +140,67 @@ async function fetchFilteredSchools(filters) {
     } catch (err) {
         console.error("[SatuPeta] Gagal memuat data sekolah:", err.message || err);
         return [];
+    }
+}
+
+async function fetchAndRenderSummary() {
+    try {
+        const res = await fetch("/api/sekolah/summary");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            throw new Error("Response bukan JSON (kemungkinan HTML error)");
+        }
+        const rows = await res.json();
+        if (!rows || rows.length === 0) return;
+
+        let grandTotalSekolah = 0;
+        let grandTotalSiswa = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const lat = parseFloat(row.lat);
+            const lng = parseFloat(row.lng);
+            const totalSekolah = parseInt(row.total_sekolah, 10) || 0;
+            const totalSiswa = parseInt(row.total_siswa, 10) || 0;
+
+            grandTotalSekolah += totalSekolah;
+            grandTotalSiswa += totalSiswa;
+
+            if (isNaN(lat) || isNaN(lng)) continue;
+
+            const marker = L.marker([lat, lng], {
+                icon: createMarkerIcon("#0D9296"),
+            });
+
+            marker.bindPopup(
+                `<div style="font-family:'Public Sans',sans-serif;min-width:180px;">
+                    <strong style="font-size:1rem;color:#1A1C1E;">${row.provinsi}</strong>
+                    <div style="margin:6px 0;font-size:0.85rem;color:#4b5563;">
+                        Total Sekolah: <strong>${totalSekolah.toLocaleString()}</strong>
+                    </div>
+                    <div style="font-size:0.85rem;color:#4b5563;">
+                        Total Siswa: <strong>${totalSiswa.toLocaleString()}</strong>
+                    </div>
+                    <div style="margin-top:8px;font-size:0.8rem;color:#0D9296;font-style:italic;">
+                        Pilih filter wilayah untuk melihat detail.
+                    </div>
+                </div>`,
+                { autoPan: true, autoPanPadding: [50, 50] },
+            );
+
+            summaryLayer.addLayer(marker);
+        }
+
+        const totalSekolahEl = document.getElementById("total-sekolah");
+        const totalMuridEl = document.getElementById("total-murid");
+        if (totalSekolahEl)
+            totalSekolahEl.textContent = grandTotalSekolah.toLocaleString();
+        if (totalMuridEl)
+            totalMuridEl.textContent = grandTotalSiswa.toLocaleString();
+
+    } catch (err) {
+        console.error("[SatuPeta] Gagal memuat ringkasan provinsi:", err.message || err);
     }
 }
 
@@ -269,6 +332,7 @@ function initMap() {
     });
 
     aggregatedLayer = L.layerGroup().addTo(map);
+    summaryLayer = L.layerGroup().addTo(map);
     detailLayer = L.layerGroup().addTo(map);
 
     map.on("zoomend", updateLayerVisibility);
@@ -716,14 +780,6 @@ function setupFilters() {
         });
 
     document
-        .getElementById("filter-kecamatan")
-        .addEventListener("change", function () {
-            const prov = document.getElementById("filter-provinsi").value;
-            const kab = document.getElementById("filter-kabupaten").value;
-            updateCascading(prov, kab);
-        });
-
-    document
         .getElementById("btn-terapkan")
         .addEventListener("click", applyFilters);
     document
@@ -770,6 +826,7 @@ async function applyFilters() {
 
     if (!hasRegionFilter(currentFilters)) {
         schools = [];
+        summaryLayer.clearLayers();
         renderAggregatedMarkers(schools);
         updateStatCards(schools);
         updateLegend(filters.jenjang);
@@ -778,6 +835,7 @@ async function applyFilters() {
         return;
     }
 
+    summaryLayer.clearLayers();
     const resultCount = document.getElementById("result-count");
     if (resultCount) resultCount.textContent = "Memuat...";
     schools = await fetchFilteredSchools(currentFilters);
@@ -813,6 +871,7 @@ function resetFilters() {
     schools = [];
 
     clusterGroup.clearLayers();
+    summaryLayer.clearLayers();
     detailLayer.clearLayers();
     _detailMarkerSchoolId = null;
     renderAggregatedMarkers(schools);
@@ -999,4 +1058,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateStatCards(schools);
     updateLegend("Semua");
     renderTable(schools);
+
+    fetchAndRenderSummary();
 });

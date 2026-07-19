@@ -53,14 +53,16 @@ class SekolahController extends Controller
         $provinsi = $request->query('provinsi');
         $kabupaten = $request->query('kabupaten');
         $kecamatan = $request->query('kecamatan');
+        $jenjang = $request->query('jenjang');
+        $status = $request->query('status');
 
         if (! $provinsi) {
             return response()->json([]);
         }
 
-        $cacheKey = 'sekolah_map_v2_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '']));
+        $cacheKey = 'sekolah_map_v5_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
 
-        $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan) {
+        $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan, $jenjang, $status) {
             $query = DB::table('sekolah')
                 ->select(
                     'npsn',
@@ -85,6 +87,16 @@ class SekolahController extends Controller
             if ($kecamatan) {
                 $query->where('kecamatan', $kecamatan);
             }
+            if ($jenjang && $jenjang !== 'Semua') {
+                if ($jenjang === 'SMA/SMK') {
+                    $query->whereIn('jenjang', ['SMA', 'SMK']);
+                } else {
+                    $query->where('jenjang', $jenjang);
+                }
+            }
+            if ($status && $status !== 'Semua') {
+                $query->where('status', 'ilike', $status);
+            }
 
             return $query->get()->toArray();
         });
@@ -107,6 +119,33 @@ class SekolahController extends Controller
         }
 
         return response()->json($sekolah);
+    }
+
+    /**
+     * Mengambil ringkasan nasional — jumlah sekolah & siswa per provinsi, beserta koordinat rata-rata.
+     * Digunakan untuk tampilan awal peta sebelum user memilih filter wilayah.
+     * Cache permanen karena data historis tidak sering berubah.
+     */
+    public function getProvinsiSummary()
+    {
+        $summary = Cache::rememberForever('sekolah_provinsi_summary_v1', function () {
+            return DB::table('sekolah')
+                ->selectRaw('
+                    provinsi,
+                    COUNT(npsn) as total_sekolah,
+                    SUM(CAST(total_siswa AS INTEGER)) as total_siswa,
+                    AVG(CAST(latitude AS DECIMAL(10,8))) as lat,
+                    AVG(CAST(longitude AS DECIMAL(11,8))) as lng
+                ')
+                ->whereNotNull('provinsi')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->groupBy('provinsi')
+                ->get()
+                ->toArray();
+        });
+
+        return response()->json($summary);
     }
 
     /**
