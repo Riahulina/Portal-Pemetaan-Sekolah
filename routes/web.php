@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminSchoolController;
 use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\DashboardUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,24 +28,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    Route::get('/user/dashboard', function () {
-        if (auth()->user()->is_admin) {
-            return redirect('/admin/dashboard');
-        }
-
-        return view('User.dashboardUser');
-    })->name('dashboard.user');
+    // Route Dashboard User (Sudah diarahkan ke DashboardUserController)
+    Route::get('/user/dashboard', [DashboardUserController::class, 'index'])->name('dashboard.user');
 
     // --- MANAJEMEN DATA SEKOLAH USER ---
     // A. Halaman TABEL Daftar Sekolah Saya
     Route::get('/sekolah-saya', [SekolahController::class, 'index'])->name('sekolah.index');
 
-    // B. Halaman FORMULIR Pendaftaran Sekolah
+    // B. Halaman FORMULIR Pendaftaran Sekolah (Ubah href tombol kamu di dashboardUser ke route ini)
     Route::get('/user/Form', function () {
         return view('User.Form');
     })->name('Form.user');
 
-    // C. PROSES SIMPAN Data Form ke Database (POST) -> Disinkronkan ke sekolah.store
+    // C. PROSES SIMPAN Data Form ke Database (POST)
     Route::post('/user/form/store', [SekolahController::class, 'store'])->name('sekolah.store');
 
     // D. Halaman STATUS STEPPER Verifikasi
@@ -58,6 +54,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // G. Proses Hapus Data Pengajuan (DELETE)
     Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
+
+    // Rute Profile Akun
+    Route::get('/user/profile', [DashboardUserController::class, 'profile'])->name('profile.user');
+    Route::put('/user/profile/password', [DashboardUserController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 /*
@@ -81,16 +81,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 | 4. Rute API Data JSON Peta
 |--------------------------------------------------------------------------
 */
-// Mengambil data wilayah unik untuk dropdown filter (cache permanen)
 Route::get('/api/wilayah', [SekolahController::class, 'getWilayah'])->name('sekolah.wilayah');
-
-// Mengambil ringkasan nasional per provinsi (cache permanen, lightweight)
 Route::get('/api/sekolah/summary', [SekolahController::class, 'getProvinsiSummary'])->name('sekolah.summary');
-
-// Mengambil data sekolah untuk peta — membutuhkan minimal ?provinsi=...
 Route::get('/api/sekolah', [SekolahController::class, 'apiPeta'])->name('sekolah.api');
-
-// Mengambil detail lengkap satu sekolah (on-demand, tanpa cache)
 Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail'])->name('sekolah.detail');
 
 /*
@@ -98,4 +91,4 @@ Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail']
 | 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

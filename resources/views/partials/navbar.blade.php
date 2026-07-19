@@ -2,7 +2,8 @@
     <div class="nav-inner">
 
         <!-- Brand -->
-        <a href="{{ auth()->check() ? (auth()->user()->is_admin ? url('/admin/dashboard') : route('dashboard')) : url('/') }}" class="navbar-brand">
+        <a href="{{ auth()->check() ? (auth()->user()->is_admin ? url('/admin/dashboard') : route('dashboard')) : url('/') }}"
+            class="navbar-brand">
             <img src="{{ asset('assets/logo.png') }}" class="brand-logo-img">
             <div class="brand-text">
                 <div class="brand-text--top">
@@ -55,13 +56,14 @@
 
                         <hr class="dropdown-divider">
 
-                        <a href="{{ auth()->user()->is_admin ? url('/admin/dashboard') : url('/user/dashboard') }}" class="dropdown-link">
+                        <a href="{{ auth()->user()->is_admin ? url('/admin/profile') : url('/user/profile') }}"
+                            class="dropdown-link">
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
 
-                            Profil & Dashboard
+                            Profile
                         </a>
 
                         <hr class="dropdown-divider">
