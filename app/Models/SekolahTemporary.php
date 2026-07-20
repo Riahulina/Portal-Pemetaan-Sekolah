@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SekolahTemporary extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'sekolah_temporary';
 
@@ -29,9 +30,11 @@ class SekolahTemporary extends Model
         'no_telepon',
         'email',
         'social_media',
+        'yayasan',
         'siswa_laki',
         'siswa_perempuan',
         'total_siswa',
+        'gambar_url',
         'status_verifikasi',
         'catatan_admin',
     ];
@@ -43,8 +46,8 @@ class SekolahTemporary extends Model
         'siswa_laki' => 'integer',
         'siswa_perempuan' => 'integer',
         'total_siswa' => 'integer',
-        'latitude' => 'double',
-        'longitude' => 'double',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     /**

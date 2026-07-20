@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Sekolah;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AdminSekolahController extends Controller
 {
@@ -66,6 +67,23 @@ class AdminSekolahController extends Controller
     {
         $sekolah = Sekolah::findOrFail($npsn);
         $sekolah->delete();
+
+        // Bust admin dashboard cache
+        Cache::forget('admin_dashboard_data');
+
+        // Bust static wilayah + summary caches
+        Cache::forget('sekolah_wilayah_v2');
+        Cache::forget('sekolah_provinsi_summary_v1');
+
+        // Bust dynamic map caches affected by this school's location
+        $filters = [$sekolah->provinsi, '', '', '', ''];
+        Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+
+        $filters[1] = $sekolah->kabupaten_kota;
+        Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+
+        $filters[2] = $sekolah->kecamatan;
+        Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
 
         return redirect()->route('admin.sekolah.index')->with('success', 'Data sekolah berhasil dihapus.');
     }

@@ -51,6 +51,9 @@
 
     <!-- PENTING: Tempat menampung JavaScript khusus dari halaman child (seperti logika Leaflet di form) -->
     @yield('scripts')
+
+    <!-- Alpine.js (deferred) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 
 </html>

@@ -128,11 +128,15 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" x-data="{ phone: '{{ old('no_telepon', $sekolah->no_telepon ?? '') }}' }">
                                 <label for="no_telepon">No. Telepon <span class="required">*</span></label>
-                                <input type="tel" id="no_telepon" name="no_telepon"
-                                    value="{{ old('no_telepon', $sekolah->no_telepon ?? '') }}"
-                                    placeholder="Contoh : 81369904725" required>
+                                <div style="display: flex; align-items: center; gap: 0;">
+                                    <span style="padding: 8px 12px; background: #f3f4f6; border: 1px solid #d1d5db; border-right: none; border-radius: 6px 0 0 6px; font-size: 14px; color: #374151; white-space: nowrap;">+62</span>
+                                    <input type="tel" id="no_telepon" name="no_telepon" x-model="phone"
+                                        @input="phone = phone.replace(/^0+/, '')"
+                                        style="border-radius: 0 6px 6px 0; flex: 1;"
+                                        placeholder="81369904725" required>
+                                </div>
                             </div>
                         </div>
 
@@ -145,9 +149,9 @@
                             </div>
                             <div class="form-group">
                                 <label for="social_media">Website / Sosmed Sekolah <span class="required">*</span></label>
-                                <input type="text" id="social_media" name="social_media"
+                                <input type="url" id="social_media" name="social_media"
                                     value="{{ old('social_media', $sekolah->social_media ?? '') }}"
-                                    placeholder="Masukkan URL Website atau Media Sosial" required>
+                                    placeholder="https://contoh.com atau https://instagram.com/username" required>
                             </div>
                         </div>
 
@@ -189,30 +193,55 @@
                     </div>
 
                     <!-- SECTION 3: Detail Lokasi -->
-                    <div class="form-section">
+                    <div class="form-section" x-data="locationDropdowns()" x-init="init()">
                         <h3 class="section-title">Detail Lokasi</h3>
 
                         <div class="form-grid col-2">
                             <div class="form-group">
                                 <label for="provinsi">Provinsi <span class="required">*</span></label>
-                                <input type="text" id="provinsi" name="provinsi"
-                                    value="{{ old('provinsi', $sekolah->provinsi ?? '') }}"
-                                    placeholder="Masukkan Provinsi" required>
+                                <div class="select-wrapper">
+                                    <select id="provinsi" name="provinsi" required
+                                        x-model="selectedProvinsi"
+                                        @change="onProvinsiChange()">
+                                        <option value="" disabled>Pilih Provinsi</option>
+                                        <template x-for="prov in provinces" :key="prov">
+                                            <option :value="prov" x-text="prov"
+                                                :selected="prov === '{{ old('provinsi', $sekolah->provinsi ?? '') }}'"></option>
+                                        </template>
+                                    </select>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="kabupaten_kota">Kabupaten / Kota <span class="required">*</span></label>
-                                <input type="text" id="kabupaten_kota" name="kabupaten_kota"
-                                    value="{{ old('kabupaten_kota', $sekolah->kabupaten_kota ?? '') }}"
-                                    placeholder="Masukkan Kabupaten / Kota" required>
+                                <div class="select-wrapper">
+                                    <select id="kabupaten_kota" name="kabupaten_kota" required
+                                        x-model="selectedKabupaten"
+                                        @change="onKabupatenChange()"
+                                        :disabled="!selectedProvinsi">
+                                        <option value="" disabled>Pilih Kabupaten / Kota</option>
+                                        <template x-for="kab in kabupatens" :key="kab">
+                                            <option :value="kab" x-text="kab"
+                                                :selected="kab === '{{ old('kabupaten_kota', $sekolah->kabupaten_kota ?? '') }}'"></option>
+                                        </template>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-grid col-2">
                             <div class="form-group">
                                 <label for="kecamatan">Kecamatan <span class="required">*</span></label>
-                                <input type="text" id="kecamatan" name="kecamatan"
-                                    value="{{ old('kecamatan', $sekolah->kecamatan ?? '') }}"
-                                    placeholder="Masukkan Kecamatan" required>
+                                <div class="select-wrapper">
+                                    <select id="kecamatan" name="kecamatan" required
+                                        x-model="selectedKecamatan"
+                                        :disabled="!selectedKabupaten">
+                                        <option value="" disabled>Pilih Kecamatan</option>
+                                        <template x-for="kec in kecamatans" :key="kec">
+                                            <option :value="kec" x-text="kec"
+                                                :selected="kec === '{{ old('kecamatan', $sekolah->kecamatan ?? '') }}'"></option>
+                                        </template>
+                                    </select>
+                                </div>
                             </div>
                             <div></div>
                         </div>
@@ -288,6 +317,62 @@
 @section('scripts')
     {{-- Memanggil JS Leaflet --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        function locationDropdowns() {
+            return {
+                allRows: [],
+                provinces: [],
+                kabupatens: [],
+                kecamatans: [],
+                selectedProvinsi: '{{ old('provinsi', $sekolah->provinsi ?? '') }}',
+                selectedKabupaten: '{{ old('kabupaten_kota', $sekolah->kabupaten_kota ?? '') }}',
+                selectedKecamatan: '{{ old('kecamatan', $sekolah->kecamatan ?? '') }}',
+
+                async init() {
+                    try {
+                        const res = await fetch('/api/wilayah');
+                        this.allRows = await res.json();
+                    } catch (e) {
+                        this.allRows = [];
+                    }
+
+                    const uniqueProvinces = [...new Set(this.allRows.map(r => r.provinsi).filter(Boolean))];
+                    this.provinces = uniqueProvinces.sort((a, b) => a.localeCompare(b, 'id'));
+
+                    if (this.selectedProvinsi) {
+                        this.onProvinsiChange();
+                    }
+                },
+
+                onProvinsiChange() {
+                    this.selectedKabupaten = '';
+                    this.selectedKecamatan = '';
+                    const kabSet = [...new Set(
+                        this.allRows
+                            .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota)
+                            .map(r => r.kabupaten_kota)
+                    )];
+                    this.kabupatens = kabSet.sort((a, b) => a.localeCompare(b, 'id'));
+                    this.kecamatans = [];
+
+                    if (this.selectedKabupaten) {
+                        this.onKabupatenChange();
+                    }
+                },
+
+                onKabupatenChange() {
+                    this.selectedKecamatan = '';
+                    const kecSet = [...new Set(
+                        this.allRows
+                            .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota === this.selectedKabupaten && r.kecamatan)
+                            .map(r => r.kecamatan)
+                    )];
+                    this.kecamatans = kecSet.sort((a, b) => a.localeCompare(b, 'id'));
+                }
+            };
+        }
+    </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

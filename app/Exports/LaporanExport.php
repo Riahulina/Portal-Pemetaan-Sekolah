@@ -36,7 +36,7 @@ class LaporanExport implements FromCollection, WithHeadings, WithMapping
             'Kecamatan',
             'Alamat',
             'No Telepon',
-            'Email'
+            'Email',
         ];
     }
 

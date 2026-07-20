@@ -4,8 +4,10 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminSchoolController;
 use App\Http\Controllers\Admin\AdminSekolahController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\SekolahController;
+use App\Http\Controllers\AdminLaporanController;
+use App\Http\Controllers\AdminPendaftaranController;
 use App\Http\Controllers\DashboardUserController;
+use App\Http\Controllers\SekolahController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -86,12 +88,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // --- MANAJEMEN PENGGUNA ---
     Route::get('/pengguna', [AdminUserController::class, 'index'])->name('pengguna.index');
     Route::delete('/pengguna/{id}', [AdminUserController::class, 'destroy'])->name('pengguna.destroy');
-    Route::get('/pendaftaran', [App\Http\Controllers\AdminPendaftaranController::class, 'index'])->name('pendaftaran.index');
-    Route::get('/pendaftaran/{id}', [App\Http\Controllers\AdminPendaftaranController::class, 'show'])->name('pendaftaran.show');
-    Route::post('/pendaftaran/{id}/verifikasi', [App\Http\Controllers\AdminPendaftaranController::class, 'verifikasi'])->name('pendaftaran.verifikasi');
-    Route::get('/laporan', [App\Http\Controllers\AdminLaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/export-excel', [App\Http\Controllers\AdminLaporanController::class, 'exportExcel'])->name('laporan.excel');
-    Route::get('/laporan/export-pdf', [App\Http\Controllers\AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
+    Route::get('/pendaftaran', [AdminPendaftaranController::class, 'index'])->name('pendaftaran.index');
+    Route::get('/pendaftaran/{id}', [AdminPendaftaranController::class, 'show'])->name('pendaftaran.show');
+    Route::post('/pendaftaran/{id}/verifikasi', [AdminPendaftaranController::class, 'verifikasi'])->name('pendaftaran.verifikasi');
+    Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export-excel', [AdminLaporanController::class, 'exportExcel'])->name('laporan.excel');
+    Route::get('/laporan/export-pdf', [AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
 });
 
 /*
@@ -109,4 +111,4 @@ Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail']
 | 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\SekolahTemporary;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -12,7 +13,7 @@ class DashboardUserController extends Controller
 {
     public function index()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         // Jika yang login ternyata admin, tendang ke dashboard admin
@@ -34,6 +35,7 @@ class DashboardUserController extends Controller
         // 3. Hitung Disetujui (Mencari kata 'approved' atau 'disetujui' agar aman)
         $disetujui = $sekolahDaftar->filter(function ($item) {
             $status = strtolower(trim($item->status_verifikasi));
+
             return $status === 'approved' || $status === 'disetujui';
         })->count();
 
@@ -48,7 +50,7 @@ class DashboardUserController extends Controller
     // 1. Tampilkan Halaman Profile
     public function profile()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
 
         return view('User.profile', compact('user'));
@@ -65,7 +67,7 @@ class DashboardUserController extends Controller
             'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $user->update([

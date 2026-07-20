@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class SekolahController extends Controller
 {
@@ -32,6 +33,7 @@ class SekolahController extends Controller
         $wilayah = Cache::rememberForever('sekolah_wilayah_v2', function () {
             return DB::table('sekolah')
                 ->select('provinsi', 'kabupaten_kota', 'kecamatan')
+                ->whereNull('deleted_at')
                 ->whereNotNull('provinsi')
                 ->whereNotNull('kabupaten_kota')
                 ->whereNotNull('kecamatan')
@@ -78,6 +80,7 @@ class SekolahController extends Controller
                 )
                 ->selectRaw('total_siswa::integer as total_siswa')
                 ->where('provinsi', $provinsi)
+                ->whereNull('deleted_at')
                 ->whereNotNull('latitude')
                 ->whereNotNull('longitude');
 
@@ -112,6 +115,7 @@ class SekolahController extends Controller
     {
         $sekolah = DB::table('sekolah')
             ->where('npsn', $npsn)
+            ->whereNull('deleted_at')
             ->first();
 
         if (! $sekolah) {
@@ -138,6 +142,7 @@ class SekolahController extends Controller
                     AVG(CAST(longitude AS DECIMAL(11,8))) as lng
                 ')
                 ->whereNotNull('provinsi')
+                ->whereNull('deleted_at')
                 ->whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->groupBy('provinsi')
@@ -153,9 +158,33 @@ class SekolahController extends Controller
      */
     public function store(Request $request)
     {
+        // Strip leading zero from phone number before validation
+        if ($request->filled('no_telepon')) {
+            $request->merge(['no_telepon' => ltrim($request->input('no_telepon'), '0')]);
+        }
+
         $request->validate([
-            'npsn' => 'required|string|max:10',
+            'npsn' => [
+                'required', 'string', 'max:10',
+                Rule::unique('sekolah_temporary', 'npsn')->whereNull('deleted_at'),
+                Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
+            ],
             'nama_sekolah' => 'required|string|max:150',
+            'jenjang' => 'required|in:SD,SMP,SMA,SMK',
+            'status' => 'required|in:Negeri,Swasta',
+            'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
+            'provinsi' => 'required|string|max:100',
+            'kabupaten_kota' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'alamat' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'no_telepon' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
+            'social_media' => 'nullable|url|max:255',
+            'siswa_laki' => 'required|integer|min:0',
+            'siswa_perempuan' => 'required|integer|min:0',
         ]);
 
         SekolahTemporary::create([
@@ -164,6 +193,7 @@ class SekolahController extends Controller
             'nama_sekolah' => $request->nama_sekolah,
             'jenjang' => $request->jenjang,
             'status' => $request->status,
+            'akreditasi' => $request->akreditasi,
             'provinsi' => $request->provinsi,
             'kabupaten_kota' => $request->kabupaten_kota,
             'kecamatan' => $request->kecamatan,
@@ -171,10 +201,12 @@ class SekolahController extends Controller
             'alamat' => $request->alamat,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
-            'no_telepon' => $request->no_telepon,
-            'email' => $request->email,
-            'social_media' => $request->social_media,
-            'total_siswa' => $request->total_siswa ?? 0,
+            'no_telepon' => $request->no_telepon ?? null,
+            'email' => $request->email ?? null,
+            'social_media' => $request->social_media ?? null,
+            'siswa_laki' => $request->siswa_laki,
+            'siswa_perempuan' => $request->siswa_perempuan,
+            'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
             'status_verifikasi' => 'pending',
         ]);
 
@@ -214,9 +246,42 @@ class SekolahController extends Controller
     {
         $sekolah = SekolahTemporary::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
+        // Strip leading zero from phone number before validation
+        if ($request->filled('no_telepon')) {
+            $request->merge(['no_telepon' => ltrim($request->input('no_telepon'), '0')]);
+        }
+
         $request->validate([
-            'npsn' => 'required|string|max:10',
+            'npsn' => [
+                'required',
+                'numeric',
+                Rule::unique('sekolah_temporary', 'npsn')
+                    ->ignore($sekolah->id, 'id')
+                    ->where(function ($query) {
+                        $query->whereNull('deleted_at');
+                        $query->where('status_verifikasi', '!=', 'approved');
+                    }),
+                Rule::unique('sekolah', 'npsn')
+                    ->where(function ($query) {
+                        $query->whereNull('deleted_at');
+                    }),
+            ],
             'nama_sekolah' => 'required|string|max:150',
+            'jenjang' => 'required|in:SD,SMP,SMA,SMK',
+            'status' => 'required|in:Negeri,Swasta',
+            'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
+            'provinsi' => 'required|string|max:100',
+            'kabupaten_kota' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'alamat' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'no_telepon' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
+            'social_media' => 'nullable|url|max:255',
+            'siswa_laki' => 'required|integer|min:0',
+            'siswa_perempuan' => 'required|integer|min:0',
         ]);
 
         // Update data dengan nilai baru dari form
@@ -225,6 +290,7 @@ class SekolahController extends Controller
             'nama_sekolah' => $request->nama_sekolah,
             'jenjang' => $request->jenjang,
             'status' => $request->status,
+            'akreditasi' => $request->akreditasi,
             'provinsi' => $request->provinsi,
             'kabupaten_kota' => $request->kabupaten_kota,
             'kecamatan' => $request->kecamatan,
@@ -232,13 +298,35 @@ class SekolahController extends Controller
             'alamat' => $request->alamat,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
-            'no_telepon' => $request->no_telepon,
-            'email' => $request->email,
-            'social_media' => $request->social_media,
-            'total_siswa' => $request->total_siswa ?? 0,
-            'status_verifikasi' => 'pending', // Set kembali ke pending jika user mengubah data
+            'no_telepon' => $request->no_telepon ?? null,
+            'email' => $request->email ?? null,
+            'social_media' => $request->social_media ?? null,
+            'siswa_laki' => $request->siswa_laki,
+            'siswa_perempuan' => $request->siswa_perempuan,
+            'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
+            'status_verifikasi' => 'pending',
         ]);
 
         return redirect()->route('sekolah.index')->with('success', 'Data sekolah berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus pengajuan sekolah milik user sendiri.
+     * Hanya boleh dihapus jika status masih pending atau rejected.
+     */
+    public function destroy($id)
+    {
+        $sekolah = SekolahTemporary::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+
+        if (in_array($sekolah->status_verifikasi, ['approved'])) {
+            return back()->with('error', 'Data yang sudah disetujui tidak dapat dihapus.');
+        }
+
+        $sekolah->delete();
+
+        \Cache::forget('sekolah_provinsi_summary_v1');
+        \Cache::forget('sekolah_wilayah_v2');
+
+        return back()->with('success', 'Data berhasil dihapus.');
     }
 }

@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sekolah;          // <-- INI YANG KURANG (Wajib panggil model Sekolah Utama)
-use App\Models\SekolahTemporary; // Memanggil model Sekolah Temporary
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Exports\LaporanExport;     // Panggil class Export Excel
-use Maatwebsite\Excel\Facades\Excel; // Facade Excel
-use Barryvdh\DomPDF\Facade\Pdf;       // Facade PDF
+use App\Exports\LaporanExport;          // <-- INI YANG KURANG (Wajib panggil model Sekolah Utama)
+use App\Models\Sekolah; // Memanggil model Sekolah Temporary
+use App\Models\SekolahTemporary;
+use Barryvdh\DomPDF\Facade\Pdf;     // Panggil class Export Excel
+use Illuminate\Support\Facades\DB; // Facade Excel
+use Maatwebsite\Excel\Facades\Excel;       // Facade PDF
 
 class AdminLaporanController extends Controller
 {
@@ -54,7 +53,7 @@ class AdminLaporanController extends Controller
      */
     public function exportExcel()
     {
-        return Excel::download(new LaporanExport, 'laporan-sekolah-' . date('Y-m-d') . '.xlsx');
+        return Excel::download(new LaporanExport, 'laporan-sekolah-'.date('Y-m-d').'.xlsx');
     }
 
     /**
@@ -72,6 +71,6 @@ class AdminLaporanController extends Controller
         $pdf = Pdf::loadView('Admin.laporanPdf', compact('totalSekolah', 'menungguVerifikasi', 'disetujui', 'ditolak', 'sekolahList'));
 
         // Atur ukuran kertas ke A4 Portrait
-        return $pdf->setPaper('a4', 'portrait')->download('laporan-sekolah-' . date('Y-m-d') . '.pdf');
+        return $pdf->setPaper('a4', 'portrait')->download('laporan-sekolah-'.date('Y-m-d').'.pdf');
     }
 }

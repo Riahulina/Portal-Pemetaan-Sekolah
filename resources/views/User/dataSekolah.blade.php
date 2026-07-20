@@ -97,6 +97,7 @@
                                                 style="display: none; position: absolute; right: 0; top: 100%; background-color: #ffffff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-radius: 6px; z-index: 50;">
 
                                                 <!-- Form Hapus Data (Method DELETE demi keamanan Laravel) -->
+                                                @if($item->status_verifikasi !== 'approved')
                                                 <form action="{{ route('sekolah.destroy', $item->id) }}" method="POST"
                                                     onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan sekolah ini? Data tidak dapat dikembalikan.')"
                                                     style="margin: 0;">
@@ -107,6 +108,7 @@
                                                         🗑️ Hapus Data
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
