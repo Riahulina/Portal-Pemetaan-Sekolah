@@ -86,6 +86,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // --- MANAJEMEN PENGGUNA ---
     Route::get('/pengguna', [AdminUserController::class, 'index'])->name('pengguna.index');
     Route::delete('/pengguna/{id}', [AdminUserController::class, 'destroy'])->name('pengguna.destroy');
+    Route::get('/pendaftaran', [App\Http\Controllers\AdminPendaftaranController::class, 'index'])->name('pendaftaran.index');
+    Route::get('/pendaftaran/{id}', [App\Http\Controllers\AdminPendaftaranController::class, 'show'])->name('pendaftaran.show');
+    Route::post('/pendaftaran/{id}/verifikasi', [App\Http\Controllers\AdminPendaftaranController::class, 'verifikasi'])->name('pendaftaran.verifikasi');
+    Route::get('/laporan', [App\Http\Controllers\AdminLaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export-excel', [App\Http\Controllers\AdminLaporanController::class, 'exportExcel'])->name('laporan.excel');
+    Route::get('/laporan/export-pdf', [App\Http\Controllers\AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
 });
 
 /*
