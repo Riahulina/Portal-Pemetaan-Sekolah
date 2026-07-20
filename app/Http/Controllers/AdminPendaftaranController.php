@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Sekolah;
-use App\Models\SekolahTemporary; // Memanggil model Sekolah Utama
+use App\Models\SekolahTemporary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AdminPendaftaranController extends Controller
 {
@@ -63,10 +65,28 @@ class AdminPendaftaranController extends Controller
                 'no_telepon' => $sekolahTemp->no_telepon,
                 'email' => $sekolahTemp->email,
                 'social_media' => $sekolahTemp->social_media,
+                'yayasan' => $sekolahTemp->yayasan,
                 'total_siswa' => $sekolahTemp->total_siswa ?? 0,
                 'jumlah_siswa_perempuan' => $sekolahTemp->siswa_perempuan ?? 0,
                 'jumlah_siswa_laki_laki' => $sekolahTemp->siswa_laki ?? 0,
+                'gambar_url' => $sekolahTemp->gambar_url,
             ]);
+
+            ActivityLog::create([
+                'school_name' => $sekolahTemp->nama_sekolah,
+                'action' => 'disetujui',
+            ]);
+
+            Cache::forget('admin_dashboard_data');
+            Cache::forget('sekolah_wilayah_v2');
+            Cache::forget('sekolah_provinsi_summary_v1');
+
+            $filters = [$sekolahTemp->provinsi, '', '', '', ''];
+            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+            $filters[1] = $sekolahTemp->kabupaten_kota;
+            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+            $filters[2] = $sekolahTemp->kecamatan;
+            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah berhasil disetujui dan telah masuk ke Manajemen Sekolah!');
         } elseif ($status === 'rejected') {
@@ -74,6 +94,13 @@ class AdminPendaftaranController extends Controller
                 'status_verifikasi' => 'rejected',
                 'catatan_admin' => $request->input('catatan_admin', 'Mohon maaf, pendaftaran ditolak karena data tidak sesuai.'),
             ]);
+
+            ActivityLog::create([
+                'school_name' => $sekolahTemp->nama_sekolah,
+                'action' => 'ditolak',
+            ]);
+
+            Cache::forget('admin_dashboard_data');
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah telah ditolak.');
         }

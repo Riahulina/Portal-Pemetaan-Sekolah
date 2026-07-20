@@ -47,8 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // C. PROSES SIMPAN Data Form ke Database (POST)
     Route::post('/user/form/store', [SekolahController::class, 'store'])->name('sekolah.store');
 
-    // D. Halaman STATUS STEPPER Verifikasi
-    Route::get('/user/status-verifikasi', [SekolahController::class, 'statusVerifikasi'])->name('status.user');
+    // D. Halaman STATUS STEPPER Verifikasi (dengan optional ID untuk navigasi dari tabel)
+    Route::get('/user/status-verifikasi/{id?}', [SekolahController::class, 'statusVerifikasi'])->name('status.user');
 
     // E. Halaman Form Edit (Menampilkan data lama)
     Route::get('/sekolah/edit/{id}', [SekolahController::class, 'edit'])->name('sekolah.edit');

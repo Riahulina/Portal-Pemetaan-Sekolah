@@ -170,7 +170,7 @@ class SekolahController extends Controller
                 Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
             ],
             'nama_sekolah' => 'required|string|max:150',
-            'jenjang' => 'required|in:SD,SMP,SMA,SMK',
+            'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
             'status' => 'required|in:Negeri,Swasta',
             'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
             'provinsi' => 'required|string|max:100',
@@ -222,11 +222,27 @@ class SekolahController extends Controller
 
     /**
      * 2. Method Menampilkan Halaman Status Stepper Progres
+     *    Supports optional {id?} parameter — remembers last viewed via session.
      */
-    public function statusVerifikasi()
+    public function statusVerifikasi($id = null)
     {
-        // Cari pengajuan terbaru milik user yang sedang aktif dari tabel temporary
-        $sekolah = SekolahTemporary::where('user_id', Auth::id())->latest()->first();
+        $userId = Auth::id();
+
+        if ($id) {
+            $sekolah = SekolahTemporary::where('id', $id)->where('user_id', $userId)->first();
+            if ($sekolah) {
+                session(['last_viewed_status_id' => $sekolah->id]);
+            }
+        } else {
+            $lastId = session('last_viewed_status_id');
+            $sekolah = $lastId
+                ? SekolahTemporary::where('id', $lastId)->where('user_id', $userId)->first()
+                : null;
+        }
+
+        if (! $sekolah) {
+            $sekolah = SekolahTemporary::where('user_id', $userId)->latest()->first();
+        }
 
         return view('User.statusVerifikasi', compact('sekolah'));
     }
@@ -267,7 +283,7 @@ class SekolahController extends Controller
                     }),
             ],
             'nama_sekolah' => 'required|string|max:150',
-            'jenjang' => 'required|in:SD,SMP,SMA,SMK',
+            'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
             'status' => 'required|in:Negeri,Swasta',
             'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
             'provinsi' => 'required|string|max:100',

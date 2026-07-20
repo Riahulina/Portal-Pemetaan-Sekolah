@@ -36,12 +36,14 @@ class AdminSchoolController extends Controller
             'no_telepon' => $sekolah->no_telepon,
             'email' => $sekolah->email,
             'social_media' => $sekolah->social_media,
+            'yayasan' => $sekolah->yayasan,
             'total_siswa' => $sekolah->total_siswa,
             'jumlah_siswa_laki_laki' => $sekolah->siswa_laki,
             'jumlah_siswa_perempuan' => $sekolah->siswa_perempuan,
+            'gambar_url' => $sekolah->gambar_url,
         ]);
 
-        $sekolah->delete();
+        $sekolah->update(['status_verifikasi' => 'approved']);
 
         // Bust admin dashboard cache
         Cache::forget('admin_dashboard_data');
@@ -72,7 +74,7 @@ class AdminSchoolController extends Controller
             'action' => 'ditolak',
         ]);
 
-        $sekolah->delete();
+        $sekolah->update(['status_verifikasi' => 'rejected']);
 
         Cache::forget('admin_dashboard_data');
 

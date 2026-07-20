@@ -20,11 +20,11 @@ class AdminDashboardController extends Controller
                 ->orWhereNull('longitude')
                 ->count();
 
-            $menungguVerifikasi = SekolahTemporary::count();
+            $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')->count();
 
-            $disetujui = ActivityLog::where('action', 'disetujui')->count();
+            $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')->count();
 
-            $ditolak = ActivityLog::where('action', 'ditolak')->count();
+            $ditolak = SekolahTemporary::where('status_verifikasi', 'rejected')->count();
 
             $lineChartData = ActivityLog::where('action', 'mendaftar')
                 ->where('created_at', '>=', now()->subDays(7))

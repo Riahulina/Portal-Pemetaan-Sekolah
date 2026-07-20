@@ -74,7 +74,7 @@
                                 {{-- Tombol Aksi --}}
                                 <td style="padding: 15px 20px; text-align: center;">
                                     <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                        <a href="{{ route('status.user') }}"
+                                        <a href="{{ route('status.user', $item->id) }}"
                                             style="border: 1px solid #cbd5e1; background: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; color: #334155; text-decoration: none; display: flex; align-items: center; gap: 4px;">
                                             👁️ Lihat
                                         </a>

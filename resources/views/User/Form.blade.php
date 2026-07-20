@@ -74,6 +74,12 @@
                                     <select id="jenjang" name="jenjang" required>
                                         <option value="" disabled {{ !isset($sekolah) ? 'selected' : '' }}>Pilih
                                             Jenjang</option>
+                                        <option value="KB"
+                                            {{ old('jenjang', $sekolah->jenjang ?? '') == 'KB' ? 'selected' : '' }}>KB
+                                        </option>
+                                        <option value="TK"
+                                            {{ old('jenjang', $sekolah->jenjang ?? '') == 'TK' ? 'selected' : '' }}>TK
+                                        </option>
                                         <option value="SD"
                                             {{ old('jenjang', $sekolah->jenjang ?? '') == 'SD' ? 'selected' : '' }}>SD
                                         </option>

@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\LaporanExport;          // <-- INI YANG KURANG (Wajib panggil model Sekolah Utama)
-use App\Models\Sekolah; // Memanggil model Sekolah Temporary
+use App\Exports\LaporanExport;
+use App\Models\ActivityLog;
+use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
-use Barryvdh\DomPDF\Facade\Pdf;     // Panggil class Export Excel
-use Illuminate\Support\Facades\DB; // Facade Excel
-use Maatwebsite\Excel\Facades\Excel;       // Facade PDF
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminLaporanController extends Controller
 {
@@ -32,9 +33,53 @@ class AdminLaporanController extends Controller
             $valuesJenjang[] = $item->total;
         }
 
-        // 3. Data palsu/mockup untuk grafik Pendaftaran Harian (Line Chart) seperti digambar
-        $chartHarianLabels = ['9 July', '10 July', '11 July', '12 July', '13 July', '14 July', '15 July'];
-        $chartHarianValues = [18, 32, 22, 38, 34, 30, 42];
+        // 3. Data grafik Pendaftaran Harian (7 hari terakhir) dari ActivityLog
+        $chartData = ActivityLog::where('action', 'mendaftar')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('date(created_at) as date, count(*) as count')
+            ->groupByRaw('date(created_at)')
+            ->orderByRaw('date(created_at)')
+            ->get();
+
+        $chartHarianLabels = [];
+        $chartHarianValues = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $chartHarianLabels[] = $date->format('j M');
+            $match = $chartData->firstWhere('date', $date->format('Y-m-d'));
+            $chartHarianValues[] = $match ? $match->count : 0;
+        }
+
+        // 4. Ringkasan perubahan minggu ini
+        $thisWeekApprovals = ActivityLog::where('action', 'disetujui')
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->count();
+        $lastWeekApprovals = ActivityLog::where('action', 'disetujui')
+            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+            ->count();
+        $approvalTrend = $lastWeekApprovals > 0
+            ? round((($thisWeekApprovals - $lastWeekApprovals) / $lastWeekApprovals) * 100)
+            : ($thisWeekApprovals > 0 ? 100 : 0);
+
+        $thisWeekPending = SekolahTemporary::where('status_verifikasi', 'pending')
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->count();
+        $lastWeekPending = SekolahTemporary::where('status_verifikasi', 'pending')
+            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+            ->count();
+        $pendingTrend = $lastWeekPending > 0
+            ? round((($thisWeekPending - $lastWeekPending) / $lastWeekPending) * 100)
+            : ($thisWeekPending > 0 ? 100 : 0);
+
+        $thisWeekRejected = ActivityLog::where('action', 'ditolak')
+            ->where('created_at', '>=', now()->startOfWeek())
+            ->count();
+        $lastWeekRejected = ActivityLog::where('action', 'ditolak')
+            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
+            ->count();
+        $rejectedTrend = $lastWeekRejected > 0
+            ? round((($thisWeekRejected - $lastWeekRejected) / $lastWeekRejected) * 100)
+            : ($thisWeekRejected > 0 ? 100 : 0);
 
         return view('Admin.laporan', compact(
             'totalSekolah',
@@ -44,7 +89,10 @@ class AdminLaporanController extends Controller
             'labelsJenjang',
             'valuesJenjang',
             'chartHarianLabels',
-            'chartHarianValues'
+            'chartHarianValues',
+            'approvalTrend',
+            'pendingTrend',
+            'rejectedTrend'
         ));
     }
 
