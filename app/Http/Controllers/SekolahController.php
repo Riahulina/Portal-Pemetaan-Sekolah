@@ -321,6 +321,7 @@ class SekolahController extends Controller
             'siswa_perempuan' => $request->siswa_perempuan,
             'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
             'status_verifikasi' => 'pending',
+            'catatan_admin' => null,
         ]);
 
         return redirect()->route('sekolah.index')->with('success', 'Data sekolah berhasil diperbarui.');

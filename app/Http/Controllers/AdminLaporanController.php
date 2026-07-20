@@ -114,11 +114,30 @@ class AdminLaporanController extends Controller
         $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')->count();
         $ditolak = SekolahTemporary::where('status_verifikasi', 'rejected')->count();
 
-        $sekolahList = Sekolah::latest()->get();
+        $rekapWilayah = Sekolah::select(
+            'provinsi',
+            'kabupaten_kota',
+            DB::raw('COUNT(*) as total_sekolah'),
+            DB::raw('SUM(total_siswa) as total_siswa')
+        )
+            ->whereNotNull('provinsi')
+            ->whereNotNull('kabupaten_kota')
+            ->groupBy('provinsi', 'kabupaten_kota')
+            ->orderBy('provinsi')
+            ->orderBy('kabupaten_kota')
+            ->get();
 
-        $pdf = Pdf::loadView('Admin.laporanPdf', compact('totalSekolah', 'menungguVerifikasi', 'disetujui', 'ditolak', 'sekolahList'));
+        $periode = now()->translatedFormat('F Y');
 
-        // Atur ukuran kertas ke A4 Portrait
-        return $pdf->setPaper('a4', 'portrait')->download('laporan-sekolah-'.date('Y-m-d').'.pdf');
+        $pdf = Pdf::loadView('Admin.laporanPdf', compact(
+            'totalSekolah',
+            'menungguVerifikasi',
+            'disetujui',
+            'ditolak',
+            'rekapWilayah',
+            'periode'
+        ));
+
+        return $pdf->setPaper('a4', 'landscape')->download('laporan-sekolah-'.date('Y-m-d').'.pdf');
     }
 }

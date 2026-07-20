@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Statistik dan Data Sekolah</title>
+    <title>Laporan Rekapitulasi Demografi Sekolah</title>
     <style>
         body {
             font-family: sans-serif;
@@ -23,7 +23,7 @@
         }
 
         .metrics-table {
-            w-full: 100%;
+            width: 100%;
             border-collapse: collapse;
             margin-bottom: 25px;
         }
@@ -80,8 +80,8 @@
 <body>
 
     <div class="header">
-        <h1>LAPORAN RINGKASAN DATA SEKOLAH</h1>
-        <p>SatuPeta Pendidikan Indonesia — Periode: Juli 2026</p>
+        <h1>LAPORAN REKAPITULASI DEMOGRAFI SEKOLAH</h1>
+        <p>SatuPeta Pendidikan Indonesia — Periode: {{ $periode }}</p>
     </div>
 
     <!-- Ringkasan Ringkas Kotak Atas -->
@@ -106,27 +106,25 @@
         </tr>
     </table>
 
-    <h3>Daftar Sekolah Terdaftar</h3>
+    <h3>Rekapitulasi Data Sekolah per Wilayah</h3>
     <table class="data-table">
         <thead>
             <tr>
                 <th style="width: 5%">No</th>
-                <th style="width: 15%">NPSN</th>
-                <th>Nama Sekolah</th>
-                <th style="width: 10%">Jenjang</th>
-                <th style="width: 15%">Kabupaten/Kota</th>
-                <th style="width: 15%">No. Telp</th>
+                <th style="width: 25%">Provinsi</th>
+                <th style="width: 30%">Kabupaten/Kota</th>
+                <th style="width: 20%">Total Sekolah</th>
+                <th style="width: 20%">Total Siswa</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($sekolahList as $index => $row)
+            @foreach ($rekapWilayah as $index => $row)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $row->npsn }}</td>
-                    <td>{{ $row->nama_sekolah }}</td>
-                    <td>{{ strtoupper($row->jenjang) }}</td>
-                    <td>{{ $row->kabupaten_kota }}</td>
-                    <td>{{ $row->no_telepon ?? '-' }}</td>
+                    <td>{{ $row->provinsi ?? '-' }}</td>
+                    <td>{{ $row->kabupaten_kota ?? '-' }}</td>
+                    <td>{{ number_format($row->total_sekolah, 0, ',', '.') }}</td>
+                    <td>{{ number_format($row->total_siswa ?? 0, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>

@@ -13,20 +13,29 @@
             </div>
         @endif
 
-        <!-- SEARCH BAR -->
+        <!-- SEARCH BAR + FILTER -->
         <form method="GET" action="{{ route('admin.sekolah.index') }}" class="mb-6">
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1 max-w-md">
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="relative flex-1 min-w-[200px] max-w-md">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama atau NPSN..."
                         class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296] transition-all">
                 </div>
+                <select name="filter_kurang"
+                    class="px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296] transition-all">
+                    <option value="">Semua Data</option>
+                    <option value="koordinat" {{ $filterKurang === 'koordinat' ? 'selected' : '' }}>Koordinat Belum Ada</option>
+                    <option value="siswa" {{ $filterKurang === 'siswa' ? 'selected' : '' }}>Data Siswa Kosong</option>
+                    <option value="sosmed" {{ $filterKurang === 'sosmed' ? 'selected' : '' }}>Web/Sosmed Kosong</option>
+                    <option value="email" {{ $filterKurang === 'email' ? 'selected' : '' }}>Email Kosong</option>
+                    <option value="telepon" {{ $filterKurang === 'telepon' ? 'selected' : '' }}>No Telepon Kosong</option>
+                </select>
                 <button type="submit" class="px-5 py-2.5 bg-[#0d9296] text-white text-sm font-medium rounded-lg hover:bg-[#0b7e82] transition-colors">
                     Cari
                 </button>
-                @if ($search)
+                @if ($search || $filterKurang)
                     <a href="{{ route('admin.sekolah.index') }}" class="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                         Reset
                     </a>
@@ -136,19 +145,19 @@
                         @if ($sekolah->onFirstPage())
                             <span class="px-3 py-1.5 text-sm text-gray-300 bg-gray-50 rounded-lg cursor-not-allowed">&laquo;</span>
                         @else
-                            <a href="{{ $sekolah->previousPageUrl() }}&search={{ $search }}" class="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">&laquo;</a>
+                            <a href="{{ $sekolah->previousPageUrl() }}&search={{ $search }}&filter_kurang={{ $filterKurang }}" class="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">&laquo;</a>
                         @endif
 
                         @foreach ($sekolah->getUrlRange(max(1, $sekolah->currentPage() - 2), min($sekolah->lastPage(), $sekolah->currentPage() + 2)) as $page => $url)
                             @if ($page == $sekolah->currentPage())
                                 <span class="px-3 py-1.5 text-sm text-white bg-[#0d9296] rounded-lg font-medium">{{ $page }}</span>
                             @else
-                                <a href="{{ $url }}&search={{ $search }}" class="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">{{ $page }}</a>
+                                <a href="{{ $url }}&search={{ $search }}&filter_kurang={{ $filterKurang }}" class="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">{{ $page }}</a>
                             @endif
                         @endforeach
 
                         @if ($sekolah->hasMorePages())
-                            <a href="{{ $sekolah->nextPageUrl() }}&search={{ $search }}" class="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">&raquo;</a>
+                            <a href="{{ $sekolah->nextPageUrl() }}&search={{ $search }}&filter_kurang={{ $filterKurang }}" class="px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">&raquo;</a>
                         @else
                             <span class="px-3 py-1.5 text-sm text-gray-300 bg-gray-50 rounded-lg cursor-not-allowed">&raquo;</span>
                         @endif

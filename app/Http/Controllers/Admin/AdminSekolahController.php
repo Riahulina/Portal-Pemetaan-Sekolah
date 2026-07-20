@@ -15,6 +15,7 @@ class AdminSekolahController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search', '');
+        $filterKurang = $request->query('filter_kurang', '');
 
         $sekolah = Sekolah::query()
             ->when($search !== '', function ($query) use ($search) {
@@ -23,10 +24,35 @@ class AdminSekolahController extends Controller
                         ->orWhere('npsn', 'ilike', '%'.$search.'%');
                 });
             })
+            ->when($filterKurang !== '', function ($query) use ($filterKurang) {
+                $query->where(function ($q) use ($filterKurang) {
+                    switch ($filterKurang) {
+                        case 'koordinat':
+                            $q->whereNull('latitude')->orWhereNull('longitude');
+                            break;
+                        case 'siswa':
+                            $q->where('total_siswa', 0);
+                            break;
+                        case 'sosmed':
+                            $q->whereNull('social_media')->orWhere('social_media', '');
+                            break;
+                        case 'email':
+                            $q->whereNull('email')->orWhere('email', '');
+                            break;
+                        case 'telepon':
+                            $q->whereNull('no_telepon')->orWhere('no_telepon', '');
+                            break;
+                    }
+                });
+            })
             ->orderBy('nama_sekolah')
-            ->paginate(10);
+            ->paginate(10)
+            ->appends([
+                'search' => $search,
+                'filter_kurang' => $filterKurang,
+            ]);
 
-        return view('admin.manajemen-sekolah', compact('sekolah', 'search'));
+        return view('admin.manajemen-sekolah', compact('sekolah', 'search', 'filterKurang'));
     }
 
     /**
