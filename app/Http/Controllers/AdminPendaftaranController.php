@@ -11,14 +11,59 @@ use Illuminate\Support\Facades\Cache;
 class AdminPendaftaranController extends Controller
 {
     /**
-     * 1. Menampilkan Halaman Utama Pendaftaran (Menunggu Verifikasi)
+     * 1. Menampilkan Halaman Utama Pendaftaran (Menunggu Verifikasi + Filter)
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pendaftaran = SekolahTemporary::with('user')
-            ->where('status_verifikasi', 'pending')
-            ->latest()
-            ->paginate(5); // Sesuai dengan mockup 5 data per halaman
+        // Mapping ID Provinsi EMSIFA ke Nama Provinsi
+        $provincesMap = [
+            '11' => 'ACEH',
+            '12' => 'SUMATERA UTARA',
+            '13' => 'SUMATERA BARAT',
+            '14' => 'RIAU',
+            '15' => 'JAMBI',
+            '16' => 'SUMATERA SELATAN',
+            '17' => 'BENGKULU',
+            '18' => 'LAMPUNG',
+            '19' => 'KEPULAUAN BANGKA BELITUNG',
+            '21' => 'KEPULAUAN RIAU',
+        ];
+
+        $query = SekolahTemporary::with('user')
+            ->where('status_verifikasi', 'pending');
+
+        // 1. Filter Provinsi (Aman untuk ID Angka '13' maupun Teks 'SUMATERA BARAT')
+        if ($request->filled('provinsi')) {
+            $provInput = $request->provinsi;
+            $namaProv = $provincesMap[$provInput] ?? $provInput;
+
+            $query->where(function ($q) use ($provInput, $namaProv) {
+                $q->where('provinsi', 'ILIKE', '%' . $provInput . '%')
+                    ->orWhere('provinsi', 'ILIKE', '%' . $namaProv . '%');
+            });
+        }
+
+        // 2. Filter Kabupaten/Kota
+        if ($request->filled('kabupaten_kota')) {
+            $query->where('kabupaten_kota', 'ILIKE', '%' . $request->kabupaten_kota . '%');
+        }
+
+        // 3. Filter Jenjang (SD, SMP, SMA, SMK)
+        if ($request->filled('jenjang')) {
+            $query->where('jenjang', 'ILIKE', $request->jenjang);
+        }
+
+        // 4. Filter Pencarian Nama Sekolah / NPSN
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($qBuilder) use ($search) {
+                $qBuilder->where('nama_sekolah', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('npsn', 'ILIKE', '%' . $search . '%');
+            });
+        }
+
+        // Paginate & pertahankan query filter di URL
+        $pendaftaran = $query->latest()->paginate(5)->withQueryString();
 
         return view('Admin.pendaftaran', compact('pendaftaran'));
     }
@@ -48,7 +93,7 @@ class AdminPendaftaranController extends Controller
                 'catatan_admin' => 'Pendaftaran sekolah telah disetujui oleh admin.',
             ]);
 
-            // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama kamu
+            // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
             Sekolah::create([
                 'npsn' => $sekolahTemp->npsn,
                 'nama_sekolah' => $sekolahTemp->nama_sekolah,
@@ -82,11 +127,11 @@ class AdminPendaftaranController extends Controller
             Cache::forget('sekolah_provinsi_summary_v1');
 
             $filters = [$sekolahTemp->provinsi, '', '', '', ''];
-            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+            Cache::forget('sekolah_map_v5_' . md5(implode('_', $filters)));
             $filters[1] = $sekolahTemp->kabupaten_kota;
-            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+            Cache::forget('sekolah_map_v5_' . md5(implode('_', $filters)));
             $filters[2] = $sekolahTemp->kecamatan;
-            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
+            Cache::forget('sekolah_map_v5_' . md5(implode('_', $filters)));
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah berhasil disetujui dan telah masuk ke Manajemen Sekolah!');
         } elseif ($status === 'rejected') {
@@ -106,5 +151,42 @@ class AdminPendaftaranController extends Controller
         }
 
         return back()->with('error', 'Aksi tidak valid.');
+    }
+
+    /**
+     * Menampilkan Halaman Form Pendaftaran (Halaman Tambah Data)
+     */
+    public function formPendaftaran()
+    {
+        // Mengarahkan ke file: resources/views/admin/formpendaftaran.blade.php
+        return view('admin.formpendaftaran');
+    }
+
+    /**
+     * Memproses Penyimpanan Data dari Form Pendaftaran (Opsional / Saat Submit Form)
+     */
+    public function storePendaftaran(Request $request)
+    {
+        // Validasi inputan
+        $request->validate([
+            'nama_sekolah' => 'required|string|max:255',
+            'npsn'         => 'required|numeric',
+            'jenjang'      => 'required',
+            // tambahkan validasi lainnya sesuai field di form
+        ]);
+
+        // Simpan ke database (SekolahTemporary)
+        \App\Models\SekolahTemporary::create([
+            'nama_sekolah'      => $request->nama_sekolah,
+            'npsn'              => $request->npsn,
+            'jenjang'           => $request->jenjang,
+            'provinsi'          => $request->provinsi,
+            'kabupaten_kota'    => $request->kabupaten_kota,
+            'status_verifikasi' => 'pending', // default pending
+            // field lainnya...
+        ]);
+
+        return redirect()->route('admin.pendaftaran.index')
+            ->with('success', 'Data pendaftar baru berhasil ditambahkan!');
     }
 }

@@ -7,6 +7,11 @@
     <title>@yield('title', 'Admin Panel') - SatuPeta</title>
     @vite(['resources/css/app.css'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    {{-- Leaflet CSS & JS --}}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         body {
             overflow: auto !important;
@@ -16,6 +21,7 @@
             display: none !important;
         }
     </style>
+    @yield('styles')
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-900 min-h-screen">
@@ -26,7 +32,8 @@
 
         <main class="flex-1 flex flex-col min-h-screen overflow-y-auto">
 
-            <header class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30">
+            <header
+                class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
                 <div>
                     <h1 class="text-xl font-bold text-gray-900">@yield('title', 'Admin Panel')</h1>
                 </div>
@@ -41,6 +48,7 @@
         </main>
     </div>
 
+    @yield('scripts')
     @stack('scripts')
 
 </body>
