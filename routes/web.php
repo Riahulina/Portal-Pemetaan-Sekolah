@@ -94,7 +94,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/pendaftaran/{id}', [AdminPendaftaranController::class, 'show'])->name('pendaftaran.show');
     Route::post('/pendaftaran/{id}/verifikasi', [AdminPendaftaranController::class, 'verifikasi'])->name('pendaftaran.verifikasi');
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/export-excel', [AdminLaporanController::class, 'exportExcel'])->name('laporan.excel');
     Route::get('/laporan/export-pdf', [AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
 
     // --- PROFILE ADMIN ---

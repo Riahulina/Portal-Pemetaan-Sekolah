@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\LaporanExport;
 use App\Models\ActivityLog;
 use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Facades\Excel;
 
 class AdminLaporanController extends Controller
 {
@@ -97,15 +95,7 @@ class AdminLaporanController extends Controller
     }
 
     /**
-     * Fitur 1: Mengunduh File Excel
-     */
-    public function exportExcel()
-    {
-        return Excel::download(new LaporanExport, 'laporan-sekolah-'.date('Y-m-d').'.xlsx');
-    }
-
-    /**
-     * Fitur 2: Mengunduh File PDF
+     * Fitur 1: Mengunduh File PDF
      */
     public function exportPdf()
     {

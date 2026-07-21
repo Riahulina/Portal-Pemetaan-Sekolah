@@ -19,28 +19,11 @@
                 </svg>
             </div>
 
-            <!-- Dropdown Pilihan Export -->
-            <div class="relative" x-data="{ openExport: false }">
-                <button @click="openExport = !openExport"
-                    class="px-5 py-1.5 bg-[#0d9296] hover:bg-[#0b7c80] text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-1">
-                    Export
-                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                <div x-show="openExport" @click.away="openExport = false" x-transition x-cloak
-                    class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-50 text-xs">
-                    <a href="{{ route('admin.laporan.excel') }}"
-                        class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 font-medium">
-                        Export ke Excel
-                    </a>
-                    <a href="{{ route('admin.laporan.pdf') }}"
-                        class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 font-medium border-t border-gray-100">
-                        Export ke PDF
-                    </a>
-                </div>
-            </div>
+            <!-- Tombol Export PDF -->
+            <a href="{{ route('admin.laporan.pdf') }}"
+                class="px-5 py-1.5 bg-[#0d9296] hover:bg-[#0b7c80] text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-1">
+                Export PDF
+            </a>
         </div>
     </div>
 
