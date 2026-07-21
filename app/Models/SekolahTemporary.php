@@ -35,8 +35,6 @@ class SekolahTemporary extends Model
         'siswa_perempuan',
         'total_siswa',
         'gambar_url',
-        'status_verifikasi',
-        'catatan_admin',
     ];
 
     /**

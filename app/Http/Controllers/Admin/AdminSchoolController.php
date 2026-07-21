@@ -43,7 +43,7 @@ class AdminSchoolController extends Controller
             'gambar_url' => $sekolah->gambar_url,
         ]);
 
-        $sekolah->update(['status_verifikasi' => 'approved']);
+        $sekolah->forceFill(['status_verifikasi' => 'approved'])->save();
 
         // Bust admin dashboard cache
         Cache::forget('admin_dashboard_data');
@@ -74,7 +74,7 @@ class AdminSchoolController extends Controller
             'action' => 'ditolak',
         ]);
 
-        $sekolah->update(['status_verifikasi' => 'rejected']);
+        $sekolah->forceFill(['status_verifikasi' => 'rejected'])->save();
 
         Cache::forget('admin_dashboard_data');
 

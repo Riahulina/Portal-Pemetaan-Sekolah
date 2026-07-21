@@ -89,10 +89,10 @@ class AdminPendaftaranController extends Controller
 
         if ($status === 'approved') {
             // Update status di tabel temporary menjadi approved
-            $sekolahTemp->update([
+            $sekolahTemp->forceFill([
                 'status_verifikasi' => 'approved',
                 'catatan_admin' => 'Pendaftaran sekolah telah disetujui oleh admin.',
-            ]);
+            ])->save();
 
             // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
             Sekolah::create([
@@ -136,10 +136,10 @@ class AdminPendaftaranController extends Controller
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah berhasil disetujui dan telah masuk ke Manajemen Sekolah!');
         } elseif ($status === 'rejected') {
-            $sekolahTemp->update([
+            $sekolahTemp->forceFill([
                 'status_verifikasi' => 'rejected',
                 'catatan_admin' => $request->input('catatan_admin', 'Mohon maaf, pendaftaran ditolak karena data tidak sesuai.'),
-            ]);
+            ])->save();
 
             ActivityLog::create([
                 'school_name' => $sekolahTemp->nama_sekolah,
