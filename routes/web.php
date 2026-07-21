@@ -100,15 +100,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile/info', [AdminProfileController::class, 'updateInfo'])->name('profile.info.update');
     Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password.update');
+
+    // --- FORMULIR PENDAFTARAN ADMIN ---
+    Route::get('/formpendaftaran', [AdminPendaftaranController::class, 'formPendaftaran'])->name('formpendaftaran');
+    Route::post('/formpendaftaran', [AdminPendaftaranController::class, 'storePendaftaran'])->name('formpendaftaran.store');
 });
-
-// Route untuk menampilkan form pendaftaran
-Route::get('/admin/formpendaftaran', [AdminPendaftaranController::class, 'formPendaftaran'])
-    ->name('admin.formpendaftaran');
-
-// (Opsional) Route untuk memproses/menyimpan data saat form dikirim (POST)
-Route::post('/admin/formpendaftaran', [AdminPendaftaranController::class, 'storePendaftaran'])
-    ->name('admin.formpendaftaran.store');
 /*
 |--------------------------------------------------------------------------
 | 4. Rute API Data JSON Peta
@@ -124,4 +120,4 @@ Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail']
 | 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

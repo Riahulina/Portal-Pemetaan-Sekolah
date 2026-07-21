@@ -7,6 +7,7 @@ use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 
 class AdminPendaftaranController extends Controller
 {
@@ -38,14 +39,14 @@ class AdminPendaftaranController extends Controller
             $namaProv = $provincesMap[$provInput] ?? $provInput;
 
             $query->where(function ($q) use ($provInput, $namaProv) {
-                $q->where('provinsi', 'ILIKE', '%' . $provInput . '%')
-                    ->orWhere('provinsi', 'ILIKE', '%' . $namaProv . '%');
+                $q->where('provinsi', 'ILIKE', '%'.$provInput.'%')
+                    ->orWhere('provinsi', 'ILIKE', '%'.$namaProv.'%');
             });
         }
 
         // 2. Filter Kabupaten/Kota
         if ($request->filled('kabupaten_kota')) {
-            $query->where('kabupaten_kota', 'ILIKE', '%' . $request->kabupaten_kota . '%');
+            $query->where('kabupaten_kota', 'ILIKE', '%'.$request->kabupaten_kota.'%');
         }
 
         // 3. Filter Jenjang (SD, SMP, SMA, SMK)
@@ -57,8 +58,8 @@ class AdminPendaftaranController extends Controller
         if ($request->filled('q')) {
             $search = $request->q;
             $query->where(function ($qBuilder) use ($search) {
-                $qBuilder->where('nama_sekolah', 'ILIKE', '%' . $search . '%')
-                    ->orWhere('npsn', 'ILIKE', '%' . $search . '%');
+                $qBuilder->where('nama_sekolah', 'ILIKE', '%'.$search.'%')
+                    ->orWhere('npsn', 'ILIKE', '%'.$search.'%');
             });
         }
 
@@ -127,11 +128,11 @@ class AdminPendaftaranController extends Controller
             Cache::forget('sekolah_provinsi_summary_v1');
 
             $filters = [$sekolahTemp->provinsi, '', '', '', ''];
-            Cache::forget('sekolah_map_v5_' . md5(implode('_', $filters)));
+            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
             $filters[1] = $sekolahTemp->kabupaten_kota;
-            Cache::forget('sekolah_map_v5_' . md5(implode('_', $filters)));
+            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
             $filters[2] = $sekolahTemp->kecamatan;
-            Cache::forget('sekolah_map_v5_' . md5(implode('_', $filters)));
+            Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah berhasil disetujui dan telah masuk ke Manajemen Sekolah!');
         } elseif ($status === 'rejected') {
@@ -163,30 +164,69 @@ class AdminPendaftaranController extends Controller
     }
 
     /**
-     * Memproses Penyimpanan Data dari Form Pendaftaran (Opsional / Saat Submit Form)
+     * Memproses Penyimpanan Data dari Form Pendaftaran Langsung ke Tabel Sekolah Utama.
      */
     public function storePendaftaran(Request $request)
     {
-        // Validasi inputan
+        if ($request->filled('no_telepon')) {
+            $request->merge(['no_telepon' => ltrim($request->input('no_telepon'), '0')]);
+        }
+
         $request->validate([
-            'nama_sekolah' => 'required|string|max:255',
-            'npsn'         => 'required|numeric',
-            'jenjang'      => 'required',
-            // tambahkan validasi lainnya sesuai field di form
+            'npsn' => [
+                'required', 'string', 'max:10',
+                Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
+                Rule::unique('sekolah_temporary', 'npsn')->whereNull('deleted_at'),
+            ],
+            'nama_sekolah' => 'required|string|max:150',
+            'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
+            'status' => 'required|in:Negeri,Swasta',
+            'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
+            'provinsi' => 'required|string|max:100',
+            'kabupaten_kota' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'alamat' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'no_telepon' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:100',
+            'social_media' => 'nullable|url|max:255',
+            'siswa_laki' => 'required|integer|min:0',
+            'siswa_perempuan' => 'required|integer|min:0',
         ]);
 
-        // Simpan ke database (SekolahTemporary)
-        \App\Models\SekolahTemporary::create([
-            'nama_sekolah'      => $request->nama_sekolah,
-            'npsn'              => $request->npsn,
-            'jenjang'           => $request->jenjang,
-            'provinsi'          => $request->provinsi,
-            'kabupaten_kota'    => $request->kabupaten_kota,
-            'status_verifikasi' => 'pending', // default pending
-            // field lainnya...
+        $totalSiswa = (int) $request->siswa_laki + (int) $request->siswa_perempuan;
+
+        Sekolah::create([
+            'npsn' => $request->npsn,
+            'nama_sekolah' => $request->nama_sekolah,
+            'jenjang' => $request->jenjang,
+            'status' => $request->status,
+            'akreditasi' => $request->akreditasi,
+            'provinsi' => $request->provinsi,
+            'kabupaten_kota' => $request->kabupaten_kota,
+            'kecamatan' => $request->kecamatan,
+            'alamat' => $request->alamat,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'no_telepon' => $request->no_telepon ?? null,
+            'email' => $request->email ?? null,
+            'social_media' => $request->social_media ?? null,
+            'total_siswa' => $totalSiswa,
+            'jumlah_siswa_laki_laki' => (int) $request->siswa_laki,
+            'jumlah_siswa_perempuan' => (int) $request->siswa_perempuan,
         ]);
 
-        return redirect()->route('admin.pendaftaran.index')
-            ->with('success', 'Data pendaftar baru berhasil ditambahkan!');
+        ActivityLog::create([
+            'school_name' => $request->nama_sekolah,
+            'action' => 'ditambahkan oleh admin',
+        ]);
+
+        Cache::forget('admin_dashboard_data');
+        Cache::forget('sekolah_wilayah_v2');
+        Cache::forget('sekolah_provinsi_summary_v1');
+
+        return redirect()->route('admin.sekolah.index')
+            ->with('success', 'Data sekolah berhasil ditambahkan!');
     }
 }
