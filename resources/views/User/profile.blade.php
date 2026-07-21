@@ -88,6 +88,7 @@
                     <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 20px;">Ubah
                         Password</h3>
 
+                    @if(auth()->user()->google_id === null)
                     <form action="{{ route('profile.password.update') }}" method="POST">
                         @csrf
                         @method('put')
@@ -137,6 +138,17 @@
                             Simpan Password Baru
                         </button>
                     </form>
+                    @else
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                            <svg style="margin: 0 auto 8px auto;" width="24" height="24" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <p style="font-size: 14px; font-weight: 600; color: #1e40af; margin: 0 0 4px 0;">Akun Terhubung via Google</p>
+                            <p style="font-size: 13px; color: #64748b; margin: 0;">Akun Anda terdaftar menggunakan Google. Pengelolaan password dilakukan melalui akun Google Anda.</p>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 
