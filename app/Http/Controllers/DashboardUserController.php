@@ -56,7 +56,23 @@ class DashboardUserController extends Controller
         return view('User.profile', compact('user'));
     }
 
-    // 2. Proses Ubah Password
+    // 2. Proses Ubah Informasi Akun
+    public function updateInfo(Request $request)
+    {
+        $request->validate([
+            'phone_number' => ['nullable', 'string', 'starts_with:8', 'max:20'],
+        ], [
+            'phone_number.starts_with' => 'Nomor telepon harus diawali dengan angka 8 (tanpa angka 0 di depan).',
+        ]);
+
+        auth()->user()->update([
+            'phone_number' => $request->input('phone_number'),
+        ]);
+
+        return back()->with('status', 'info-updated');
+    }
+
+    // 3. Proses Ubah Password
     public function updatePassword(Request $request)
     {
         $request->validate([

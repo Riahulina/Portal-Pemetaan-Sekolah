@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminSchoolController;
 use App\Http\Controllers\Admin\AdminSekolahController;
 use App\Http\Controllers\Admin\AdminUserController;
@@ -61,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Rute Profile Akun
     Route::get('/user/profile', [DashboardUserController::class, 'profile'])->name('profile.user');
+    Route::put('/user/profile/info', [DashboardUserController::class, 'updateInfo'])->name('profile.info.update');
     Route::put('/user/profile/password', [DashboardUserController::class, 'updatePassword'])->name('profile.password.update');
 });
 
@@ -94,6 +96,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export-excel', [AdminLaporanController::class, 'exportExcel'])->name('laporan.excel');
     Route::get('/laporan/export-pdf', [AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
+
+    // --- PROFILE ADMIN ---
+    Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/info', [AdminProfileController::class, 'updateInfo'])->name('profile.info.update');
+    Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
 /*

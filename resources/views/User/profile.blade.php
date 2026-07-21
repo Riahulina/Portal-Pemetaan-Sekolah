@@ -21,6 +21,13 @@
                 </div>
             @endif
 
+            @if (session('status') === 'info-updated')
+                <div
+                    style="background-color: #d1fae5; color: #065f46; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 600;">
+                    ✓ Informasi Akun Berhasil Diperbarui!
+                </div>
+            @endif
+
             <!-- Grid layout untuk Informasi Akun & Ubah Password -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
 
@@ -29,30 +36,51 @@
                     <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 20px;">
                         Informasi Akun</h3>
 
-                    <div style="margin-bottom: 16px;">
-                        <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Nama
-                            Lengkap</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $user->name }}</div>
-                    </div>
+                    <form action="{{ route('profile.info.update') }}" method="POST">
+                        @csrf
+                        @method('put')
 
-                    <div style="margin-bottom: 16px;">
-                        <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Email</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $user->email }}</div>
-                    </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Nama
+                                Lengkap</label>
+                            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $user->name }}</div>
+                        </div>
 
-                    <div style="margin-bottom: 16px;">
-                        <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">No.
-                            Telepon</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #0f172a;">
-                            {{ $user->no_telepon ?? '826562652665' }}</div>
-                    </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Email</label>
+                            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $user->email }}</div>
+                        </div>
 
-                    <div style="margin-bottom: 0;">
-                        <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Bergabung
-                            Sejak</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #0f172a;">
-                            {{ $user->created_at->format('d F Y') }}</div>
-                    </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; margin-bottom: 6px;">No.
+                                Telepon</label>
+                            <input type="text" name="phone_number" placeholder="81234567890"
+                                value="{{ $user->phone_number }}"
+                                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                            <p style="font-size: 12px; color: #6b7280; margin: 4px 0 0 0;">Harap awali nomor dengan angka 8, bukan 0 (Contoh: 8123...).</p>
+                            @error('phone_number')
+                                <span
+                                    style="color: #ef4444; font-size: 12px; margin-top: 4px; display:block;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Bergabung
+                                Sejak</label>
+                            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">
+                                {{ $user->created_at->format('d F Y') }}</div>
+                        </div>
+
+                        <button type="submit"
+                            style="background-color: #007979; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Simpan Informasi Akun
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Box Kanan: Ubah Password -->
