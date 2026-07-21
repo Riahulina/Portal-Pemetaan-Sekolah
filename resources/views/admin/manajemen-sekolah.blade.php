@@ -49,6 +49,7 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 bg-gray-50">
+                            <th class="text-center px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wide text-xs w-16">Nomor</th>
                             <th class="text-left px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wide text-xs">Nama Sekolah</th>
                             <th class="text-left px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wide text-xs">NPSN</th>
                             <th class="text-left px-6 py-3.5 font-bold text-gray-500 uppercase tracking-wide text-xs">Jenjang</th>
@@ -61,6 +62,9 @@
                     <tbody>
                         @forelse ($sekolah as $row)
                             <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                <td class="px-6 py-4 text-center text-gray-500">
+                                    {{ $sekolah->firstItem() + $loop->index }}
+                                </td>
                                 <td class="px-6 py-4">
                                     <span class="font-medium text-gray-900">{{ $row->nama_sekolah }}</span>
                                 </td>
@@ -83,11 +87,11 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if ($row->status === 'Negeri')
-                                        <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-teal-50 text-teal-700 border border-teal-200">Negeri</span>
-                                    @elseif ($row->status === 'Swasta')
-                                        <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Swasta</span>
-                                    @else
+                                @if (strtoupper($row->status) === 'NEGERI')
+                                    <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-teal-50 text-teal-700 border border-teal-200">Negeri</span>
+                                @elseif (strtoupper($row->status) === 'SWASTA')
+                                    <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Swasta</span>
+                                @else
                                         <span class="inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-gray-50 text-gray-500 border border-gray-200">{{ $row->status ?? '-' }}</span>
                                     @endif
                                 </td>
@@ -123,7 +127,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-16 text-center">
+                                <td colspan="8" class="px-6 py-16 text-center">
                                     <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                     </svg>
@@ -292,8 +296,8 @@
                                     <select name="status"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                         <option value="">Pilih</option>
-                                        <option value="Negeri" x-bind:selected="editData?.status === 'Negeri'">Negeri</option>
-                                        <option value="Swasta" x-bind:selected="editData?.status === 'Swasta'">Swasta</option>
+                                        <option value="NEGERI" x-bind:selected="editData?.status?.toUpperCase() === 'NEGERI'">Negeri</option>
+                                        <option value="SWASTA" x-bind:selected="editData?.status?.toUpperCase() === 'SWASTA'">Swasta</option>
                                     </select>
                                 </div>
                                 <div>

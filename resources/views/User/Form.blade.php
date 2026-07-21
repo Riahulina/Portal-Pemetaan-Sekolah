@@ -101,11 +101,11 @@
                                     <select id="status" name="status" required>
                                         <option value="" disabled {{ !isset($sekolah) ? 'selected' : '' }}>Pilih
                                             Status</option>
-                                        <option value="Negeri"
-                                            {{ old('status', $sekolah->status ?? '') == 'Negeri' ? 'selected' : '' }}>
+                                        <option value="NEGERI"
+                                            {{ strtoupper(old('status', $sekolah->status ?? '')) === 'NEGERI' ? 'selected' : '' }}>
                                             Negeri</option>
-                                        <option value="Swasta"
-                                            {{ old('status', $sekolah->status ?? '') == 'Swasta' ? 'selected' : '' }}>
+                                        <option value="SWASTA"
+                                            {{ strtoupper(old('status', $sekolah->status ?? '')) === 'SWASTA' ? 'selected' : '' }}>
                                             Swasta</option>
                                     </select>
                                 </div>

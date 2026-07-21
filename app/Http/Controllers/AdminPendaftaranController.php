@@ -95,11 +95,11 @@ class AdminPendaftaranController extends Controller
             ])->save();
 
             // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
-            Sekolah::create([
+            $sekolahBaru = Sekolah::create([
                 'npsn' => $sekolahTemp->npsn,
                 'nama_sekolah' => $sekolahTemp->nama_sekolah,
                 'jenjang' => $sekolahTemp->jenjang,
-                'status' => $sekolahTemp->status ?? 'Swasta',
+                'status' => $sekolahTemp->status ?? 'SWASTA',
                 'akreditasi' => $sekolahTemp->akreditasi ?? 'B',
                 'provinsi' => $sekolahTemp->provinsi,
                 'kabupaten_kota' => $sekolahTemp->kabupaten_kota,
@@ -117,6 +117,8 @@ class AdminPendaftaranController extends Controller
                 'jumlah_siswa_laki_laki' => $sekolahTemp->siswa_laki ?? 0,
                 'gambar_url' => $sekolahTemp->gambar_url,
             ]);
+
+            $sekolahBaru->touch();
 
             ActivityLog::create([
                 'school_name' => $sekolahTemp->nama_sekolah,
@@ -180,7 +182,7 @@ class AdminPendaftaranController extends Controller
             ],
             'nama_sekolah' => 'required|string|max:150',
             'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
-            'status' => 'required|in:Negeri,Swasta',
+            'status' => 'required|in:NEGERI,SWASTA',
             'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
             'provinsi' => 'required|string|max:100',
             'kabupaten_kota' => 'required|string|max:100',

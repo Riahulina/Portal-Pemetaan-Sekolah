@@ -39,4 +39,9 @@ class Sekolah extends Model
         'jumlah_siswa_laki_laki',
         'gambar_url',
     ];
+
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['status'] = $value ? strtoupper($value) : null;
+    }
 }

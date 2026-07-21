@@ -37,6 +37,11 @@ class SekolahTemporary extends Model
         'gambar_url',
     ];
 
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['status'] = $value ? strtoupper($value) : null;
+    }
+
     /**
      * Konversi tipe data otomatis (Casting)
      */

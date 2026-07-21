@@ -45,7 +45,7 @@ class AdminSekolahController extends Controller
                     }
                 });
             })
-            ->orderBy('nama_sekolah')
+            ->orderByRaw('updated_at DESC NULLS LAST')
             ->paginate(10)
             ->appends([
                 'search' => $search,
@@ -65,7 +65,7 @@ class AdminSekolahController extends Controller
         $validated = $request->validate([
             'nama_sekolah' => 'required|string|max:150',
             'jenjang' => 'nullable|string|max:20',
-            'status' => 'nullable|string|max:20',
+            'status' => 'nullable|string|max:20|in:NEGERI,SWASTA',
             'akreditasi' => 'nullable|string|max:5',
             'provinsi' => 'nullable|string|max:100',
             'kabupaten_kota' => 'nullable|string|max:100',
