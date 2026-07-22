@@ -21,6 +21,10 @@ Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
+
 /*
 |--------------------------------------------------------------------------
 | 2. Rute Terproteksi Auth (User Harus Login)
@@ -28,10 +32,7 @@ Route::get('/', function () {
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // --- DASHBOARD GROUP ---
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+
 
     // Route Dashboard User (Sudah diarahkan ke DashboardUserController)
     Route::get('/user/dashboard', [DashboardUserController::class, 'index'])->name('dashboard.user');
@@ -120,4 +121,4 @@ Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail']
 | 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

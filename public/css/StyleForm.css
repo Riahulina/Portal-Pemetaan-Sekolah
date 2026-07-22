@@ -200,3 +200,40 @@
     background-color: #156269;
     border-color: #156269;
 }
+
+/* Pengaturan Default (Desktop / Laptop) */
+.form-card {
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 12px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 kolom di Laptop */
+    gap: 20px;
+}
+
+#map {
+    width: 100%;
+    height: 380px;
+    border-radius: 8px;
+}
+
+/* Penyesuaian Otomatis Saat Dibuka di HP (Mobile) */
+@media screen and (max-width: 640px) {
+    .form-card {
+        padding: 16px; /* Padding lebih kecil di HP */
+    }
+
+    .form-grid-2 {
+        grid-template-columns: 1fr; /* Jadi 1 kolom di HP */
+        gap: 12px;
+    }
+
+    #map {
+        height: 260px; /* Peta sedikit dipermuda di HP */
+    }
+}

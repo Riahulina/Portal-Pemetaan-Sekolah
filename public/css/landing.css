@@ -1108,7 +1108,7 @@ footer ul li a:hover {
 }
 
 .username-nav {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 600;
     font-size: 14px;
     color: #1e293b;
@@ -1151,7 +1151,7 @@ footer ul li a:hover {
 }
 
 .username-nav {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 600;
     font-size: 14px;
     color: #1e293b;
@@ -1226,4 +1226,192 @@ footer ul li a:hover {
 .dropdown-link.dropdown-logout:hover {
     background-color: #fef2f2;
     color: #dc2626;
+}
+
+/* ==========================================
+   1. LAPTOP & MONITOR KECIL (Maksimal 1024px)
+   ========================================== */
+@media screen and (max-width: 1024px) {
+    /* Ubah layout 3-4 kolom menjadi 2 kolom */
+    .grid-container,
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    /* Perkecil padding wrapper utama */
+    .main-container {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+/* ==========================================
+   2. TABLET (Maksimal 768px)
+   ========================================== */
+@media screen and (max-width: 768px) {
+    /* Navbar/Header menyesuaikan tablet */
+    .navbar {
+        padding: 10px 16px !important;
+    }
+
+    /* Ubah layout berdampingan (Row) menjadi menumpuk (Column) */
+    .flex-row,
+    .form-row,
+    .hero-section {
+        flex-direction: column !important;
+    }
+
+    /* Form input 2 kolom (seperti Longitude & Latitude) jadi 1 kolom */
+    .form-group-double,
+    .grid-2-col {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Ukuran Judul/Heading disesuaikan agar tidak kebesaran */
+    h1 {
+        font-size: 1.75rem !important;
+    }
+    h2 {
+        font-size: 1.5rem !important;
+    }
+    h3 {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ==========================================
+   3. HP / MOBILE (Maksimal 480px)
+   ========================================== */
+@media screen and (max-width: 480px) {
+    /* Semua grid otomatis jadi 1 kolom berurut ke bawah */
+    .grid-container,
+    .card-grid,
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Tombol-tombol dibuat melebar penuh agar mudah di-tap jari */
+    .btn,
+    button[type="submit"],
+    .btn-action {
+        width: 100% !important;
+        margin-bottom: 8px;
+    }
+
+    /* Peta Leaflet disesuaikan tingginya agar pas di layar HP */
+    #map,
+    .leaflet-container {
+        height: 280px !important;
+    }
+
+    /* Perkecil padding card form agar tidak sempit */
+    .card,
+    .form-card,
+    .auth-box {
+        padding: 16px !important;
+        border-radius: 8px !important;
+    }
+}
+
+/* --- BASE NAVBAR DESKTOP --- */
+.nav {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+}
+
+.nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mobile-toggle-btn {
+    display: none; /* Sembunyikan hamburger di Laptop */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #334155;
+    padding: 4px;
+}
+
+.mobile-menu-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+/* --- RESPONSIVE MOBILE (Layar HP < 768px) --- */
+@media screen and (max-width: 768px) {
+    .nav-inner {
+        padding: 12px 16px;
+        position: relative;
+    }
+
+    /* Tampilkan tombol hamburger */
+    .mobile-toggle-btn {
+        display: block;
+    }
+
+    /* Perkecil subtitle logo agar hemat ruang */
+    .brand-text--bottom {
+        display: none;
+    }
+
+    /* Ubah menu wrapper jadi dropdown melayang ke bawah saat hamburger di-klik */
+    .mobile-menu-wrapper {
+        display: none; /* Default tersembunyi di HP */
+        flex-direction: column;
+        align-items: flex-start;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        padding: 20px 24px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid #e2e8f0;
+        gap: 20px;
+        z-index: 40;
+    }
+
+    /* Class aktif ketika hamburger di-klik (di-handle oleh Alpine.js) */
+    .mobile-menu-wrapper.open {
+        display: flex !important;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 16px;
+    }
+
+    .nav-actions {
+        width: 100%;
+        padding-top: 12px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    /* Buat tombol pendaftaran lebar penuh di mobile */
+    .btn-nav,
+    .btn-nav2 {
+        display: block;
+        text-align: center;
+        width: 100%;
+        margin-bottom: 8px;
+    }
 }

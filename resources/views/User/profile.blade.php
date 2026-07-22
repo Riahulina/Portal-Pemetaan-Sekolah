@@ -8,75 +8,64 @@
         @include('partials.sidebar')
 
         <!-- 2. KONTEN UTAMA -->
-        <main class="main-content" style="padding: 30px; background-color: #f8fafc; flex: 1;">
-            <div class="profile-header" style="margin-bottom: 25px;">
-                <h2 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0;">Profile Akun</h2>
-                <p style="font-size: 14px; color: #64748b; margin: 5px 0 0 0;">Kelola Informasi akun anda</p>
+        <main class="main-content profile-main-content">
+            <div class="profile-header">
+                <h2>Profile Akun</h2>
+                <p>Kelola Informasi akun anda</p>
             </div>
 
             @if (session('status') === 'password-updated')
-                <div
-                    style="background-color: #d1fae5; color: #065f46; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 600;">
+                <div class="alert-success">
                     ✓ Password Berhasil Diperbarui!
                 </div>
             @endif
 
             @if (session('status') === 'info-updated')
-                <div
-                    style="background-color: #d1fae5; color: #065f46; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; font-weight: 600;">
+                <div class="alert-success">
                     ✓ Informasi Akun Berhasil Diperbarui!
                 </div>
             @endif
 
             <!-- Grid layout untuk Informasi Akun & Ubah Password -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+            <div class="profile-grid">
 
                 <!-- Box Kiri: Informasi Akun -->
-                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 20px;">
-                        Informasi Akun</h3>
+                <div class="profile-card">
+                    <h3>Informasi Akun</h3>
 
                     <form action="{{ route('profile.info.update') }}" method="POST">
                         @csrf
                         @method('put')
 
-                        <div style="margin-bottom: 16px;">
-                            <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Nama
-                                Lengkap</label>
-                            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $user->name }}</div>
+                        <div class="form-group-item">
+                            <label class="label-muted">Nama Lengkap</label>
+                            <div class="val-bold">{{ $user->name }}</div>
                         </div>
 
-                        <div style="margin-bottom: 16px;">
-                            <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Email</label>
-                            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">{{ $user->email }}</div>
+                        <div class="form-group-item">
+                            <label class="label-muted">Email</label>
+                            <div class="val-bold">{{ $user->email }}</div>
                         </div>
 
-                        <div style="margin-bottom: 16px;">
-                            <label style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; margin-bottom: 6px;">No.
-                                Telepon</label>
+                        <div class="form-group-item">
+                            <label class="label-dark">No. Telepon</label>
                             <input type="text" name="phone_number" placeholder="81234567890"
-                                value="{{ $user->phone_number }}"
-                                style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                            <p style="font-size: 12px; color: #6b7280; margin: 4px 0 0 0;">Harap awali nomor dengan angka 8, bukan 0 (Contoh: 8123...).</p>
+                                value="{{ $user->phone_number }}" class="input-custom">
+                            <p class="help-text">Harap awali nomor dengan angka 8, bukan 0 (Contoh: 8123...).</p>
                             @error('phone_number')
-                                <span
-                                    style="color: #ef4444; font-size: 12px; margin-top: 4px; display:block;">{{ $message }}</span>
+                                <span class="error-text">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <div style="margin-bottom: 20px;">
-                            <label style="font-size: 13px; color: #64748b; display: block; margin-bottom: 4px;">Bergabung
-                                Sejak</label>
-                            <div style="font-size: 15px; font-weight: 600; color: #0f172a;">
-                                {{ $user->created_at->format('d F Y') }}</div>
+                        <div class="form-group-item-lg">
+                            <label class="label-muted">Bergabung Sejak</label>
+                            <div class="val-bold">{{ $user->created_at->format('d F Y') }}</div>
                         </div>
 
-                        <button type="submit"
-                            style="background-color: #007979; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                        <button type="submit" class="btn-teal">
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
-                                <path
-                                    d="M5 13l4 4L19 7" />
+                                <path d="M5 13l4 4L19 7" />
                             </svg>
                             Simpan Informasi Akun
                         </button>
@@ -84,93 +73,79 @@
                 </div>
 
                 <!-- Box Kanan: Ubah Password -->
-                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 20px;">Ubah
-                        Password</h3>
+                <div class="profile-card">
+                    <h3>Ubah Password</h3>
 
-                    @if(auth()->user()->google_id === null)
-                    <form action="{{ route('profile.password.update') }}" method="POST">
-                        @csrf
-                        @method('put')
+                    @if (auth()->user()->google_id === null)
+                        <form action="{{ route('profile.password.update') }}" method="POST">
+                            @csrf
+                            @method('put')
 
-                        <!-- Password Saat Ini -->
-                        <div style="margin-bottom: 16px; position: relative;">
-                            <label
-                                style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; margin-bottom: 6px;">Password
-                                Saat ini</label>
-                            <input type="password" name="current_password" placeholder="Masukkan Password Saat Ini"
-                                style="width: 100%; padding: 10px 40px 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                            @error('current_password')
-                                <span
-                                    style="color: #ef4444; font-size: 12px; margin-top: 4px; display:block;">{{ $message }}</span>
-                            @enderror
-                        </div>
+                            <div class="form-group-item">
+                                <label class="label-dark">Password Saat ini</label>
+                                <input type="password" name="current_password" placeholder="Masukkan Password Saat Ini"
+                                    class="input-custom">
+                                @error('current_password')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                        <!-- Password Baru -->
-                        <div style="margin-bottom: 16px; position: relative;">
-                            <label
-                                style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; margin-bottom: 6px;">Password
-                                Baru</label>
-                            <input type="password" name="password" placeholder="Masukkan Password Baru"
-                                style="width: 100%; padding: 10px 40px 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                            @error('password')
-                                <span
-                                    style="color: #ef4444; font-size: 12px; margin-top: 4px; display:block;">{{ $message }}</span>
-                            @enderror
-                        </div>
+                            <div class="form-group-item">
+                                <label class="label-dark">Password Baru</label>
+                                <input type="password" name="password" placeholder="Masukkan Password Baru"
+                                    class="input-custom">
+                                @error('password')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-                        <!-- Konfirmasi Password Baru -->
-                        <div style="margin-bottom: 20px; position: relative;">
-                            <label
-                                style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; margin-bottom: 6px;">Konfirmasi
-                                Password Baru</label>
-                            <input type="password" name="password_confirmation" placeholder="Konfirmasi Password Baru"
-                                style="width: 100%; padding: 10px 40px 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
-                        </div>
+                            <div class="form-group-item-lg">
+                                <label class="label-dark">Konfirmasi Password Baru</label>
+                                <input type="password" name="password_confirmation" placeholder="Konfirmasi Password Baru"
+                                    class="input-custom">
+                            </div>
 
-                        <button type="submit"
-                            style="background-color: #007979; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path
-                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            Simpan Password Baru
-                        </button>
-                    </form>
+                            <button type="submit" class="btn-teal">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                Simpan Password Baru
+                            </button>
+                        </form>
                     @else
-                    <div style="text-align: center; padding: 20px 0;">
-                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                            <svg style="margin: 0 auto 8px auto;" width="24" height="24" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24">
-                                <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <p style="font-size: 14px; font-weight: 600; color: #1e40af; margin: 0 0 4px 0;">Akun Terhubung via Google</p>
-                            <p style="font-size: 13px; color: #64748b; margin: 0;">Akun Anda terdaftar menggunakan Google. Pengelolaan password dilakukan melalui akun Google Anda.</p>
+                        <div class="google-info-box">
+                            <div class="google-alert">
+                                <svg width="24" height="24" fill="none" stroke="#2563eb" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                <p class="g-title">Akun Terhubung via Google</p>
+                                <p class="g-desc">Akun Anda terdaftar menggunakan Google. Pengelolaan password dilakukan
+                                    melalui akun Google Anda.</p>
+                            </div>
                         </div>
-                    </div>
                     @endif
                 </div>
             </div>
 
             <!-- Warning Card / Box Keluar-Logout -->
-            <div
-                style="background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 20px;">
-                <div
-                    style="background: #fee2e2; padding: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <div class="warning-card">
+                <div class="warning-icon-wrapper">
                     <svg width="32" height="32" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24">
                         <path
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
-                <div style="flex: 1;">
-                    <h4 style="color: #991b1b; font-size: 18px; font-weight: 700; margin: 0 0 4px 0;">Warning</h4>
-                    <p style="color: #57534e; font-size: 14px; margin: 0 0 10px 0; font-weight: 500;">Jika Anda Keluar, Anda
-                        Harus Login Kembali Untuk Mengakses Akun Anda</p>
+                <div class="warning-body">
+                    <h4>Warning</h4>
+                    <p>Jika Anda Keluar, Anda Harus Login Kembali Untuk Mengakses Akun Anda</p>
 
-                    <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                    <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit"
-                            style="background: white; border: 1px solid #dc2626; color: #dc2626; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <button type="submit" class="btn-logout-outline">
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path
