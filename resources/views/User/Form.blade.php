@@ -1,10 +1,150 @@
-@extends('layouts.app') {{-- Menggunakan layout utama yang sudah terpasang Navbar Utama --}}
+@extends('layouts.app') {{-- Menggunakan layout utama --}}
 
 @section('title', isset($sekolah) ? 'Edit Pendaftaran - SatuPeta' : 'Form Pendaftaran - SatuPeta')
 
-{{-- Menyisipkan CSS Leaflet di bagian atas --}}
 @section('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        /* ==========================================
+               1. BASE & GRID LAYOUT
+               ========================================== */
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f9fafb;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        /* Default Grid 2 Kolom untuk Desktop */
+        .form-grid {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-grid.col-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #008080;
+        }
+
+        /* ==========================================
+               2. MEDIA QUERIES (RESPONSIF)
+               ========================================== */
+
+        /* Tablet (<= 768px) */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+            }
+
+            .form-container {
+                padding: 16px;
+            }
+
+            /* Mengubah grid 2 kolom menjadi 1 kolom */
+            .form-grid.col-2 {
+                grid-template-columns: 1fr;
+            }
+
+            #map {
+                height: 280px !important;
+            }
+        }
+
+        /* Mobile (<= 480px) */
+        @media (max-width: 480px) {
+            .form-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 10px;
+            }
+
+            .form-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #map {
+                height: 220px !important;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -18,9 +158,11 @@
 
             <div class="form-container">
                 <!-- Header Form -->
-                <div class="form-header">
-                    <h2>{{ isset($sekolah) ? 'Edit Data Sekolah' : 'Daftar Sekolah' }}</h2>
-                    <p>{{ isset($sekolah) ? 'Perbarui informasi sekolah Anda dengan benar. Data hasil edit akan ditinjau kembali oleh admin.' : 'Lengkapi informasi sekolah anda dengan benar. Data yang diisi akan ditinjau oleh admin sebelum ditampilkan.' }}
+                <div class="form-header" style="margin-bottom: 20px;">
+                    <h2 style="margin: 0 0 8px 0; color: #1f2937;">
+                        {{ isset($sekolah) ? 'Edit Data Sekolah' : 'Daftar Sekolah' }}</h2>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                        {{ isset($sekolah) ? 'Perbarui informasi sekolah Anda dengan benar. Data hasil edit akan ditinjau kembali oleh admin.' : 'Lengkapi informasi sekolah anda dengan benar. Data yang diisi akan ditinjau oleh admin sebelum ditampilkan.' }}
                     </p>
                 </div>
 
@@ -59,8 +201,8 @@
                                         style="color: #ef4444; font-size: 12px; display: block; margin-top: 4px;">{{ $message }}</span>
                                 @else
                                     <span class="input-helper text-danger"
-                                        style="font-size: 12px; display: block; margin-top: 4px;">NPSN Harus unik dan tidak
-                                        boleh sama</span>
+                                        style="font-size: 12px; display: block; margin-top: 4px; color: #6b7280;">NPSN Harus
+                                        unik dan tidak boleh sama</span>
                                 @enderror
                             </div>
                             <div class="form-group">
@@ -91,7 +233,8 @@
                                         @foreach (['KB', 'TK', 'SD', 'SMP', 'SMA', 'SMK'] as $item)
                                             <option value="{{ $item }}"
                                                 {{ old('jenjang', $sekolah->jenjang ?? '') == $item ? 'selected' : '' }}>
-                                                {{ $item }}</option>
+                                                {{ $item }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -104,15 +247,15 @@
                                 <label for="status">Status <span class="required">*</span></label>
                                 <div class="select-wrapper">
                                     <select id="status" name="status" required>
-                                        <<<<<<< HEAD <option value="" disabled
+                                        <option value="" disabled
                                             {{ !isset($sekolah) && !old('status') ? 'selected' : '' }}>Pilih Status
-                                            </option>
-                                            <option value="Negeri"
-                                                {{ old('status', $sekolah->status ?? '') == 'Negeri' ? 'selected' : '' }}>
-                                                Negeri</option>
-                                            <option value="SWASTA"
-                                                {{ strtoupper(old('status', $sekolah->status ?? '')) === 'SWASTA' ? 'selected' : '' }}>
-                                                Swasta</option>
+                                        </option>
+                                        <option value="Negeri"
+                                            {{ old('status', $sekolah->status ?? '') == 'Negeri' ? 'selected' : '' }}>
+                                            Negeri</option>
+                                        <option value="SWASTA"
+                                            {{ strtoupper(old('status', $sekolah->status ?? '')) === 'SWASTA' ? 'selected' : '' }}>
+                                            Swasta</option>
                                     </select>
                                 </div>
                                 @error('status')
@@ -133,7 +276,8 @@
                                         @foreach (['A', 'B', 'C', 'Tidak Terakreditasi'] as $akred)
                                             <option value="{{ $akred }}"
                                                 {{ old('akreditasi', $sekolah->akreditasi ?? '') == $akred ? 'selected' : '' }}>
-                                                {{ $akred }}</option>
+                                                {{ $akred }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -144,9 +288,9 @@
                             </div>
                             <div class="form-group" x-data="{ phone: '{{ old('no_telepon', $sekolah->no_telepon ?? '') }}' }">
                                 <label for="no_telepon">No. Telepon <span class="required">*</span></label>
-                                <div style="display: flex; align-items: center; gap: 0;">
+                                <div style="display: flex; align-items: center; gap: 0; width: 100%;">
                                     <span
-                                        style="padding: 8px 12px; background: #f3f4f6; border: 1px solid #d1d5db; border-right: none; border-radius: 6px 0 0 6px; font-size: 14px; color: #374151; white-space: nowrap;">+62</span>
+                                        style="padding: 10px 12px; background: #f3f4f6; border: 1px solid #d1d5db; border-right: none; border-radius: 6px 0 0 6px; font-size: 14px; color: #374151; white-space: nowrap;">+62</span>
                                     <input type="tel" id="no_telepon" name="no_telepon" x-model="phone"
                                         @input="phone = phone.replace(/^0+/, '')"
                                         style="border-radius: 0 6px 6px 0; flex: 1;" placeholder="81369904725" required>
@@ -173,7 +317,7 @@
                                 <label for="social_media">Website / Sosmed Sekolah <span class="required">*</span></label>
                                 <input type="url" id="social_media" name="social_media"
                                     value="{{ old('social_media', $sekolah->social_media ?? '') }}"
-                                    placeholder="https://contoh.com atau https://instagram.com/username" required>
+                                    placeholder="https://contoh.com" required>
                                 @error('social_media')
                                     <span class="text-danger"
                                         style="color: #ef4444; font-size: 12px;">{{ $message }}</span>
@@ -211,10 +355,9 @@
                                     value="{{ old('total_siswa', $sekolah->total_siswa ?? 0) }}"
                                     style="background-color: #f3f4f6; cursor: not-allowed;" readonly>
                                 <span class="input-helper text-muted"
-                                    style="font-size: 12px; display: block; margin-top: 4px;">Terhitung otomatis dari
-                                    jumlah siswa laki-laki + perempuan</span>
+                                    style="font-size: 12px; display: block; margin-top: 4px; color: #6b7280;">Terhitung
+                                    otomatis dari jumlah siswa laki-laki + perempuan</span>
                             </div>
-                            <div></div>
                         </div>
                     </div>
 
@@ -281,15 +424,14 @@
                                         style="color: #ef4444; font-size: 12px;">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div></div>
                         </div>
 
-                        <div class="form-group full-width">
+                        <div class="form-group full-width" style="margin-bottom: 16px;">
                             <label for="alamat">Alamat Sekolah <span class="required">*</span></label>
-                            <textarea id="alamat" name="alamat" rows="4" placeholder="Masukkan Alamat Lengkap Sekolah" required>{{ old('alamat', $sekolah->alamat ?? '') }}</textarea>
-                            <span class="input-helper text-warning"
-                                style="font-size: 12px; display: block; margin-top: 4px; margin-bottom: 12px;">Tulis alamat
-                                lengkap termasuk nama jalan, RT/RW, Kode Pos, dll</span>
+                            <textarea id="alamat" name="alamat" rows="3" placeholder="Masukkan Alamat Lengkap Sekolah" required>{{ old('alamat', $sekolah->alamat ?? '') }}</textarea>
+                            <span class="input-helper"
+                                style="font-size: 12px; display: block; margin-top: 4px; color: #d97706;">Tulis alamat
+                                lengkap termasuk nama jalan, RT/RW, Kode Pos, dll.</span>
                             @error('alamat')
                                 <span class="text-danger" style="color: #ef4444; font-size: 12px;">{{ $message }}</span>
                             @enderror
@@ -297,12 +439,11 @@
 
                         <!-- Wadah Peta Interaktif Leaflet -->
                         <div class="form-group full-width" style="margin-bottom: 20px;">
-                            <label style="font-weight: 600; margin-bottom: 6px; display: block;">Titik Koordinat Peta <span
-                                    class="required">*</span></label>
-                            <span class="input-helper text-muted"
-                                style="font-size: 12px; display: block; margin-bottom: 10px;">Silakan cari lokasi sekolah
-                                Anda, perbesar (zoom in), lalu <strong>klik pada titik lokasi bangunan sekolah</strong>
-                                untuk mengisi koordinat secara otomatis.</span>
+                            <label style="font-weight: 600;">Titik Koordinat Peta <span class="required">*</span></label>
+                            <span class="input-helper"
+                                style="font-size: 12px; display: block; margin-bottom: 8px; color: #6b7280;">Silakan cari
+                                lokasi sekolah Anda, perbesar (zoom in), lalu klik pada titik lokasi untuk mengisi koordinat
+                                otomatis.</span>
                             <div id="map"
                                 style="height: 350px; border-radius: 8px; border: 1px solid #d1d5db; z-index: 1;"></div>
                         </div>
@@ -313,8 +454,8 @@
                                 <label for="longitude">Longitude <span class="required">*</span></label>
                                 <input type="text" id="longitude" name="longitude"
                                     value="{{ old('longitude', $sekolah->longitude ?? '') }}"
-                                    placeholder="Klik pada peta untuk mengisi otomatis"
-                                    style="background-color: #f3f4f6; cursor: not-allowed;" readonly required>
+                                    placeholder="Klik pada peta" style="background-color: #f3f4f6; cursor: not-allowed;"
+                                    readonly required>
                                 @error('longitude')
                                     <span class="text-danger"
                                         style="color: #ef4444; font-size: 12px;">{{ $message }}</span>
@@ -323,8 +464,7 @@
                             <div class="form-group">
                                 <label for="latitude">Latitude <span class="required">*</span></label>
                                 <input type="text" id="latitude" name="latitude"
-                                    value="{{ old('latitude', $sekolah->latitude ?? '') }}"
-                                    placeholder="Klik pada peta untuk mengisi otomatis"
+                                    value="{{ old('latitude', $sekolah->latitude ?? '') }}" placeholder="Klik pada peta"
                                     style="background-color: #f3f4f6; cursor: not-allowed;" readonly required>
                                 @error('latitude')
                                     <span class="text-danger"
@@ -338,10 +478,10 @@
                     <div class="form-actions"
                         style="margin-top: 30px; display: flex; gap: 15px; justify-content: flex-end;">
                         <button type="button" class="btn btn-cancel" onclick="window.history.back()"
-                            style="padding: 10px 25px; border-radius: 6px; cursor: pointer;">Cancel</button>
+                            style="padding: 10px 20px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; color: #374151; cursor: pointer;">Batal</button>
 
                         <button type="submit" class="btn btn-submit"
-                            style="padding: 10px 25px; background: #008080; color: #fff; border: none; border-radius: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            style="padding: 10px 20px; background: #008080; color: #fff; border: none; border-radius: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
                             {{ isset($sekolah) ? 'Update Data' : 'Submit' }}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 viewBox="0 0 16 16">
@@ -424,9 +564,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ==========================================
             // LOGIKA 1: PENJUMLAHAN OTOMATIS SISWA
-            // ==========================================
             const inputLaki = document.getElementById('siswa_laki');
             const inputPerempuan = document.getElementById('siswa_perempuan');
             const inputTotal = document.getElementById('total_siswa');
@@ -442,9 +580,7 @@
                 inputPerempuan.addEventListener('input', hitungTotal);
             }
 
-            // ==========================================
             // LOGIKA 2: PETA INTERAKTIF (LEAFLET)
-            // ==========================================
             const defaultLat = parseFloat(document.getElementById('latitude').value) || -0.789275;
             const defaultLng = parseFloat(document.getElementById('longitude').value) || 113.921327;
             const defaultZoom = document.getElementById('latitude').value ? 16 : 5;
@@ -454,6 +590,11 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
+
+            // Inisialisasi ulang render map agar ukuran terhitung pas jika container berubah
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
 
             let marker;
 

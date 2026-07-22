@@ -114,14 +114,14 @@
                                 <img src="{{ asset('assets/iconsekolah.png') }}" alt="" class="stat-card__icon">
                                 <div class="stat-card__value" id="total-sekolah">0</div>
                             </div>
-                            <div class="stat-card__label">Total Sekolah Terdaftar Dapodik</div>
+                            <div class="stat-card__label">Total Sekolah Terdaftar</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-card__inner">
                                 <img src="{{ asset('assets/iconsiswa.png') }}" alt="" class="stat-card__icon">
                                 <div class="stat-card__value" id="total-murid">0</div>
                             </div>
-                            <div class="stat-card__label">Total Peserta Didik Terdaftar Dapodik</div>
+                            <div class="stat-card__label">Total Peserta Didik Terdaftar</div>
                         </div>
                     </div>
 
