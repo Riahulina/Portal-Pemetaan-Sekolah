@@ -63,8 +63,8 @@
                     </select>
                 </div>
                 <button id="btn-terapkan" class="btn-apply">Terapkan Filter</button>
-                <button id="btn-reset" class="btn-reset">Reset</button>
-                <a href="/"> <button class="btn-back">Back Home</button></a>
+                <button id="btn-reset" class="btn-reset">Mulai Ulang</button>
+                <a href="/"> <button class="btn-back">Kembali Kehalaman Utama</button></a>
             </div>
 
             <div id="sidebar-filters-info" class="filter-info sidebar-state-a">
@@ -101,10 +101,7 @@
                             <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
                         <span>Data Per July 2026</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="6 9 12 15 18 9" />
-                        </svg>
+
                     </div>
                 </div>
             </header>
@@ -114,16 +111,14 @@
                     <div id="stat-cards">
                         <div class="stat-card">
                             <div class="stat-card__inner">
-                                <img src="{{ asset('assets/iconsekolah.png') }}" alt=""
-                                    class="stat-card__icon">
+                                <img src="{{ asset('assets/iconsekolah.png') }}" alt="" class="stat-card__icon">
                                 <div class="stat-card__value" id="total-sekolah">0</div>
                             </div>
                             <div class="stat-card__label">Total Sekolah Terdaftar Dapodik</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-card__inner">
-                                <img src="{{ asset('assets/iconsiswa.png') }}" alt=""
-                                    class="stat-card__icon">
+                                <img src="{{ asset('assets/iconsiswa.png') }}" alt="" class="stat-card__icon">
                                 <div class="stat-card__value" id="total-murid">0</div>
                             </div>
                             <div class="stat-card__label">Total Peserta Didik Terdaftar Dapodik</div>
@@ -133,10 +128,11 @@
                     <div id="map-wrapper">
                         <div id="map"></div>
                         <div id="map-info-badge" class="map-info-badge">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9296" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="16" x2="12" y2="12"/>
-                                <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9296"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
                             </svg>
                             <span>Terapkan filter wilayah untuk melihat sebaran titik sekolah</span>
                         </div>
@@ -241,25 +237,30 @@
                                     rel="noopener noreferrer">
                                     <img src="{{ asset('assets/iconfb.png') }}" alt="Facebook">
                                 </a>
-                                <a href="#" id="btn-sosmed-tiktok" class="social-icon-link hidden" target="_blank"
-                                    rel="noopener noreferrer">
+                                <a href="#" id="btn-sosmed-tiktok" class="social-icon-link hidden"
+                                    target="_blank" rel="noopener noreferrer">
                                     <img src="{{ asset('assets/icontiktok.png') }}" alt="TikTok">
                                 </a>
-                                <a href="#" id="btn-sosmed-web" class="social-icon-link hidden" target="_blank"
-                                    rel="noopener noreferrer" title="Kunjungi Website">
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="2" y1="12" x2="22" y2="12"/>
-                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                <a href="#" id="btn-sosmed-web" class="social-icon-link hidden"
+                                    target="_blank" rel="noopener noreferrer" title="Kunjungi Website">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                        stroke="#6B7280" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="2" y1="12" x2="22" y2="12" />
+                                        <path
+                                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                                     </svg>
                                 </a>
                             </div>
 
                             <div id="data-warning-card" class="data-warning-card hidden">
                                 <div class="data-warning-card__header">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                        stroke="#EF4444" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                                     </svg>
                                     <span class="data-warning-card__title">Pemberitahuan Data</span>
                                 </div>
@@ -286,22 +287,7 @@
                                             style="background:#10a5b0;"></span> Kelas 9 SMP - <strong>350</strong>
                                     </div>
                                 </div>
-                                <div class="detail-chart__form">
-                                    <div class="form-group">
-                                        <label for="panel-status-hubungan">Status Hubungan</label>
-                                        <select id="panel-status-hubungan">
-                                            <option value="">Pilih Status</option>
-                                            <option value="Belum Dihubungi">Belum Dihubungi</option>
-                                            <option value="Sudah Dihubungi">Sudah Dihubungi</option>
-                                            <option value="Dalam Proses">Dalam Proses</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="panel-catatan">Catatan</label>
-                                        <textarea id="panel-catatan" placeholder="Tulis catatan tentang sekolah ini..."></textarea>
-                                    </div>
-                                    <button class="btn-save-catatan">Simpan Catatan</button>
-                                </div>
+
                             </div>
                         </div>
                     </div>

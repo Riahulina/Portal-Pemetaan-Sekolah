@@ -20,7 +20,7 @@
         <nav class="nav-links">
             <a href="/">Home</a>
             <a href="{{ request()->is('/') ? '#tentang' : url('/#tentang') }}">Tentang Kami</a>
-            <a href="{{ request()->is('/') ? '#peta' : url('/#peta') }}">Peta Data</a>
+            <a href="{{ url('/dashboard') }}">Peta Data</a>
             <a href="#kontak">Kontak</a>
         </nav>
 

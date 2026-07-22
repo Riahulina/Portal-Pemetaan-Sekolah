@@ -8,58 +8,60 @@
         @include('partials.sidebar')
 
         {{-- Konten Utama Kanan --}}
-        <main class="main-content">
-            <h2 class="page-title" style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 30px;">Status
+        <main class="main-content" style="padding: 40px;">
+            <h2 class="page-title" style="font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 24px;">Status
                 Verifikasi</h2>
 
             {{-- Jika User Belum Mengisi Form Sama Sekali --}}
             @if (!$sekolah)
                 <div
-                    style="text-align: center; padding: 50px 20px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;">
-                    <p style="color: #64748b; margin-bottom: 15px;">Anda belum melakukan pendaftaran data sekolah.</p>
+                    style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;">
+                    <p style="color: #64748b; margin-bottom: 20px; font-size: 15px;">Anda belum melakukan pendaftaran data
+                        sekolah.</p>
                     <a href="{{ route('Form.user') }}" class="btn-nav"
-                        style="padding: 10px 20px; background: #008080; color:#fff; text-decoration:none; border-radius:6px; display: inline-block;">
+                        style="padding: 10px 24px; background: #008080; color:#fff; text-decoration:none; border-radius:8px; display: inline-block; font-weight: 600;">
                         Daftarkan Sekolah Sekarang
                     </a>
                 </div>
             @else
                 {{-- Box Alert Atas Dinamis Mengikuti Status --}}
-                <div style="text-align: center; margin-bottom: 40px;">
+                <div
+                    style="text-align: center; margin-bottom: 30px; padding: 40px 20px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;">
                     @if ($sekolah->status_verifikasi == 'pending')
                         <div
-                            style="width: 100px; height: 100px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                            <svg width="45" height="45" fill="none" stroke="#d97706" stroke-width="2"
+                            style="width: 90px; height: 90px; background: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <svg width="40" height="40" fill="none" stroke="#d97706" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                         </div>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #000; margin-bottom: 5px;">Terimakasih Telah
+                        <h3 style="font-size: 20px; font-weight: 700; color: #000; margin-bottom: 8px;">Terimakasih Telah
                             Melakukan Pendaftaran</h3>
                         <p style="color: #d97706; font-weight: 600;">Data Sedang Ditinjau Admin</p>
                     @elseif($sekolah->status_verifikasi == 'approved')
                         <div
-                            style="width: 100px; height: 100px; background: #ccfbf1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                            <svg width="45" height="45" fill="none" stroke="#0d9488" stroke-width="2"
+                            style="width: 90px; height: 90px; background: #ccfbf1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <svg width="40" height="40" fill="none" stroke="#0d9488" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #0d9488; margin-bottom: 5px;">Selamat!
+                        <h3 style="font-size: 20px; font-weight: 700; color: #0d9488; margin-bottom: 8px;">Selamat!
                             Pendaftaran Disetujui</h3>
                         <p style="color: #475569; font-weight: 600;">Data sekolah Anda telah berhasil diintegrasikan ke peta
                             utama.</p>
                     @elseif($sekolah->status_verifikasi == 'rejected')
                         <div
-                            style="width: 100px; height: 100px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                            <svg width="45" height="45" fill="none" stroke="#ef4444" stroke-width="2"
+                            style="width: 90px; height: 90px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <svg width="40" height="40" fill="none" stroke="#ef4444" stroke-width="2"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 style="font-size: 20px; font-weight: 700; color: #ef4444; margin-bottom: 5px;">Pendaftaran
+                        <h3 style="font-size: 20px; font-weight: 700; color: #ef4444; margin-bottom: 8px;">Pendaftaran
                             Ditolak</h3>
                         <p
                             style="color: #b91c1c; font-weight: 600; background: #fef2f2; display: inline-block; padding: 6px 14px; border-radius: 6px; border: 1px solid #fca5a5;">
@@ -70,7 +72,7 @@
 
                 {{-- Komponen Stepper Progress Line --}}
                 <div
-                    style="background: #ffffff; padding: 50px 40px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
+                    style="background: #ffffff; padding: 40px 30px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
                     <div
                         style="display: flex; justify-content: space-between; position: relative; align-items: flex-start;">
 
@@ -152,7 +154,7 @@
 
                 {{-- Box Informasi Bawah --}}
                 <div
-                    style="background: {{ $sekolah->status_verifikasi == 'rejected' ? '#fef2f2' : '#f0fdfa' }}; border: 1px solid {{ $sekolah->status_verifikasi == 'rejected' ? '#fee2e2' : '#ccfbf1' }}; padding: 20px; border-radius: 12px; display: flex; gap: 15px; align-items: center;">
+                    style="background: {{ $sekolah->status_verifikasi == 'rejected' ? '#fef2f2' : '#f0fdfa' }}; border: 1px solid {{ $sekolah->status_verifikasi == 'rejected' ? '#fee2e2' : '#ccfbf1' }}; padding: 20px 24px; border-radius: 12px; display: flex; gap: 15px; align-items: center;">
                     <div
                         style="color: {{ $sekolah->status_verifikasi == 'rejected' ? '#ef4444' : '#0d9488' }}; flex-shrink: 0;">
                         <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"
