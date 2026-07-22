@@ -4,13 +4,13 @@
 
 @section('content')
     <!-- TITLE RINGKASAN & EXPORT -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
             <h2 class="text-lg font-bold text-gray-900">Laporan Ringkasan</h2>
             <p class="text-xs text-gray-500 mt-0.5">Ringkasan Statistik data sekolah</p>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
             <!-- Date Range -->
             <div class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 shadow-sm">
                 <span>{{ now()->subDays(6)->format('j M Y') }} - {{ now()->format('j M Y') }}</span>

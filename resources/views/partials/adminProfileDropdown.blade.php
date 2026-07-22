@@ -50,7 +50,7 @@
         <div style="width: 32px; height: 32px; background-color: #0d9488; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;">
             {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
         </div>
-        <span style="font-weight: 600; font-size: 14px; color: #1e293b;">
+        <span style="font-weight: 600; font-size: 14px; color: #1e293b;" class="max-w-[100px] sm:max-w-[150px] truncate block">
             {{ Auth::user()->name }}
         </span>
         <svg style="width: 12px; height: 12px; color: #64748b; margin-left: 2px;"

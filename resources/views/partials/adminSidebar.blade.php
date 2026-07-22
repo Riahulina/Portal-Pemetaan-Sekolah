@@ -1,5 +1,8 @@
 <!-- resources/views/partials/adminSidebar.blade.php -->
-<aside class="w-64 bg-white border-r border-gray-200 flex flex-col shrink-0 h-screen sticky top-0">
+<div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"></div>
+
+<aside x-cloak :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
+    class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 h-screen">
     <div class="flex flex-col h-full">
         <!-- Brand -->
         <a href="{{ route('admin.dashboard') }}"

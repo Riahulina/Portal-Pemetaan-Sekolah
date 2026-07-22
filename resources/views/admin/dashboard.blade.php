@@ -11,7 +11,7 @@
     @endif
 
     <!-- 4 METRIC CARDS -->
-    <div class="grid grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
 
         <!-- Total Sekolah -->
         <div class="bg-white border border-gray-200 rounded-xl p-5">
