@@ -20,11 +20,11 @@ class AdminSchoolController extends Controller
             'action' => 'disetujui',
         ]);
 
-        Sekolah::create([
+        $sekolahBaru = Sekolah::create([
             'npsn' => $sekolah->npsn,
             'nama_sekolah' => $sekolah->nama_sekolah,
             'jenjang' => $sekolah->jenjang,
-            'status' => $sekolah->status,
+            'status' => $sekolah->status ?? 'SWASTA',
             'akreditasi' => $sekolah->akreditasi,
             'provinsi' => $sekolah->provinsi,
             'kabupaten_kota' => $sekolah->kabupaten_kota,
@@ -42,6 +42,8 @@ class AdminSchoolController extends Controller
             'jumlah_siswa_perempuan' => $sekolah->siswa_perempuan,
             'gambar_url' => $sekolah->gambar_url,
         ]);
+
+        $sekolahBaru->touch();
 
         $sekolah->forceFill(['status_verifikasi' => 'approved'])->save();
 

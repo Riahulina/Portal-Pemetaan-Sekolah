@@ -11,17 +11,6 @@
             color: #333;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
-            color: #0d9296;
-        }
-
         .metrics-table {
             width: 100%;
             border-collapse: collapse;
@@ -74,15 +63,57 @@
         .data-table tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+
+        .letterhead {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .letterhead td {
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .letterhead .logo-cell {
+            width: 200px;
+            text-align: left;
+        }
+
+        .letterhead .logo-cell img {
+            width: 180px;
+        }
+
+        .letterhead .title-cell {
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .letterhead .title-cell h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #0d9296;
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>LAPORAN REKAPITULASI DEMOGRAFI SEKOLAH</h1>
-        <p>SatuPeta Pendidikan Indonesia — Periode: {{ $periode }}</p>
-    </div>
+    <table class="letterhead">
+        <tr>
+            <td class="logo-cell">
+                @if(!empty($logoTempPath) && file_exists($logoTempPath))
+                    <img src="file://{{ $logoTempPath }}" alt="SatuPeta Logo" width="180" height="68">
+                @endif
+            </td>
+            <td class="title-cell">
+                <h1>LAPORAN REKAPITULASI DEMOGRAFI SEKOLAH</h1>
+                <p>SatuPeta Peta Pendidikan Indonesia — Periode: {{ $periode }}</p>
+            </td>
+        </tr>
+    </table>
 
     <!-- Ringkasan Ringkas Kotak Atas -->
     <table class="metrics-table">

@@ -74,12 +74,12 @@ function invalidateFilterCache() {
 }
 
 function mapSekolahRecord(row) {
-    const statusRaw = (row.status || "").trim().toLowerCase();
+    const statusRaw = (row.status || "").trim().toUpperCase();
     const statusNormalized =
-        statusRaw === "negeri"
-            ? "Negeri"
-            : statusRaw === "swasta"
-              ? "Swasta"
+        statusRaw === "NEGERI"
+            ? "NEGERI"
+            : statusRaw === "SWASTA"
+              ? "SWASTA"
               : row.status || "-";
 
     const jenjangRaw = (row.jenjang || "").trim().toUpperCase();
@@ -513,7 +513,7 @@ async function openSchoolDetail(school) {
     badge.textContent = school.status;
     badge.className =
         "status-badge " +
-        (school.status === "Negeri"
+        (school.status === "NEGERI"
             ? "status-badge--negeri"
             : "status-badge--swasta");
 
@@ -758,7 +758,7 @@ function setupFilters() {
     );
     populateSelect(
         "filter-status",
-        ["Negeri", "Swasta", "Semua"],
+        ["NEGERI", "SWASTA", "Semua"],
         "Pilih Status",
     );
     populateSelect("filter-provinsi", provinces, "Pilih Provinsi");
@@ -909,7 +909,7 @@ function renderTable(schoolsList) {
             tr.dataset.lat = s.lat;
             tr.dataset.lng = s.lng;
             const badgeClass =
-                s.status === "Negeri"
+                s.status === "NEGERI"
                     ? "status-badge--negeri"
                     : "status-badge--swasta";
             tr.innerHTML = `

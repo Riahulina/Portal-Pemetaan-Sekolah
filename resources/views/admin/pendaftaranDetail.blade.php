@@ -58,7 +58,7 @@
                     <div>
                         <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Status</label>
                         <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded bg-emerald-50 text-emerald-600 border border-emerald-200">
-                            {{ $sekolah->status ?? 'Swasta' }}
+                            {{ strtoupper($sekolah->status ?? 'SWASTA') }}
                         </span>
                     </div>
                     <div>
@@ -80,11 +80,11 @@
                         <p class="text-gray-800 font-medium mt-0.5 truncate">{{ $sekolah->social_media ?? '-' }}</p>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswa Laki-Laki</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswa</label>
                         <p class="text-gray-800 font-medium mt-0.5">{{ $sekolah->siswa_laki ?? 0 }}</p>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswi Perempuan</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswi</label>
                         <p class="text-gray-800 font-medium mt-0.5">{{ $sekolah->siswa_perempuan ?? 0 }}</p>
                     </div>
                 </div>

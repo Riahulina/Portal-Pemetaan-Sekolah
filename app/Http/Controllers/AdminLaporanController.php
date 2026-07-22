@@ -119,13 +119,32 @@ class AdminLaporanController extends Controller
 
         $periode = now()->translatedFormat('F Y');
 
+        $logoPath = public_path('assets/logowithbrand.png');
+        $logoTempPath = '';
+
+        if (file_exists($logoPath)) {
+            $image = imagecreatefrompng($logoPath);
+            if ($image) {
+                $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
+                imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
+                imagecopyresampled($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image), imagesx($image), imagesy($image));
+
+                $logoTempPath = storage_path('app/satupeta_logo_temp_'.md5($logoPath).'.jpg');
+                imagejpeg($bg, $logoTempPath, 95);
+
+                imagedestroy($bg);
+                imagedestroy($image);
+            }
+        }
+
         $pdf = Pdf::loadView('Admin.laporanPdf', compact(
             'totalSekolah',
             'menungguVerifikasi',
             'disetujui',
             'ditolak',
             'rekapWilayah',
-            'periode'
+            'periode',
+            'logoTempPath'
         ));
 
         return $pdf->setPaper('a4', 'landscape')->download('laporan-sekolah-'.date('Y-m-d').'.pdf');

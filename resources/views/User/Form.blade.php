@@ -104,15 +104,15 @@
                                 <label for="status">Status <span class="required">*</span></label>
                                 <div class="select-wrapper">
                                     <select id="status" name="status" required>
-                                        <option value="" disabled
+                                        <<<<<<< HEAD <option value="" disabled
                                             {{ !isset($sekolah) && !old('status') ? 'selected' : '' }}>Pilih Status
-                                        </option>
-                                        <option value="Negeri"
-                                            {{ old('status', $sekolah->status ?? '') == 'Negeri' ? 'selected' : '' }}>
-                                            Negeri</option>
-                                        <option value="Swasta"
-                                            {{ old('status', $sekolah->status ?? '') == 'Swasta' ? 'selected' : '' }}>
-                                            Swasta</option>
+                                            </option>
+                                            <option value="Negeri"
+                                                {{ old('status', $sekolah->status ?? '') == 'Negeri' ? 'selected' : '' }}>
+                                                Negeri</option>
+                                            <option value="SWASTA"
+                                                {{ strtoupper(old('status', $sekolah->status ?? '')) === 'SWASTA' ? 'selected' : '' }}>
+                                                Swasta</option>
                                     </select>
                                 </div>
                                 @error('status')

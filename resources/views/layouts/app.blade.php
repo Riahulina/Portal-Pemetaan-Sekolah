@@ -9,7 +9,12 @@
     <!-- 1. Taruh CSS Leaflet di paling atas (Default Global) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-    <!-- 2. File CSS bawaan aplikasi -->
+    <!-- 2. Google Fonts — Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- 3. File CSS bawaan aplikasi -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth-custom.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboardUser.css') }}">

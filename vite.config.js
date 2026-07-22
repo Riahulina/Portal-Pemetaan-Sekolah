@@ -19,7 +19,7 @@ export default defineConfig({
                     weights: [600],
                 }),
                 bunny('Inter', {
-                    weights: [400, 700],
+                    weights: [400, 600, 700],
                 }),
                 bunny('Lora', {
                     weights: [400, 700],

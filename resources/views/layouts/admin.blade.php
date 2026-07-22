@@ -33,7 +33,8 @@
         <main class="flex-1 flex flex-col min-h-screen overflow-y-auto">
 
             <header
-                class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
+                class="bg-white border-b border-gray-200 px-8 flex items-center justify-between sticky top-0 z-20"
+                style="height: 100px; box-sizing: border-box; overflow: visible;">
                 <div>
                     <h1 class="text-xl font-bold text-gray-900">@yield('title', 'Admin Panel')</h1>
                 </div>
