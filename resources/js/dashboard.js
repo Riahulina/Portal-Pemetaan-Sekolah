@@ -545,6 +545,7 @@ async function openSchoolDetail(school) {
     };
 
     document.getElementById("school-detail-overlay").classList.add("open");
+    document.body.classList.add("mobile-detail-active");
     setSidebarState("detail");
     initSiswaChart(school.murid);
 
@@ -670,6 +671,7 @@ async function openSchoolDetail(school) {
 
 function closeSchoolDetail() {
     document.getElementById("school-detail-overlay").classList.remove("open");
+    document.body.classList.remove("mobile-detail-active");
     setSidebarState("default");
 
     const warningCard = document.getElementById("data-warning-card");
