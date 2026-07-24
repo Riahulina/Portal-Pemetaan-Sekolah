@@ -68,13 +68,15 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+        }
+
+        .letterhead tr {
             border-bottom: 2px solid #333;
-            padding-bottom: 10px;
         }
 
         .letterhead td {
             vertical-align: middle;
-            padding: 0;
+            padding: 10px 0;
         }
 
         .letterhead .logo-cell {
@@ -84,6 +86,7 @@
 
         .letterhead .logo-cell img {
             width: 180px;
+            height: auto;
         }
 
         .letterhead .title-cell {
@@ -95,6 +98,13 @@
             margin: 0;
             font-size: 20px;
             color: #0d9296;
+            line-height: 1.3;
+        }
+
+        .letterhead .title-cell p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: #666;
         }
     </style>
 </head>
