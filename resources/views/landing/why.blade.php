@@ -38,7 +38,7 @@
     <!-- STATS BAND -->
     <div class="stats-band">
         <div class="container">
-            <h3>EduMap dalam Angka</h3>
+            <h3>SatuPeta dalam Angka</h3>
             <div class="stats-row">
                 <div class="stat-block">
                     <div class="stat-icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"
