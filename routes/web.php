@@ -32,8 +32,6 @@ Route::get('/dashboard', function () {
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
-
-
     // Route Dashboard User (Sudah diarahkan ke DashboardUserController)
     Route::get('/user/dashboard', [DashboardUserController::class, 'index'])->name('dashboard.user');
 
@@ -121,4 +119,4 @@ Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail']
 | 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

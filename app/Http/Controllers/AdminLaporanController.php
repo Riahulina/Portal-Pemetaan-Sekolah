@@ -17,14 +17,14 @@ class AdminLaporanController extends Controller
         $startDate = Carbon::parse($request->input('start_date', now()->subDays(6)));
         $endDate = Carbon::parse($request->input('end_date', now()));
 
-        // 1. Ambil data untuk counter box atas
-        $dateFrom = $startDate->startOfDay();
+        // 1. Ambil data untuk counter box atas (grand totals up to end date)
         $dateTo = $endDate->endOfDay();
 
-        $totalApproved = Sekolah::whereBetween('created_at', [$dateFrom, $dateTo])->count();
-        $totalPending = SekolahTemporary::where('status_verifikasi', 'pending')
-            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
-        $totalSekolah = $totalApproved + $totalPending;
+        $totalSekolah = Sekolah::where(function ($q) use ($dateTo) {
+            $q->where('created_at', '<=', $dateTo)->orWhereNull('created_at');
+        })->count();
+
+        $dateFrom = $startDate->startOfDay();
         $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')
             ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
         $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')
@@ -126,10 +126,9 @@ class AdminLaporanController extends Controller
         $dateFrom = $startDate->startOfDay();
         $dateTo = $endDate->endOfDay();
 
-        $totalApproved = Sekolah::whereBetween('created_at', [$dateFrom, $dateTo])->count();
-        $totalPending = SekolahTemporary::where('status_verifikasi', 'pending')
-            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
-        $totalSekolah = $totalApproved + $totalPending;
+        $totalSekolah = Sekolah::where(function ($q) use ($dateTo) {
+            $q->where('created_at', '<=', $dateTo)->orWhereNull('created_at');
+        })->count();
         $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')
             ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
         $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')
@@ -143,7 +142,9 @@ class AdminLaporanController extends Controller
             DB::raw('COUNT(*) as total_sekolah'),
             DB::raw('SUM(total_siswa) as total_siswa')
         )
-            ->whereBetween('created_at', [$dateFrom, $dateTo])
+            ->where(function ($q) use ($dateTo) {
+                $q->where('created_at', '<=', $dateTo)->orWhereNull('created_at');
+            })
             ->whereNotNull('provinsi')
             ->whereNotNull('kabupaten_kota')
             ->groupBy('provinsi', 'kabupaten_kota')
@@ -153,22 +154,25 @@ class AdminLaporanController extends Controller
 
         $periode = $startDate->format('d M Y').' – '.$endDate->format('d M Y');
 
-        $logoPath = public_path('assets/logowithbrand.png');
+        $logoPath = public_path('assets/logo.png');
         $logoTempPath = '';
 
         if (file_exists($logoPath)) {
             $image = imagecreatefrompng($logoPath);
-            if ($image) {
-                $bg = imagecreatetruecolor(imagesx($image), imagesy($image));
-                imagefill($bg, 0, 0, imagecolorallocate($bg, 255, 255, 255));
-                imagecopyresampled($bg, $image, 0, 0, 0, 0, imagesx($image), imagesy($image), imagesx($image), imagesy($image));
+            $width = imagesx($image);
+            $height = imagesy($image);
 
-                $logoTempPath = storage_path('app/satupeta_logo_temp_'.md5($logoPath).'.jpg');
-                imagejpeg($bg, $logoTempPath, 95);
+            $bg = imagecreatetruecolor($width, $height);
+            $white = imagecolorallocate($bg, 255, 255, 255);
+            imagefill($bg, 0, 0, $white);
 
-                imagedestroy($bg);
-                imagedestroy($image);
-            }
+            imagecopy($bg, $image, 0, 0, 0, 0, $width, $height);
+
+            $logoTempPath = storage_path('app/public/temp_logo.jpg');
+            imagejpeg($bg, $logoTempPath, 100);
+
+            imagedestroy($image);
+            imagedestroy($bg);
         }
 
         $pdf = Pdf::loadView('Admin.laporanPdf', compact(
