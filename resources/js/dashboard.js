@@ -1,5 +1,9 @@
 import L from "leaflet";
 import "leaflet.markercluster";
+import TomSelect from "tom-select";
+import "tom-select/dist/css/tom-select.default.css";
+
+const tomSelectInstances = {};
 
 const JENJANG_COLORS = {
     KB: "#EF4444",
@@ -545,6 +549,7 @@ async function openSchoolDetail(school) {
     };
 
     document.getElementById("school-detail-overlay").classList.add("open");
+    document.body.classList.add("mobile-detail-active");
     setSidebarState("detail");
     initSiswaChart(school.murid);
 
@@ -653,7 +658,7 @@ async function openSchoolDetail(school) {
                 rows += `<div class="data-warning-row"><span class="data-warning-row__label">Titik Koordinat</span><span class="data-warning-badge data-warning-badge--orange">Belum Terdaftar</span></div>`;
             }
             if (isSosmedEmpty) {
-                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Media Sosial</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
+                rows += `<div class="data-warning-row"><span class="data-warning-row__label">Media Sosial/Website</span><span class="data-warning-badge data-warning-badge--red">Kosong</span></div>`;
             }
             rows += `<div class="data-warning-row"><span class="data-warning-row__label">Status Sekolah</span><span class="data-warning-badge data-warning-badge--green">Terverifikasi</span></div>`;
             warningBody.innerHTML = rows;
@@ -670,6 +675,7 @@ async function openSchoolDetail(school) {
 
 function closeSchoolDetail() {
     document.getElementById("school-detail-overlay").classList.remove("open");
+    document.body.classList.remove("mobile-detail-active");
     setSidebarState("default");
 
     const warningCard = document.getElementById("data-warning-card");
@@ -720,71 +726,45 @@ function populateSelect(selectId, options, placeholder) {
         opt.textContent = o;
         sel.appendChild(opt);
     });
+
+    if (tomSelectInstances[selectId]) {
+        tomSelectInstances[selectId].destroy();
+    }
+    tomSelectInstances[selectId] = new TomSelect(sel, {
+        allowEmptyOption: true,
+        controlInput: null,
+    });
 }
 
-function updateCascading(prov, kab) {
-    const kabSel = document.getElementById("filter-kabupaten");
-    const kecSel = document.getElementById("filter-kecamatan");
+let _updatingCascading = false;
 
-    kabSel.innerHTML = '<option value="">Pilih Kabupaten/Kota</option>';
-    kecSel.innerHTML = '<option value="">Pilih Kecamatan</option>';
+function updateCascading(prov, kab) {
+    if (_updatingCascading) return;
+    _updatingCascading = true;
+
+    const kabInstance = tomSelectInstances["filter-kabupaten"];
+    const kecInstance = tomSelectInstances["filter-kecamatan"];
+
+    kabInstance.clear();
+    kabInstance.clearOptions();
+    kabInstance.addOption({ value: "", text: "Pilih Kabupaten/Kota" });
+
+    kecInstance.clear();
+    kecInstance.clearOptions();
+    kecInstance.addOption({ value: "", text: "Pilih Kecamatan" });
 
     if (prov && regionTree[prov]) {
         const kabList = Object.keys(regionTree[prov]).sort();
-        kabList.forEach((k) => {
-            const opt = document.createElement("option");
-            opt.value = k;
-            opt.textContent = k;
-            kabSel.appendChild(opt);
-        });
+        kabInstance.addOptions(kabList.map((k) => ({ value: k, text: k })));
+
         if (kab && regionTree[prov][kab]) {
-            kabSel.value = kab;
+            kabInstance.setValue(kab, true);
             const kecList = regionTree[prov][kab];
-            kecList.forEach((k) => {
-                const opt = document.createElement("option");
-                opt.value = k;
-                opt.textContent = k;
-                kecSel.appendChild(opt);
-            });
+            kecInstance.addOptions(kecList.map((k) => ({ value: k, text: k })));
         }
     }
-}
 
-function setupFilters() {
-    populateSelect(
-        "filter-jenjang",
-        ["KB", "TK", "SD", "SMP", "SMA/SMK", "Semua"],
-        "Pilih Jenjang",
-    );
-    populateSelect(
-        "filter-status",
-        ["NEGERI", "SWASTA", "Semua"],
-        "Pilih Status",
-    );
-    populateSelect("filter-provinsi", provinces, "Pilih Provinsi");
-
-    document
-        .getElementById("filter-provinsi")
-        .addEventListener("change", function () {
-            updateCascading(this.value, "");
-            document.getElementById("filter-kabupaten").value = "";
-            document.getElementById("filter-kecamatan").value = "";
-        });
-
-    document
-        .getElementById("filter-kabupaten")
-        .addEventListener("change", function () {
-            const prov = document.getElementById("filter-provinsi").value;
-            updateCascading(prov, this.value);
-            document.getElementById("filter-kecamatan").value = "";
-        });
-
-    document
-        .getElementById("btn-terapkan")
-        .addEventListener("click", applyFilters);
-    document
-        .getElementById("btn-reset")
-        .addEventListener("click", resetFilters);
+    _updatingCascading = false;
 }
 
 function setSidebarState(state) {
@@ -812,11 +792,11 @@ async function applyFilters() {
     _detailMarkerSchoolId = null;
 
     const filters = {
-        jenjang: document.getElementById("filter-jenjang").value,
-        status: document.getElementById("filter-status").value,
-        provinsi: document.getElementById("filter-provinsi").value,
-        kabupaten: document.getElementById("filter-kabupaten").value,
-        kecamatan: document.getElementById("filter-kecamatan").value,
+        jenjang: tomSelectInstances["filter-jenjang"].getValue(),
+        status: tomSelectInstances["filter-status"].getValue(),
+        provinsi: tomSelectInstances["filter-provinsi"].getValue(),
+        kabupaten: tomSelectInstances["filter-kabupaten"].getValue(),
+        kecamatan: tomSelectInstances["filter-kecamatan"].getValue(),
     };
 
     currentFilters = Object.fromEntries(
@@ -858,13 +838,15 @@ function resetFilters() {
     closeSchoolDetail();
     invalidateFilterCache();
 
-    document.getElementById("filter-jenjang").value = "";
-    document.getElementById("filter-status").value = "";
-    document.getElementById("filter-provinsi").value = "";
-    document.getElementById("filter-kabupaten").innerHTML =
-        '<option value="">Pilih Kabupaten/Kota</option>';
-    document.getElementById("filter-kecamatan").innerHTML =
-        '<option value="">Pilih Kecamatan</option>';
+    tomSelectInstances["filter-jenjang"].clear();
+    tomSelectInstances["filter-status"].clear();
+    tomSelectInstances["filter-provinsi"].clear();
+    tomSelectInstances["filter-kabupaten"].clear();
+    tomSelectInstances["filter-kabupaten"].clearOptions();
+    tomSelectInstances["filter-kabupaten"].addOption({ value: "", text: "Pilih Kabupaten/Kota" });
+    tomSelectInstances["filter-kecamatan"].clear();
+    tomSelectInstances["filter-kecamatan"].clearOptions();
+    tomSelectInstances["filter-kecamatan"].addOption({ value: "", text: "Pilih Kecamatan" });
 
     currentFilters = {};
     pendingPopupSchoolId = null;
@@ -1039,15 +1021,44 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const resultCount = document.getElementById("result-count");
     if (resultCount) resultCount.textContent = "0";
-    populateSelect("filter-jenjang", [], "Memuat data...");
-    populateSelect("filter-status", [], "Memuat data...");
-    populateSelect("filter-provinsi", [], "Memuat data...");
 
     const wilayah = await fetchWilayah();
     regionTree = buildRegionTreeFromWilayah(wilayah);
     provinces = Object.keys(regionTree).sort();
 
-    setupFilters();
+    populateSelect(
+        "filter-jenjang",
+        ["KB", "TK", "SD", "SMP", "SMA/SMK", "Semua"],
+        "Pilih Jenjang",
+    );
+    populateSelect(
+        "filter-status",
+        ["NEGERI", "SWASTA", "Semua"],
+        "Pilih Status",
+    );
+    populateSelect("filter-provinsi", provinces, "Pilih Provinsi");
+    populateSelect("filter-kabupaten", [], "Pilih Kabupaten/Kota");
+    populateSelect("filter-kecamatan", [], "Pilih Kecamatan");
+
+    tomSelectInstances["filter-provinsi"].on("change", function (value) {
+        updateCascading(value, "");
+        tomSelectInstances["filter-kabupaten"].clear();
+        tomSelectInstances["filter-kecamatan"].clear();
+    });
+
+    tomSelectInstances["filter-kabupaten"].on("change", function (value) {
+        const prov = tomSelectInstances["filter-provinsi"].getValue();
+        updateCascading(prov, value);
+        tomSelectInstances["filter-kecamatan"].clear();
+    });
+
+    document
+        .getElementById("btn-terapkan")
+        .addEventListener("click", applyFilters);
+    document
+        .getElementById("btn-reset")
+        .addEventListener("click", resetFilters);
+
     setupTableSearch();
     setupPanelClose();
 

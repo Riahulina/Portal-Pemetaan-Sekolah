@@ -1193,3 +1193,185 @@
     background: var(--color-tertiary);
     color: var(--color-on-tertiary);
 }
+
+/* === RESPONSIVE — Tablet (max-width: 1024px) === */
+@media (max-width: 1024px) {
+
+    /* Force body and html to allow scrolling */
+    html, body {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Turn all main layout wrappers into standard stacked blocks */
+    #app-layout,
+    #right-area,
+    #main-content {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Sidebars become natural, unconstrained blocks */
+    #left-sidebar,
+    #right-sidebar {
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        flex: none !important;
+    }
+
+    /* Push the right sidebar (List) to the bottom */
+    #right-sidebar {
+        order: 3 !important;
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+    }
+
+    /* Give the map a strict, unbreakable block height */
+    #map-wrapper {
+        position: relative !important;
+        width: 100% !important;
+        height: 450px !important;
+        min-height: 450px !important;
+        flex: none !important;
+        order: 2 !important;
+        z-index: 1 !important;
+    }
+
+    #sidebar-backdrop:not(.open) {
+        visibility: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #main-header {
+        padding: 12px 16px;
+    }
+
+    #stat-cards {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .detail-panel {
+        width: 100%;
+    }
+
+    .detail-panel__body {
+        grid-template-columns: 1fr;
+    }
+
+    /* App-like detail mode: hide sidebars, expand map */
+    body.mobile-detail-active #left-sidebar,
+    body.mobile-detail-active #right-sidebar {
+        display: none !important;
+    }
+
+    body.mobile-detail-active #map-wrapper {
+        min-height: 50vh !important;
+    }
+}
+
+/* === RESPONSIVE — Mobile (max-width: 640px) === */
+@media (max-width: 640px) {
+
+    #legend-bar {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 6px 12px;
+    }
+
+    .legend-item {
+        font-size: 0.65rem;
+    }
+
+    #main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 14px;
+    }
+
+    .header-title {
+        font-size: 1rem;
+    }
+
+    .header-subtitle {
+        font-size: 0.7rem;
+    }
+
+    .header-dropdown {
+        font-size: 0.7rem;
+        padding: 6px 12px;
+    }
+}
+
+/* === Tom Select Font & Styling Overrides === */
+
+.ts-wrapper,
+.ts-control,
+.ts-dropdown,
+.ts-dropdown .ts-option {
+    font-family: var(--font-inter), sans-serif !important;
+}
+
+.ts-control {
+    border: 1px solid var(--color-border) !important;
+    border-radius: 0.375rem !important;
+    min-height: 42px !important;
+    display: flex;
+    align-items: center;
+    box-shadow: none !important;
+    padding: 8px 12px !important;
+    background: #fff !important;
+    color: var(--color-primary) !important;
+    font-size: 0.85rem !important;
+}
+
+.ts-control:focus {
+    border-color: var(--color-tertiary) !important;
+    box-shadow: 0 0 0 2px rgba(13, 146, 150, 0.15) !important;
+}
+
+.ts-dropdown {
+    border-radius: 0.375rem !important;
+    border: 1px solid var(--color-border) !important;
+    background: #fff !important;
+    margin-top: 4px !important;
+    z-index: 9999 !important;
+    font-size: 0.85rem !important;
+}
+
+.ts-dropdown .ts-option {
+    padding: 10px 12px !important;
+    color: var(--color-primary) !important;
+}
+
+.ts-dropdown .ts-option:hover,
+.ts-dropdown .ts-option.active {
+    background: #f5f3f0 !important;
+    color: var(--color-primary) !important;
+}
+
+.ts-dropdown .ts-option.selected {
+    background: var(--color-card-bg) !important;
+    color: var(--color-primary) !important;
+}
+
+.ts-wrapper .ts-control {
+    padding-right: 36px !important;
+}
+
+.ts-wrapper.has-options .ts-control {
+    padding-right: 36px !important;
+}
