@@ -40,6 +40,7 @@
             <div>
                 <h4>Navigasi</h4>
                 <ul>
+                    <li><a href="/">Home</a></li>
                     <li><a href="#tentang">Tentang Kami</a></li>
                     <li><a href="#peta">Peta Data</a></li>
                     <li><a href="#kontak">Kontak</a></li>

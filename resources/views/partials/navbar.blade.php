@@ -36,12 +36,15 @@
             <nav class="nav-links">
                 <a href="/">Home</a>
                 <a href="{{ request()->is('/') ? '#tentang' : url('/#tentang') }}">Tentang Kami</a>
-                <a href="{{ url('/dashboard') }}">Peta Data</a>
                 <a href="#kontak">Kontak</a>
             </nav>
 
             <div class="nav-actions">
+                <!-- Tombol 'Mulai Pemetaan' selalu tampil (baik login maupun belum) -->
+                <a href="{{ url('/dashboard') }}" class="btn-nav">Mulai Pemetaan</a>
+
                 @auth
+                    <!-- Tampilan Profile jika user sudah login -->
                     <div class="user-profile-dropdown-wrapper">
                         <button type="button" class="user-profile-nav trigger-dropdown" onclick="toggleNavbarDropdown()">
                             <div class="avatar-initial-nav">
@@ -92,7 +95,7 @@
                         </div>
                     </div>
                 @else
-                    <a href="{{ url('/dashboard') }}" class="btn-nav">Mulai Pemetaan</a>
+                    <!-- Hanya tampil tombol ini jika BELUM login -->
                     <a href="/login" class="btn-nav2">Daftarkan Sekolah</a>
                 @endauth
             </div>
