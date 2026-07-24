@@ -21,19 +21,19 @@
 
         <!-- SEARCH BAR -->
         <form method="GET" action="{{ route('admin.pengguna.index') }}" class="mb-6">
-            <div class="flex items-center gap-3">
-                <div class="relative flex-1 max-w-md">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="relative flex-1 min-w-0 max-w-md w-full">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari berdasarkan nama atau email..."
                         class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296] transition-all">
                 </div>
-                <button type="submit" class="px-5 py-2.5 bg-[#0d9296] text-white text-sm font-medium rounded-lg hover:bg-[#0b7e82] transition-colors">
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-[#0d9296] text-white text-sm font-medium rounded-lg hover:bg-[#0b7e82] transition-colors">
                     Cari
                 </button>
                 @if ($search)
-                    <a href="{{ route('admin.pengguna.index') }}" class="px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <a href="{{ route('admin.pengguna.index') }}" class="w-full sm:w-auto px-4 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-center">
                         Reset
                     </a>
                 @endif
