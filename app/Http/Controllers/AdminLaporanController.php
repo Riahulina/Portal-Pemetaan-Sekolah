@@ -6,20 +6,35 @@ use App\Models\ActivityLog;
 use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminLaporanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $startDate = Carbon::parse($request->input('start_date', now()->subDays(6)));
+        $endDate = Carbon::parse($request->input('end_date', now()));
+
         // 1. Ambil data untuk counter box atas
-        $totalSekolah = Sekolah::count();
-        $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')->count();
-        $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')->count();
-        $ditolak = SekolahTemporary::where('status_verifikasi', 'rejected')->count();
+        $dateFrom = $startDate->startOfDay();
+        $dateTo = $endDate->endOfDay();
+
+        $totalApproved = Sekolah::whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $totalPending = SekolahTemporary::where('status_verifikasi', 'pending')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $totalSekolah = $totalApproved + $totalPending;
+        $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $ditolak = SekolahTemporary::where('status_verifikasi', 'rejected')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
 
         // 2. Data untuk Chart Donut (Berdasarkan Jenjang di tabel Sekolah Utama)
         $jenjangData = Sekolah::select('jenjang', DB::raw('count(*) as total'))
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
             ->groupBy('jenjang')
             ->get();
 
@@ -31,9 +46,9 @@ class AdminLaporanController extends Controller
             $valuesJenjang[] = $item->total;
         }
 
-        // 3. Data grafik Pendaftaran Harian (7 hari terakhir) dari ActivityLog
+        // 3. Data grafik Pendaftaran Harian dari ActivityLog
         $chartData = ActivityLog::where('action', 'mendaftar')
-            ->where('created_at', '>=', now()->subDays(7))
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
             ->selectRaw('date(created_at) as date, count(*) as count')
             ->groupByRaw('date(created_at)')
             ->orderByRaw('date(created_at)')
@@ -41,14 +56,17 @@ class AdminLaporanController extends Controller
 
         $chartHarianLabels = [];
         $chartHarianValues = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i);
+        $days = $startDate->diffInDays($endDate);
+        for ($i = 0; $i <= $days; $i++) {
+            $date = $startDate->copy()->addDays($i);
             $chartHarianLabels[] = $date->format('j M');
             $match = $chartData->firstWhere('date', $date->format('Y-m-d'));
             $chartHarianValues[] = $match ? $match->count : 0;
         }
 
-        // 4. Ringkasan perubahan minggu ini
+        $maxChartValue = max(array_merge($chartHarianValues, [1]));
+
+        // 4. Ringkasan perubahan minggu ini (independent of date filter)
         $thisWeekApprovals = ActivityLog::where('action', 'disetujui')
             ->where('created_at', '>=', now()->startOfWeek())
             ->count();
@@ -88,21 +106,36 @@ class AdminLaporanController extends Controller
             'valuesJenjang',
             'chartHarianLabels',
             'chartHarianValues',
+            'maxChartValue',
             'approvalTrend',
             'pendingTrend',
-            'rejectedTrend'
+            'rejectedTrend',
+            'startDate',
+            'endDate'
         ));
     }
 
     /**
      * Fitur 1: Mengunduh File PDF
      */
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $totalSekolah = Sekolah::count();
-        $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')->count();
-        $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')->count();
-        $ditolak = SekolahTemporary::where('status_verifikasi', 'rejected')->count();
+        $startDate = Carbon::parse($request->input('start_date', now()->subDays(6)));
+        $endDate = Carbon::parse($request->input('end_date', now()));
+
+        $dateFrom = $startDate->startOfDay();
+        $dateTo = $endDate->endOfDay();
+
+        $totalApproved = Sekolah::whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $totalPending = SekolahTemporary::where('status_verifikasi', 'pending')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $totalSekolah = $totalApproved + $totalPending;
+        $menungguVerifikasi = SekolahTemporary::where('status_verifikasi', 'pending')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $disetujui = SekolahTemporary::where('status_verifikasi', 'approved')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
+        $ditolak = SekolahTemporary::where('status_verifikasi', 'rejected')
+            ->whereBetween('created_at', [$dateFrom, $dateTo])->count();
 
         $rekapWilayah = Sekolah::select(
             'provinsi',
@@ -110,6 +143,7 @@ class AdminLaporanController extends Controller
             DB::raw('COUNT(*) as total_sekolah'),
             DB::raw('SUM(total_siswa) as total_siswa')
         )
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
             ->whereNotNull('provinsi')
             ->whereNotNull('kabupaten_kota')
             ->groupBy('provinsi', 'kabupaten_kota')
@@ -117,7 +151,7 @@ class AdminLaporanController extends Controller
             ->orderBy('kabupaten_kota')
             ->get();
 
-        $periode = now()->translatedFormat('F Y');
+        $periode = $startDate->format('d M Y').' – '.$endDate->format('d M Y');
 
         $logoPath = public_path('assets/logowithbrand.png');
         $logoTempPath = '';

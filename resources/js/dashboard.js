@@ -483,14 +483,14 @@ function initSiswaChart(totalMurid) {
                     const cy = height / 2;
                     c.textAlign = "center";
                     c.textBaseline = "middle";
-                    c.font = "700 20px 'Public Sans', sans-serif";
+                    c.font = "700 20px 'Inter', sans-serif";
                     c.fillStyle = "#1A1C1E";
                     c.fillText(
                         `Total ${totalMurid.toLocaleString()}`,
                         cx,
                         cy - 8,
                     );
-                    c.font = "400 11px 'Public Sans', sans-serif";
+                    c.font = "400 11px 'Inter', sans-serif";
                     c.fillStyle = "#6B7280";
                     c.fillText("Siswa", cx, cy + 14);
                     c.restore();

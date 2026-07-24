@@ -208,14 +208,14 @@
                             beginAtZero: true,
                             ticks: {
                                 stepSize: 1,
-                                font: { size: 11, family: 'Public Sans' },
+                                font: { size: 11, family: "'Inter', sans-serif" },
                                 color: '#9ca3af'
                             },
                             grid: { color: '#f3f4f6' }
                         },
                         x: {
                             ticks: {
-                                font: { size: 11, family: 'Public Sans' },
+                                font: { size: 11, family: "'Inter', sans-serif" },
                                 color: '#9ca3af'
                             },
                             grid: { display: false }

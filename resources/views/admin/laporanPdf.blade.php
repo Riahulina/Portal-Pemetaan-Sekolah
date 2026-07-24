@@ -80,31 +80,35 @@
         }
 
         .letterhead .logo-cell {
-            width: 200px;
+            width: 20%;
             text-align: left;
         }
 
         .letterhead .logo-cell img {
-            width: 180px;
+            width: 220px;
             height: auto;
         }
 
         .letterhead .title-cell {
-            text-align: left;
-            padding-left: 15px;
+            width: 60%;
+            text-align: center;
         }
 
         .letterhead .title-cell h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 26px;
             color: #0d9296;
             line-height: 1.3;
         }
 
         .letterhead .title-cell p {
             margin: 5px 0 0 0;
-            font-size: 12px;
+            font-size: 14px;
             color: #666;
+        }
+
+        .letterhead .spacer-cell {
+            width: 20%;
         }
     </style>
 </head>
@@ -115,13 +119,14 @@
         <tr>
             <td class="logo-cell">
                 @if(!empty($logoTempPath) && file_exists($logoTempPath))
-                    <img src="file://{{ $logoTempPath }}" alt="SatuPeta Logo" width="180" height="68">
+                    <img src="file://{{ $logoTempPath }}" alt="SatuPeta Logo" width="220" height="82">
                 @endif
             </td>
             <td class="title-cell">
                 <h1>LAPORAN REKAPITULASI DEMOGRAFI SEKOLAH</h1>
                 <p>SatuPeta Peta Pendidikan Indonesia — Periode: {{ $periode }}</p>
             </td>
+            <td class="spacer-cell"></td>
         </tr>
     </table>
 
