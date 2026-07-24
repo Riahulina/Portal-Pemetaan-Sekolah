@@ -208,6 +208,14 @@
                             <p class="text-sm text-gray-900 mt-1" x-text="viewData?.akreditasi || '-'"></p>
                         </div>
                         <div>
+                            <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Siswa Laki-laki</p>
+                            <p class="text-sm font-semibold text-gray-900 mt-1" x-text="(viewData?.jumlah_siswa_laki_laki || 0).toLocaleString('id-ID')"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Siswa Perempuan</p>
+                            <p class="text-sm font-semibold text-gray-900 mt-1" x-text="(viewData?.jumlah_siswa_perempuan || 0).toLocaleString('id-ID')"></p>
+                        </div>
+                        <div>
                             <p class="text-xs font-medium text-gray-400 uppercase tracking-wide">Total Siswa</p>
                             <p class="text-sm font-semibold text-gray-900 mt-1" x-text="(viewData?.total_siswa || 0).toLocaleString('id-ID')"></p>
                         </div>
@@ -324,9 +332,28 @@
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Total Siswa</label>
-                                    <input type="number" name="total_siswa" :value="editData?.total_siswa" min="0"
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Siswa Laki-laki</label>
+                                    <input type="number" name="jumlah_siswa_laki_laki"
+                                        x-model.number="editData.jumlah_siswa_laki_laki"
+                                        x-on:input="$refs.totalSiswa.value = (editData.jumlah_siswa_laki_laki || 0) + (editData.jumlah_siswa_perempuan || 0)"
+                                        min="0"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Siswa Perempuan</label>
+                                    <input type="number" name="jumlah_siswa_perempuan"
+                                        x-model.number="editData.jumlah_siswa_perempuan"
+                                        x-on:input="$refs.totalSiswa.value = (editData.jumlah_siswa_laki_laki || 0) + (editData.jumlah_siswa_perempuan || 0)"
+                                        min="0"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Total Siswa</label>
+                                    <input type="number" name="total_siswa" x-ref="totalSiswa"
+                                        :value="(editData?.jumlah_siswa_laki_laki || 0) + (editData?.jumlah_siswa_perempuan || 0)"
+                                        readonly
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-100 cursor-not-allowed focus:outline-none">
+                                    <p class="text-xs text-gray-400 mt-1">Dihitung otomatis dari jumlah laki-laki + perempuan</p>
                                 </div>
                             </div>
                             <div class="mt-4">

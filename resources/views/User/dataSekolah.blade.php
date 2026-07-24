@@ -302,7 +302,7 @@
                     <div style="display: flex; gap: 5px;">
                         <button disabled
                             style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 8px; color: #cbd5e1; cursor: not-allowed;">
-                            << /button>
+                            &lt;&lt;</button>
                                 <button
                                     style="background: #008080; border: 1px solid #008080; border-radius: 4px; padding: 3px 8px; color: #fff; font-weight: bold;">1</button>
                                 <button disabled
