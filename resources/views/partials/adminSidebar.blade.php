@@ -47,6 +47,18 @@
                 Pendaftaran
             </a>
 
+            <a href="{{ route('admin.koreksi.index') }}"
+                class="flex items-center gap-[10px] px-4 py-3 rounded-lg text-[0.9rem] font-medium transition-all duration-200 {{ request()->routeIs('admin.koreksi.*') ? 'bg-[#e0f2f1] text-[#0d9488] font-semibold' : 'text-[#475569] hover:bg-[#e0f2f1] hover:text-[#0d9488]' }}">
+                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span class="flex-1">Antrean Koreksi</span>
+                @php $pendingCount = \App\Models\LaporanKoreksi::where('status', 'pending')->count(); @endphp
+                @if($pendingCount > 0)
+                    <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $pendingCount }}</span>
+                @endif
+            </a>
+
             <a href="{{ route('admin.pengguna.index') }}"
                 class="flex items-center gap-[10px] px-4 py-3 rounded-lg text-[0.9rem] font-medium transition-all duration-200 {{ request()->routeIs('admin.pengguna.*') ? 'bg-[#e0f2f1] text-[#0d9488] font-semibold' : 'text-[#475569] hover:bg-[#e0f2f1] hover:text-[#0d9488]' }}">
                 <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

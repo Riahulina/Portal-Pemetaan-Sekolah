@@ -5,9 +5,11 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminSchoolController;
 use App\Http\Controllers\Admin\AdminSekolahController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\AdminKoreksiController;
 use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\AdminPendaftaranController;
 use App\Http\Controllers\DashboardUserController;
+use App\Http\Controllers\LaporanKoreksiController;
 use App\Http\Controllers\SekolahController;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // G. Proses Hapus Data Pengajuan (DELETE)
     Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
 
+    // H. Laporan Koreksi Data Sekolah
+    Route::post('/laporan-koreksi', [LaporanKoreksiController::class, 'store'])
+        ->name('laporan.store')
+        ->middleware('throttle:5,1');
+
     // Rute Profile Akun
     Route::get('/user/profile', [DashboardUserController::class, 'profile'])->name('profile.user');
     Route::put('/user/profile/info', [DashboardUserController::class, 'updateInfo'])->name('profile.info.update');
@@ -94,6 +101,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::post('/pendaftaran/{id}/verifikasi', [AdminPendaftaranController::class, 'verifikasi'])->name('pendaftaran.verifikasi');
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export-pdf', [AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
+
+    // --- ANTREAN KOREKSI ---
+    Route::get('/koreksi', [AdminKoreksiController::class, 'index'])->name('koreksi.index');
+    Route::patch('/koreksi/{laporan}/resolve', [AdminKoreksiController::class, 'resolve'])->name('koreksi.resolve');
 
     // --- PROFILE ADMIN ---
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
