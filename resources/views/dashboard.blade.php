@@ -275,7 +275,7 @@
                                     Usulkan Perbaikan Data
                                 </button>
                             @else
-                                <a href="{{ route('login') }}" class="mt-4 w-full block text-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors">Login untuk Usulkan Perbaikan</a>
+                                <a href="{{ route('login') }}" class="mt-4 w-full block text-center bg-[#0D9296] hover:bg-[#0b7c80] text-white font-bold py-2 px-4 rounded transition-colors">Login untuk Usulkan Perbaikan</a>
                             @endauth
                         </div>
                         <div class="detail-panel__col detail-panel__col--right">
