@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sekolah extends Model
@@ -43,5 +44,10 @@ class Sekolah extends Model
     public function setStatusAttribute($value): void
     {
         $this->attributes['status'] = $value ? strtoupper($value) : null;
+    }
+
+    public function laporans(): HasMany
+    {
+        return $this->hasMany(LaporanKoreksi::class, 'sekolah_npsn', 'npsn');
     }
 }

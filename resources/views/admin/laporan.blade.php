@@ -3,7 +3,7 @@
 @section('title', 'Laporan')
 
 @section('content')
-    <!-- TITLE RINGKASAN & EXPORT -->
+    <!-- TITLE RINGKASAN & FILTER -->
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
             <h2 class="text-lg font-bold text-gray-900">Laporan Ringkasan</h2>
@@ -11,17 +11,31 @@
         </div>
 
         <div class="flex items-center gap-3 flex-wrap">
-            <!-- Date Range -->
-            <div class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 shadow-sm">
-                <span>{{ now()->subDays(6)->format('j M Y') }} - {{ now()->format('j M Y') }}</span>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 002-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            </div>
+            <!-- Global Date Filter Form -->
+            <form action="{{ route('admin.laporan.index') }}" method="GET"
+                class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 shadow-sm">
+                    <input type="date" name="start_date"
+                        value="{{ $startDate->format('Y-m-d') }}"
+                        class="border-0 text-xs font-medium text-gray-600 focus:outline-none focus:ring-0 bg-transparent">
+                    <span class="text-gray-400">s/d</span>
+                    <input type="date" name="end_date"
+                        value="{{ $endDate->format('Y-m-d') }}"
+                        class="border-0 text-xs font-medium text-gray-600 focus:outline-none focus:ring-0 bg-transparent">
+                </div>
+                <button type="submit"
+                    class="px-4 py-1.5 bg-[#0d9296] hover:bg-[#0b7c80] text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
+                    Filter
+                </button>
+                <a href="{{ route('admin.laporan.index') }}"
+                    class="px-4 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg hover:bg-gray-200 transition-colors">
+                    Reset
+                </a>
+            </form>
 
-            <!-- Tombol Export PDF -->
-            <a href="{{ route('admin.laporan.pdf') }}"
-                class="px-5 py-1.5 bg-[#0d9296] hover:bg-[#0b7c80] text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-1">
+            <!-- Export PDF (preserves current filter dates) -->
+            <a href="{{ route('admin.laporan.pdf', ['start_date' => $startDate->format('Y-m-d'), 'end_date' => $endDate->format('Y-m-d')]) }}"
+                class="px-5 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-1">
                 Export PDF
             </a>
         </div>
@@ -52,14 +66,7 @@
             </div>
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Menunggu Verifikasi</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl font-black text-gray-800">{{ number_format($menungguVerifikasi, 0, ',', '.') }}</span>
-                    @if ($pendingTrend != 0)
-                        <span class="text-[10px] font-bold {{ $pendingTrend > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50' }} px-1 rounded">
-                            {{ $pendingTrend > 0 ? '+' : '' }}{{ $pendingTrend }}%
-                        </span>
-                    @endif
-                </div>
+                <span class="text-xl font-black text-gray-800">{{ number_format($menungguVerifikasi, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -72,14 +79,7 @@
             </div>
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Disetujui</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl font-black text-gray-800">{{ number_format($disetujui, 0, ',', '.') }}</span>
-                    @if ($approvalTrend != 0)
-                        <span class="text-[10px] font-bold {{ $approvalTrend > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50' }} px-1 rounded">
-                            {{ $approvalTrend > 0 ? '+' : '' }}{{ $approvalTrend }}%
-                        </span>
-                    @endif
-                </div>
+                <span class="text-xl font-black text-gray-800">{{ number_format($disetujui, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -92,14 +92,7 @@
             </div>
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Ditolak</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl font-black text-gray-800">{{ number_format($ditolak, 0, ',', '.') }}</span>
-                    @if ($rejectedTrend != 0)
-                        <span class="text-[10px] font-bold {{ $rejectedTrend > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50' }} px-1 rounded">
-                            {{ $rejectedTrend > 0 ? '+' : '' }}{{ $rejectedTrend }}%
-                        </span>
-                    @endif
-                </div>
+                <span class="text-xl font-black text-gray-800">{{ number_format($ditolak, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -157,12 +150,12 @@
                 scales: {
                     y: {
                         min: 0,
-                        max: 100,
-                        ticks: { stepSize: 20, font: { size: 10 } },
+                        max: {{ $maxChartValue }},
+                        ticks: { stepSize: 20, font: { family: "'Inter', sans-serif", size: 10 } },
                         grid: { borderDash: [4, 4] }
                     },
                     x: {
-                        ticks: { font: { size: 10 } },
+                        ticks: { font: { family: "'Inter', sans-serif", size: 10 } },
                         grid: { display: false }
                     }
                 }
@@ -190,7 +183,7 @@
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { boxWidth: 10, font: { size: 10 }, padding: 15 }
+                        labels: { boxWidth: 10, font: { family: "'Inter', sans-serif", size: 10 }, padding: 15 }
                     }
                 },
                 cutout: '65%'

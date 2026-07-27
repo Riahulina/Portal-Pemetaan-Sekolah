@@ -68,33 +68,48 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+        }
+
+        .letterhead tr {
             border-bottom: 2px solid #333;
-            padding-bottom: 10px;
         }
 
         .letterhead td {
             vertical-align: middle;
-            padding: 0;
+            padding: 10px 0;
         }
 
         .letterhead .logo-cell {
-            width: 200px;
-            text-align: left;
+            width: 25%;
+            text-align: right;
+            padding-right: 5px;
         }
 
         .letterhead .logo-cell img {
-            width: 180px;
+            width: 100px;
+            height: auto;
         }
 
         .letterhead .title-cell {
-            text-align: left;
-            padding-left: 15px;
+            width: 50%;
+            text-align: center;
         }
 
         .letterhead .title-cell h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 26px;
             color: #0d9296;
+            line-height: 1.3;
+        }
+
+        .letterhead .title-cell p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .letterhead .spacer-cell {
+            width: 25%;
         }
     </style>
 </head>
@@ -105,13 +120,14 @@
         <tr>
             <td class="logo-cell">
                 @if(!empty($logoTempPath) && file_exists($logoTempPath))
-                    <img src="file://{{ $logoTempPath }}" alt="SatuPeta Logo" width="180" height="68">
+                    <img src="file://{{ $logoTempPath }}" alt="SatuPeta Logo" width="100" height="auto">
                 @endif
             </td>
             <td class="title-cell">
                 <h1>LAPORAN REKAPITULASI DEMOGRAFI SEKOLAH</h1>
-                <p>SatuPeta Peta Pendidikan Indonesia — Periode: {{ $periode }}</p>
+                <p>SatuPeta — Peta Pendidikan Indonesia — Periode: {{ $periode }}</p>
             </td>
+            <td class="spacer-cell"></td>
         </tr>
     </table>
 

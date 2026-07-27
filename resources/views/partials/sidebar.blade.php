@@ -56,6 +56,17 @@
                 </svg>
                 Status Verifikasi
             </a>
+
+            <!-- 5. Riwayat Usulan -->
+            <a href="{{ route('laporan.index') }}"
+                class="sidebar-item {{ Request::is('riwayat-usulan') ? 'active' : '' }}">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Riwayat Usulan Perbaikan
+            </a>
         </div>
     </div>
 </aside>

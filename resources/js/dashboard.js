@@ -30,6 +30,7 @@ let siswaChart = null;
 
 let detailLayer;
 let _detailMarkerSchoolId = null;
+let _currentSchoolNpsn = null;
 
 let _filterCacheKey = null;
 let _filterCacheResult = null;
@@ -483,14 +484,14 @@ function initSiswaChart(totalMurid) {
                     const cy = height / 2;
                     c.textAlign = "center";
                     c.textBaseline = "middle";
-                    c.font = "700 20px 'Public Sans', sans-serif";
+                    c.font = "700 20px 'Inter', sans-serif";
                     c.fillStyle = "#1A1C1E";
                     c.fillText(
                         `Total ${totalMurid.toLocaleString()}`,
                         cx,
                         cy - 8,
                     );
-                    c.font = "400 11px 'Public Sans', sans-serif";
+                    c.font = "400 11px 'Inter', sans-serif";
                     c.fillStyle = "#6B7280";
                     c.fillText("Siswa", cx, cy + 14);
                     c.restore();
@@ -511,6 +512,7 @@ function initSiswaChart(totalMurid) {
 }
 
 async function openSchoolDetail(school) {
+    _currentSchoolNpsn = school.id;
     document.getElementById("panel-nama").textContent = school.nama;
 
     const badge = document.getElementById("panel-status-badge");
@@ -677,6 +679,7 @@ function closeSchoolDetail() {
     document.getElementById("school-detail-overlay").classList.remove("open");
     document.body.classList.remove("mobile-detail-active");
     setSidebarState("default");
+    _currentSchoolNpsn = null;
 
     const warningCard = document.getElementById("data-warning-card");
     const warningBody = document.getElementById("data-warning-body");
@@ -1071,4 +1074,93 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTable(schools);
 
     fetchAndRenderSummary();
+
+    // --- Koreksi Modal ---
+    const koreksiModal = document.getElementById("koreksiModal");
+    const koreksiForm = document.getElementById("formKoreksi");
+    const btnKoreksi = document.getElementById("btn-koreksi");
+
+    if (btnKoreksi) {
+        btnKoreksi.addEventListener("click", () => {
+            const npsnInput = document.getElementById("modal_sekolah_npsn");
+            if (npsnInput) npsnInput.value = _currentSchoolNpsn || "";
+            koreksiModal.classList.remove("hidden");
+        });
+    }
+
+    if (koreksiForm) {
+        koreksiForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(koreksiForm);
+            const submitBtn = koreksiModal.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            try {
+                const res = await fetch(koreksiForm.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                });
+
+                if (res.ok) {
+                    koreksiModal.classList.add("hidden");
+                    koreksiForm.reset();
+                    showToast("Laporan berhasil dikirim dan akan segera ditinjau.", "success");
+                } else if (res.status === 422) {
+                    const data = await res.json().catch(() => ({}));
+                    const errors = data.errors;
+                    let msg = "Data yang dikirim tidak valid.";
+                    if (errors) {
+                        const firstKey = Object.keys(errors)[0];
+                        msg = errors[firstKey][0];
+                    } else if (data.message) {
+                        msg = data.message;
+                    }
+                    showToast(msg, "error");
+                } else if (res.status === 429) {
+                    const retryAfter = res.headers.get("Retry-After");
+                    const msg = retryAfter
+                        ? `Terlalu banyak permintaan. Coba lagi dalam ${retryAfter} detik.`
+                        : "Terlalu banyak permintaan. Silakan tunggu sebentar lalu coba lagi.";
+                    showToast(msg, "error");
+                } else if (res.status === 401 || res.status === 419) {
+                    showToast("Sesi Anda telah berakhir. Mengalihkan ke halaman login...", "error");
+                    setTimeout(() => { window.location.href = "/login"; }, 2500);
+                    return;
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    const msg = data.message || "Terjadi kesalahan. Silakan coba lagi.";
+                    showToast(msg, "error");
+                }
+            } catch (err) {
+                showToast("Gagal mengirim laporan. Periksa koneksi Anda.", "error");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && koreksiModal && !koreksiModal.classList.contains("hidden")) {
+            koreksiModal.classList.add("hidden");
+        }
+    });
 });
+
+function showToast(message, type) {
+    const existing = document.getElementById("koreksiToast");
+    if (existing) existing.remove();
+
+    const bg = type === "success" ? "bg-green-500" : "bg-red-500";
+    const icon = type === "success"
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
+    const toast = document.createElement("div");
+    toast.id = "koreksiToast";
+    toast.className = `fixed top-6 right-6 z-[10001] ${bg} text-white px-6 py-3 rounded-lg shadow-lg font-medium text-sm flex items-center gap-2 transition-opacity duration-300`;
+    toast.innerHTML = `${icon} ${message}`;
+    document.body.appendChild(toast);
+
+    setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 4000);
+}

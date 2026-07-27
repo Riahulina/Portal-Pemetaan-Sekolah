@@ -77,9 +77,12 @@ class AdminSekolahController extends Controller
             'no_telepon' => 'nullable|string|max:50',
             'email' => 'nullable|email|max:100',
             'social_media' => 'nullable|string',
-            'total_siswa' => 'nullable|integer|min:0',
+            'jumlah_siswa_laki_laki' => 'nullable|integer|min:0',
+            'jumlah_siswa_perempuan' => 'nullable|integer|min:0',
             'yayasan' => 'nullable|string',
         ]);
+
+        $validated['total_siswa'] = ($validated['jumlah_siswa_laki_laki'] ?? 0) + ($validated['jumlah_siswa_perempuan'] ?? 0);
 
         $sekolah->update($validated);
 

@@ -5,9 +5,11 @@ use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminSchoolController;
 use App\Http\Controllers\Admin\AdminSekolahController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\AdminKoreksiController;
 use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\AdminPendaftaranController;
 use App\Http\Controllers\DashboardUserController;
+use App\Http\Controllers\LaporanKoreksiController;
 use App\Http\Controllers\SekolahController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,8 +33,6 @@ Route::get('/dashboard', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-
-
 
     // Route Dashboard User (Sudah diarahkan ke DashboardUserController)
     Route::get('/user/dashboard', [DashboardUserController::class, 'index'])->name('dashboard.user');
@@ -60,6 +60,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // G. Proses Hapus Data Pengajuan (DELETE)
     Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
+
+    // H. Laporan Koreksi Data Sekolah
+    Route::post('/laporan-koreksi', [LaporanKoreksiController::class, 'store'])
+        ->name('laporan.store')
+        ->middleware('throttle:5,1');
+
+    Route::get('/riwayat-usulan', [LaporanKoreksiController::class, 'index'])->name('laporan.index');
 
     // Rute Profile Akun
     Route::get('/user/profile', [DashboardUserController::class, 'profile'])->name('profile.user');
@@ -97,6 +104,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export-pdf', [AdminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
 
+    // --- ANTREAN KOREKSI ---
+    Route::get('/koreksi', [AdminKoreksiController::class, 'index'])->name('koreksi.index');
+    Route::patch('/koreksi/{laporan}/resolve', [AdminKoreksiController::class, 'resolve'])->name('koreksi.resolve');
+
     // --- PROFILE ADMIN ---
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile/info', [AdminProfileController::class, 'updateInfo'])->name('profile.info.update');
@@ -121,4 +132,4 @@ Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail']
 | 5. Rute Otentikasi Bawaan Laravel
 |--------------------------------------------------------------------------
 */
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
