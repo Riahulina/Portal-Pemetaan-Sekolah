@@ -7,6 +7,16 @@ use Illuminate\Http\Request;
 
 class LaporanKoreksiController extends Controller
 {
+    public function index()
+    {
+        $laporans = LaporanKoreksi::with('sekolah')
+            ->where('email_pelapor', auth()->user()->email)
+            ->latest()
+            ->paginate(10);
+
+        return view('User.riwayatUsulan', compact('laporans'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

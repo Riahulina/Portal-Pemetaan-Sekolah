@@ -83,21 +83,29 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center gap-2 justify-center">
                                     <a href="{{ route('admin.sekolah.index', ['search' => $laporan->sekolah_npsn]) }}"
-                                        class="text-xs font-medium text-blue-600 hover:underline whitespace-nowrap">
-                                        Lihat Sekolah
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-transparent rounded-md text-sm font-medium transition-colors"
+                                       title="Lihat Detail Sekolah">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Lihat
                                     </a>
-                                    @if ($laporan->status === 'pending')
-                                        <form action="{{ route('admin.koreksi.resolve', $laporan->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                onclick="return confirm('Tandai laporan ini sebagai selesai?')"
-                                                class="text-xs font-medium text-emerald-600 hover:underline whitespace-nowrap">
-                                                Tandai Selesai
-                                            </button>
-                                        </form>
+                                    @if($laporan->status === 'pending')
+                                    <form action="{{ route('admin.koreksi.resolve', $laporan->id) }}" method="POST" class="m-0" onsubmit="return confirm('Tandai laporan dari {{ $laporan->nama_pelapor }} ini sebagai selesai?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0d9296] text-white hover:bg-[#0b7c80] rounded-md text-sm font-medium transition-colors shadow-sm"
+                                           title="Tandai Selesai">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Selesai
+                                        </button>
+                                    </form>
                                     @endif
                                 </div>
                             </td>

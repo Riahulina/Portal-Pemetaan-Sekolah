@@ -66,6 +66,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('laporan.store')
         ->middleware('throttle:5,1');
 
+    Route::get('/riwayat-usulan', [LaporanKoreksiController::class, 'index'])->name('laporan.index');
+
     // Rute Profile Akun
     Route::get('/user/profile', [DashboardUserController::class, 'profile'])->name('profile.user');
     Route::put('/user/profile/info', [DashboardUserController::class, 'updateInfo'])->name('profile.info.update');
