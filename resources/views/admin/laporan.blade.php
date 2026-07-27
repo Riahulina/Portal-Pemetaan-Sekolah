@@ -66,14 +66,7 @@
             </div>
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Menunggu Verifikasi</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl font-black text-gray-800">{{ number_format($menungguVerifikasi, 0, ',', '.') }}</span>
-                    @if ($pendingTrend != 0)
-                        <span class="text-[10px] font-bold {{ $pendingTrend > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50' }} px-1 rounded">
-                            {{ $pendingTrend > 0 ? '+' : '' }}{{ $pendingTrend }}%
-                        </span>
-                    @endif
-                </div>
+                <span class="text-xl font-black text-gray-800">{{ number_format($menungguVerifikasi, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -86,14 +79,7 @@
             </div>
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Disetujui</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl font-black text-gray-800">{{ number_format($disetujui, 0, ',', '.') }}</span>
-                    @if ($approvalTrend != 0)
-                        <span class="text-[10px] font-bold {{ $approvalTrend > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50' }} px-1 rounded">
-                            {{ $approvalTrend > 0 ? '+' : '' }}{{ $approvalTrend }}%
-                        </span>
-                    @endif
-                </div>
+                <span class="text-xl font-black text-gray-800">{{ number_format($disetujui, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -106,14 +92,7 @@
             </div>
             <div>
                 <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Ditolak</span>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-xl font-black text-gray-800">{{ number_format($ditolak, 0, ',', '.') }}</span>
-                    @if ($rejectedTrend != 0)
-                        <span class="text-[10px] font-bold {{ $rejectedTrend > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50' }} px-1 rounded">
-                            {{ $rejectedTrend > 0 ? '+' : '' }}{{ $rejectedTrend }}%
-                        </span>
-                    @endif
-                </div>
+                <span class="text-xl font-black text-gray-800">{{ number_format($ditolak, 0, ',', '.') }}</span>
             </div>
         </div>
 

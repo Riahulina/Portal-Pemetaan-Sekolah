@@ -66,37 +66,6 @@ class AdminLaporanController extends Controller
 
         $maxChartValue = max(array_merge($chartHarianValues, [1]));
 
-        // 4. Ringkasan perubahan minggu ini (independent of date filter)
-        $thisWeekApprovals = ActivityLog::where('action', 'disetujui')
-            ->where('created_at', '>=', now()->startOfWeek())
-            ->count();
-        $lastWeekApprovals = ActivityLog::where('action', 'disetujui')
-            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
-            ->count();
-        $approvalTrend = $lastWeekApprovals > 0
-            ? round((($thisWeekApprovals - $lastWeekApprovals) / $lastWeekApprovals) * 100)
-            : ($thisWeekApprovals > 0 ? 100 : 0);
-
-        $thisWeekPending = SekolahTemporary::where('status_verifikasi', 'pending')
-            ->where('created_at', '>=', now()->startOfWeek())
-            ->count();
-        $lastWeekPending = SekolahTemporary::where('status_verifikasi', 'pending')
-            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
-            ->count();
-        $pendingTrend = $lastWeekPending > 0
-            ? round((($thisWeekPending - $lastWeekPending) / $lastWeekPending) * 100)
-            : ($thisWeekPending > 0 ? 100 : 0);
-
-        $thisWeekRejected = ActivityLog::where('action', 'ditolak')
-            ->where('created_at', '>=', now()->startOfWeek())
-            ->count();
-        $lastWeekRejected = ActivityLog::where('action', 'ditolak')
-            ->whereBetween('created_at', [now()->subWeek()->startOfWeek(), now()->subWeek()->endOfWeek()])
-            ->count();
-        $rejectedTrend = $lastWeekRejected > 0
-            ? round((($thisWeekRejected - $lastWeekRejected) / $lastWeekRejected) * 100)
-            : ($thisWeekRejected > 0 ? 100 : 0);
-
         return view('Admin.laporan', compact(
             'totalSekolah',
             'menungguVerifikasi',
@@ -107,9 +76,6 @@ class AdminLaporanController extends Controller
             'chartHarianLabels',
             'chartHarianValues',
             'maxChartValue',
-            'approvalTrend',
-            'pendingTrend',
-            'rejectedTrend',
             'startDate',
             'endDate'
         ));
