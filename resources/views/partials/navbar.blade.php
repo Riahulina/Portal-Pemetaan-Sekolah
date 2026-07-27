@@ -36,7 +36,7 @@
             <nav class="nav-links">
                 <a href="/">Home</a>
                 <a href="{{ request()->is('/') ? '#tentang' : url('/#tentang') }}">Tentang Kami</a>
-                <a href="#kontak">Kontak</a>
+                <a href="{{ request()->is('/') ? '#kontak' : url('/#kontak') }}">Kontak</a>
             </nav>
 
             <div class="nav-actions">
