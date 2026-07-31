@@ -145,34 +145,4 @@
             @endif
         </div>
     </div>
-
-    <!-- Warning Card / Box Keluar-Logout -->
-    <div
-        style="background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 20px;">
-        <div
-            style="background: #fee2e2; padding: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-            <svg width="32" height="32" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24">
-                <path
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-        </div>
-        <div style="flex: 1;">
-            <h4 style="color: #991b1b; font-size: 18px; font-weight: 700; margin: 0 0 4px 0;">Warning</h4>
-            <p style="color: #57534e; font-size: 14px; margin: 0 0 10px 0; font-weight: 500;">Jika Anda Keluar, Anda
-                Harus Login Kembali Untuk Mengakses Akun Anda</p>
-
-            <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
-                @csrf
-                <button type="submit"
-                    style="background: white; border: 1px solid #dc2626; color: #dc2626; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    Keluar/Logout
-                </button>
-            </form>
-        </div>
-    </div>
 @endsection

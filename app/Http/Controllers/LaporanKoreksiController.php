@@ -26,6 +26,7 @@ class LaporanKoreksiController extends Controller
 
         $validated['nama_pelapor'] = $request->user()->name;
         $validated['email_pelapor'] = $request->user()->email;
+        $validated['user_id'] = $request->user()->id;
         $validated['status'] = 'pending';
 
         LaporanKoreksi::create($validated);

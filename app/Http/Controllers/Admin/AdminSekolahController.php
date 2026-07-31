@@ -70,15 +70,14 @@ class AdminSekolahController extends Controller
             'provinsi' => 'nullable|string|max:100',
             'kabupaten_kota' => 'nullable|string|max:100',
             'kecamatan' => 'nullable|string|max:100',
-            'kelurahan' => 'nullable|string|max:100',
             'alamat' => 'nullable|string',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'no_telepon' => 'nullable|string|max:50',
+            'no_telepon' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'email' => 'nullable|email|max:100',
             'social_media' => 'nullable|string',
-            'jumlah_siswa_laki_laki' => 'nullable|integer|min:0',
-            'jumlah_siswa_perempuan' => 'nullable|integer|min:0',
+            'jumlah_siswa_laki_laki' => ['nullable', 'integer', 'min:0'],
+            'jumlah_siswa_perempuan' => ['nullable', 'integer', 'min:0'],
             'yayasan' => 'nullable|string',
         ]);
 

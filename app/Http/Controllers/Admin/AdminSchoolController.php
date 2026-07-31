@@ -7,7 +7,9 @@ use App\Models\ActivityLog;
 use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class AdminSchoolController extends Controller
 {
@@ -15,37 +17,40 @@ class AdminSchoolController extends Controller
     {
         $sekolah = SekolahTemporary::findOrFail($id);
 
-        ActivityLog::create([
-            'school_name' => $sekolah->nama_sekolah,
-            'action' => 'disetujui',
-        ]);
+        DB::transaction(function () use ($sekolah) {
+            ActivityLog::create([
+                'school_name' => $sekolah->nama_sekolah,
+                'action' => 'disetujui',
+                'user_id' => Auth::id(),
+            ]);
 
-        $sekolahBaru = Sekolah::create([
-            'npsn' => $sekolah->npsn,
-            'nama_sekolah' => $sekolah->nama_sekolah,
-            'jenjang' => $sekolah->jenjang,
-            'status' => $sekolah->status ?? 'SWASTA',
-            'akreditasi' => $sekolah->akreditasi,
-            'provinsi' => $sekolah->provinsi,
-            'kabupaten_kota' => $sekolah->kabupaten_kota,
-            'kecamatan' => $sekolah->kecamatan,
-            'kelurahan' => $sekolah->kelurahan,
-            'alamat' => $sekolah->alamat,
-            'latitude' => $sekolah->latitude,
-            'longitude' => $sekolah->longitude,
-            'no_telepon' => $sekolah->no_telepon,
-            'email' => $sekolah->email,
-            'social_media' => $sekolah->social_media,
-            'yayasan' => $sekolah->yayasan,
-            'total_siswa' => $sekolah->total_siswa,
-            'jumlah_siswa_laki_laki' => $sekolah->siswa_laki,
-            'jumlah_siswa_perempuan' => $sekolah->siswa_perempuan,
-            'gambar_url' => $sekolah->gambar_url,
-        ]);
+            $sekolahBaru = Sekolah::create([
+                'npsn' => $sekolah->npsn,
+                'nama_sekolah' => $sekolah->nama_sekolah,
+                'jenjang' => $sekolah->jenjang,
+                'status' => $sekolah->status ?? 'SWASTA',
+                'akreditasi' => $sekolah->akreditasi,
+                'provinsi' => $sekolah->provinsi,
+                'kabupaten_kota' => $sekolah->kabupaten_kota,
+                'kecamatan' => $sekolah->kecamatan,
+                'kelurahan' => $sekolah->kelurahan,
+                'alamat' => $sekolah->alamat,
+                'latitude' => $sekolah->latitude,
+                'longitude' => $sekolah->longitude,
+                'no_telepon' => $sekolah->no_telepon,
+                'email' => $sekolah->email,
+                'social_media' => $sekolah->social_media,
+                'yayasan' => $sekolah->yayasan,
+                'total_siswa' => $sekolah->total_siswa,
+                'jumlah_siswa_laki_laki' => $sekolah->siswa_laki,
+                'jumlah_siswa_perempuan' => $sekolah->siswa_perempuan,
+                'gambar_url' => $sekolah->gambar_url,
+            ]);
 
-        $sekolahBaru->touch();
+            $sekolahBaru->touch();
 
-        $sekolah->forceFill(['status_verifikasi' => 'approved'])->save();
+            $sekolah->forceFill(['status_verifikasi' => 'approved'])->save();
+        });
 
         // Bust admin dashboard cache
         Cache::forget('admin_dashboard_data');
@@ -71,12 +76,15 @@ class AdminSchoolController extends Controller
     {
         $sekolah = SekolahTemporary::findOrFail($id);
 
-        ActivityLog::create([
-            'school_name' => $sekolah->nama_sekolah,
-            'action' => 'ditolak',
-        ]);
+        DB::transaction(function () use ($sekolah) {
+            ActivityLog::create([
+                'school_name' => $sekolah->nama_sekolah,
+                'action' => 'ditolak',
+                'user_id' => Auth::id(),
+            ]);
 
-        $sekolah->forceFill(['status_verifikasi' => 'rejected'])->save();
+            $sekolah->forceFill(['status_verifikasi' => 'rejected'])->save();
+        });
 
         Cache::forget('admin_dashboard_data');
 

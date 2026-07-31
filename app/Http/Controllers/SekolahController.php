@@ -187,33 +187,36 @@ class SekolahController extends Controller
             'siswa_perempuan' => 'required|integer|min:0',
         ]);
 
-        SekolahTemporary::create([
-            'user_id' => Auth::id(),
-            'npsn' => $request->npsn,
-            'nama_sekolah' => $request->nama_sekolah,
-            'jenjang' => $request->jenjang,
-            'status' => $request->status,
-            'akreditasi' => $request->akreditasi,
-            'provinsi' => $request->provinsi,
-            'kabupaten_kota' => $request->kabupaten_kota,
-            'kecamatan' => $request->kecamatan,
-            'kelurahan' => $request->kelurahan ?? null,
-            'alamat' => $request->alamat,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'no_telepon' => $request->no_telepon ?? null,
-            'email' => $request->email ?? null,
-            'social_media' => $request->social_media ?? null,
-            'siswa_laki' => $request->siswa_laki,
-            'siswa_perempuan' => $request->siswa_perempuan,
-            'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
-            'status_verifikasi' => 'pending',
-        ]);
+        DB::transaction(function () use ($request) {
+            SekolahTemporary::create([
+                'user_id' => Auth::id(),
+                'npsn' => $request->npsn,
+                'nama_sekolah' => $request->nama_sekolah,
+                'jenjang' => $request->jenjang,
+                'status' => $request->status,
+                'akreditasi' => $request->akreditasi,
+                'provinsi' => $request->provinsi,
+                'kabupaten_kota' => $request->kabupaten_kota,
+                'kecamatan' => $request->kecamatan,
+                'kelurahan' => $request->kelurahan ?? null,
+                'alamat' => $request->alamat,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'no_telepon' => $request->no_telepon ?? null,
+                'email' => $request->email ?? null,
+                'social_media' => $request->social_media ?? null,
+                'siswa_laki' => $request->siswa_laki,
+                'siswa_perempuan' => $request->siswa_perempuan,
+                'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
+                'status_verifikasi' => 'pending',
+            ]);
 
-        ActivityLog::create([
-            'school_name' => $request->nama_sekolah,
-            'action' => 'mendaftar',
-        ]);
+            ActivityLog::create([
+                'school_name' => $request->nama_sekolah,
+                'action' => 'mendaftar',
+                'user_id' => Auth::id(),
+            ]);
+        });
 
         Cache::forget('admin_dashboard_data');
 

@@ -21,12 +21,26 @@ class RegistrationTest extends TestCase
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'phone_number' => '081234567890',
+            'phone_number' => '81234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard.user', absolute: false));
+    }
+
+    public function test_new_users_cannot_register_with_leading_zero_phone_number(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'phone_number' => '081234567890',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('phone_number');
+        $this->assertGuest();
     }
 }

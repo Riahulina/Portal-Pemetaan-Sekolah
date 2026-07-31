@@ -55,7 +55,19 @@
                         <label for="phone_number" class="auth-label">Nomor Telepon</label>
                         <input id="phone_number" type="tel" name="phone_number" value="{{ old('phone_number') }}"
                             required class="auth-input" placeholder="Nomor Telepon">
-                        <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
+                        <small style="color: #64748b; font-size: 0.75rem; margin-top: 0.25rem; display: block;">Mulai tanpa angka 0 di depan (contoh: 812...)</small>
+                        @error('phone_number')
+                        <div style="background-color: #fef2f2; border: 1px solid #dc2626; border-radius: 6px; padding: 10px; color: #b91c1c; font-size: 0.875rem; margin-top: 0.5rem; display: flex; align-items: start; gap: 8px;">
+                            <svg style="margin-top: 2px; flex-shrink: 0;" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <ul style="margin: 0; padding: 0; list-style: none;">
+                                @foreach ($errors->get('phone_number') as $message)
+                                    <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @enderror
                     </div>
 
                     <!-- Password -->

@@ -6,7 +6,9 @@ use App\Models\ActivityLog;
 use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class AdminPendaftaranController extends Controller
@@ -89,41 +91,44 @@ class AdminPendaftaranController extends Controller
 
         if ($status === 'approved') {
             // Update status di tabel temporary menjadi approved
-            $sekolahTemp->forceFill([
-                'status_verifikasi' => 'approved',
-                'catatan_admin' => 'Pendaftaran sekolah telah disetujui oleh admin.',
-            ])->save();
+            DB::transaction(function () use ($sekolahTemp) {
+                $sekolahTemp->forceFill([
+                    'status_verifikasi' => 'approved',
+                    'catatan_admin' => 'Pendaftaran sekolah telah disetujui oleh admin.',
+                ])->save();
 
-            // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
-            $sekolahBaru = Sekolah::create([
-                'npsn' => $sekolahTemp->npsn,
-                'nama_sekolah' => $sekolahTemp->nama_sekolah,
-                'jenjang' => $sekolahTemp->jenjang,
-                'status' => $sekolahTemp->status ?? 'SWASTA',
-                'akreditasi' => $sekolahTemp->akreditasi ?? 'B',
-                'provinsi' => $sekolahTemp->provinsi,
-                'kabupaten_kota' => $sekolahTemp->kabupaten_kota,
-                'kecamatan' => $sekolahTemp->kecamatan,
-                'kelurahan' => $sekolahTemp->kelurahan,
-                'alamat' => $sekolahTemp->alamat,
-                'latitude' => $sekolahTemp->latitude,
-                'longitude' => $sekolahTemp->longitude,
-                'no_telepon' => $sekolahTemp->no_telepon,
-                'email' => $sekolahTemp->email,
-                'social_media' => $sekolahTemp->social_media,
-                'yayasan' => $sekolahTemp->yayasan,
-                'total_siswa' => $sekolahTemp->total_siswa ?? 0,
-                'jumlah_siswa_perempuan' => $sekolahTemp->siswa_perempuan ?? 0,
-                'jumlah_siswa_laki_laki' => $sekolahTemp->siswa_laki ?? 0,
-                'gambar_url' => $sekolahTemp->gambar_url,
-            ]);
+                // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
+                $sekolahBaru = Sekolah::create([
+                    'npsn' => $sekolahTemp->npsn,
+                    'nama_sekolah' => $sekolahTemp->nama_sekolah,
+                    'jenjang' => $sekolahTemp->jenjang,
+                    'status' => $sekolahTemp->status ?? 'SWASTA',
+                    'akreditasi' => $sekolahTemp->akreditasi ?? 'B',
+                    'provinsi' => $sekolahTemp->provinsi,
+                    'kabupaten_kota' => $sekolahTemp->kabupaten_kota,
+                    'kecamatan' => $sekolahTemp->kecamatan,
+                    'kelurahan' => $sekolahTemp->kelurahan,
+                    'alamat' => $sekolahTemp->alamat,
+                    'latitude' => $sekolahTemp->latitude,
+                    'longitude' => $sekolahTemp->longitude,
+                    'no_telepon' => $sekolahTemp->no_telepon,
+                    'email' => $sekolahTemp->email,
+                    'social_media' => $sekolahTemp->social_media,
+                    'yayasan' => $sekolahTemp->yayasan,
+                    'total_siswa' => $sekolahTemp->total_siswa ?? 0,
+                    'jumlah_siswa_perempuan' => $sekolahTemp->siswa_perempuan ?? 0,
+                    'jumlah_siswa_laki_laki' => $sekolahTemp->siswa_laki ?? 0,
+                    'gambar_url' => $sekolahTemp->gambar_url,
+                ]);
 
-            $sekolahBaru->touch();
+                $sekolahBaru->touch();
 
-            ActivityLog::create([
-                'school_name' => $sekolahTemp->nama_sekolah,
-                'action' => 'disetujui',
-            ]);
+                ActivityLog::create([
+                    'school_name' => $sekolahTemp->nama_sekolah,
+                    'action' => 'disetujui',
+                    'user_id' => Auth::id(),
+                ]);
+            });
 
             Cache::forget('admin_dashboard_data');
             Cache::forget('sekolah_wilayah_v2');
@@ -138,15 +143,18 @@ class AdminPendaftaranController extends Controller
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah berhasil disetujui dan telah masuk ke Manajemen Sekolah!');
         } elseif ($status === 'rejected') {
-            $sekolahTemp->forceFill([
-                'status_verifikasi' => 'rejected',
-                'catatan_admin' => $request->input('catatan_admin', 'Mohon maaf, pendaftaran ditolak karena data tidak sesuai.'),
-            ])->save();
+            DB::transaction(function () use ($sekolahTemp, $request) {
+                $sekolahTemp->forceFill([
+                    'status_verifikasi' => 'rejected',
+                    'catatan_admin' => $request->input('catatan_admin', 'Mohon maaf, pendaftaran ditolak karena data tidak sesuai.'),
+                ])->save();
 
-            ActivityLog::create([
-                'school_name' => $sekolahTemp->nama_sekolah,
-                'action' => 'ditolak',
-            ]);
+                ActivityLog::create([
+                    'school_name' => $sekolahTemp->nama_sekolah,
+                    'action' => 'ditolak',
+                    'user_id' => Auth::id(),
+                ]);
+            });
 
             Cache::forget('admin_dashboard_data');
 
@@ -199,30 +207,33 @@ class AdminPendaftaranController extends Controller
 
         $totalSiswa = (int) $request->siswa_laki + (int) $request->siswa_perempuan;
 
-        Sekolah::create([
-            'npsn' => $request->npsn,
-            'nama_sekolah' => $request->nama_sekolah,
-            'jenjang' => $request->jenjang,
-            'status' => $request->status,
-            'akreditasi' => $request->akreditasi,
-            'provinsi' => $request->provinsi,
-            'kabupaten_kota' => $request->kabupaten_kota,
-            'kecamatan' => $request->kecamatan,
-            'alamat' => $request->alamat,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'no_telepon' => $request->no_telepon ?? null,
-            'email' => $request->email ?? null,
-            'social_media' => $request->social_media ?? null,
-            'total_siswa' => $totalSiswa,
-            'jumlah_siswa_laki_laki' => (int) $request->siswa_laki,
-            'jumlah_siswa_perempuan' => (int) $request->siswa_perempuan,
-        ]);
+        DB::transaction(function () use ($request, $totalSiswa) {
+            Sekolah::create([
+                'npsn' => $request->npsn,
+                'nama_sekolah' => $request->nama_sekolah,
+                'jenjang' => $request->jenjang,
+                'status' => $request->status,
+                'akreditasi' => $request->akreditasi,
+                'provinsi' => $request->provinsi,
+                'kabupaten_kota' => $request->kabupaten_kota,
+                'kecamatan' => $request->kecamatan,
+                'alamat' => $request->alamat,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'no_telepon' => $request->no_telepon ?? null,
+                'email' => $request->email ?? null,
+                'social_media' => $request->social_media ?? null,
+                'total_siswa' => $totalSiswa,
+                'jumlah_siswa_laki_laki' => (int) $request->siswa_laki,
+                'jumlah_siswa_perempuan' => (int) $request->siswa_perempuan,
+            ]);
 
-        ActivityLog::create([
-            'school_name' => $request->nama_sekolah,
-            'action' => 'ditambahkan oleh admin',
-        ]);
+            ActivityLog::create([
+                'school_name' => $request->nama_sekolah,
+                'action' => 'ditambahkan oleh admin',
+                'user_id' => Auth::id(),
+            ]);
+        });
 
         Cache::forget('admin_dashboard_data');
         Cache::forget('sekolah_wilayah_v2');

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +26,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('admin', function ($user) {
             return $user->is_admin === true;
+        });
+
+        Event::listen(TransactionBeginning::class, function () {
+            if (DB::connection()->getDriverName() === 'pgsql') {
+                $userId = Auth::check() ? (string) Auth::id() : '0';
+                $isAdmin = (Auth::check() && Auth::user()->is_admin) ? 'true' : 'false';
+                DB::statement("SELECT set_config('app.user_id', ?::text, false)", [$userId]);
+                DB::statement("SELECT set_config('app.is_admin', ?, false)", [$isAdmin]);
+            }
         });
     }
 }

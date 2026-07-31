@@ -324,6 +324,8 @@
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">No. Telepon</label>
                                     <input type="text" name="no_telepon" :value="editData?.no_telepon"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        inputmode="numeric"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                 </div>
                                 <div>
@@ -336,6 +338,8 @@
                                     <input type="number" name="jumlah_siswa_laki_laki"
                                         x-model.number="editData.jumlah_siswa_laki_laki"
                                         x-on:input="$refs.totalSiswa.value = (editData.jumlah_siswa_laki_laki || 0) + (editData.jumlah_siswa_perempuan || 0)"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        inputmode="numeric"
                                         min="0"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                 </div>
@@ -344,6 +348,8 @@
                                     <input type="number" name="jumlah_siswa_perempuan"
                                         x-model.number="editData.jumlah_siswa_perempuan"
                                         x-on:input="$refs.totalSiswa.value = (editData.jumlah_siswa_laki_laki || 0) + (editData.jumlah_siswa_perempuan || 0)"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                        inputmode="numeric"
                                         min="0"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                 </div>
@@ -369,25 +375,37 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Provinsi</label>
-                                    <input type="text" name="provinsi" :value="editData?.provinsi"
+                                    <select name="provinsi" x-model="selectedProvinsi" @change="onProvinsiChange()"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                        <option value="" disabled>Pilih Provinsi</option>
+                                        <template x-for="prov in provinces" :key="prov">
+                                            <option :value="prov" x-text="prov"></option>
+                                        </template>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Kabupaten/Kota</label>
-                                    <input type="text" name="kabupaten_kota" :value="editData?.kabupaten_kota"
+                                    <select name="kabupaten_kota" x-model="selectedKabupaten" @change="onKabupatenChange()"
+                                        :disabled="!selectedProvinsi"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                        <option value="" disabled>Pilih Kabupaten/Kota</option>
+                                        <template x-for="kab in kabupatens" :key="kab">
+                                            <option :value="kab" x-text="kab"></option>
+                                        </template>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div class="mt-4">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Kecamatan</label>
-                                    <input type="text" name="kecamatan" :value="editData?.kecamatan"
+                                    <select name="kecamatan" x-model="selectedKecamatan"
+                                        :disabled="!selectedKabupaten"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-600 mb-1">Kelurahan</label>
-                                    <input type="text" name="kelurahan" :value="editData?.kelurahan"
-                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                        <option value="" disabled>Pilih Kecamatan</option>
+                                        <template x-for="kec in kecamatans" :key="kec">
+                                            <option :value="kec" x-text="kec"></option>
+                                        </template>
+                                    </select>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4 mt-4">
@@ -461,8 +479,65 @@
                 viewData: null,
                 editData: null,
                 deleteData: null,
+                allRows: [],
+                provinces: [],
+                kabupatens: [],
+                kecamatans: [],
+                wilayahPromise: null,
+                selectedProvinsi: '',
+                selectedKabupaten: '',
+                selectedKecamatan: '',
 
-                init() {},
+                init() {
+                    this.wilayahPromise = this.loadWilayah();
+                },
+
+                async loadWilayah() {
+                    if (this.allRows.length) return;
+                    try {
+                        const res = await fetch('/api/wilayah');
+                        this.allRows = await res.json();
+                    } catch (e) {
+                        this.allRows = [];
+                    }
+                    this.provinces = [...new Set(this.allRows.map(r => r.provinsi).filter(Boolean))]
+                        .sort((a, b) => a.localeCompare(b, 'id'));
+                },
+
+                onProvinsiChange(isInitial = false) {
+                    if (!isInitial) {
+                        this.selectedKabupaten = '';
+                        this.selectedKecamatan = '';
+                    }
+                    this.kabupatens = [...new Set(
+                        this.allRows
+                        .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota)
+                        .map(r => r.kabupaten_kota)
+                    )].sort((a, b) => a.localeCompare(b, 'id'));
+                    this.kecamatans = [];
+
+                    if (this.selectedKabupaten) {
+                        this.onKabupatenChange(isInitial);
+                    }
+                },
+
+                onKabupatenChange(isInitial = false) {
+                    if (!isInitial) {
+                        this.selectedKecamatan = '';
+                    }
+                    this.kecamatans = [...new Set(
+                        this.allRows
+                        .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota === this.selectedKabupaten && r.kecamatan)
+                        .map(r => r.kecamatan)
+                    )].sort((a, b) => a.localeCompare(b, 'id'));
+                },
+
+                populateRegionOptions() {
+                    this.selectedProvinsi = this.editData?.provinsi || '';
+                    this.selectedKabupaten = this.editData?.kabupaten_kota || '';
+                    this.selectedKecamatan = this.editData?.kecamatan || '';
+                    this.onProvinsiChange(true);
+                },
 
                 openViewModal(data) {
                     this.viewData = data;
@@ -472,6 +547,7 @@
                 openEditModal(data) {
                     this.editData = { ...data };
                     this.editModal = true;
+                    (this.wilayahPromise || Promise.resolve()).then(() => this.populateRegionOptions());
                 },
 
                 openDeleteModal(data) {
