@@ -50,6 +50,8 @@
                         Telepon</label>
                     <input type="text" name="phone_number" placeholder="81234567890"
                         value="{{ $user->phone_number }}"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        inputmode="numeric"
                         style="width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
                     <p style="font-size: 12px; color: #6b7280; margin: 4px 0 0 0;">Harap awali nomor dengan angka 8, bukan 0 (Contoh: 8123...).</p>
                     @error('phone_number')

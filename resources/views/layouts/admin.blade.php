@@ -58,6 +58,7 @@
     @yield('scripts')
     @stack('scripts')
 
+    @include('partials.auto-logout')
 </body>
 
 </html>
