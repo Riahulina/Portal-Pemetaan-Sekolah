@@ -53,6 +53,20 @@ class SekolahTemporary extends Model
         );
     }
 
+    protected function provinsi(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? Str::title($value) : null,
+        );
+    }
+
+    protected function kecamatan(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? Str::title($value) : null,
+        );
+    }
+
     public function setStatusAttribute($value): void
     {
         $this->attributes['status'] = $value ? strtoupper($value) : null;

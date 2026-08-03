@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetRlsContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,8 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
         ]);
 
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             SetRlsContext::class,
+            SecurityHeaders::class,
         ]);
 
         $middleware->appendToGroup('api', SetRlsContext::class);
