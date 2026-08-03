@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class SekolahTemporary extends Model
 {
@@ -36,6 +38,34 @@ class SekolahTemporary extends Model
         'total_siswa',
         'gambar_url',
     ];
+
+    protected function jenjang(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? strtoupper($value) : null,
+        );
+    }
+
+    protected function kabupaten_kota(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? Str::title($value) : null,
+        );
+    }
+
+    protected function provinsi(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? Str::title($value) : null,
+        );
+    }
+
+    protected function kecamatan(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? Str::title($value) : null,
+        );
+    }
 
     public function setStatusAttribute($value): void
     {
