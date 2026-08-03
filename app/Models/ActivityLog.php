@@ -9,6 +9,7 @@ class ActivityLog extends Model
     protected $table = 'activity_logs';
 
     protected $fillable = [
+        'user_id',
         'school_name',
         'action',
     ];

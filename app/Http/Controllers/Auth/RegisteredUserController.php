@@ -33,8 +33,10 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'phone_number' => ['required', 'string', 'max:20'],
+            'phone_number' => ['required', 'string', 'max:20', 'regex:/^[1-9][0-9]*$/'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'phone_number.regex' => 'Nomor telepon hanya boleh berisi angka dan tidak boleh diawali dengan angka 0.',
         ]);
 
         $user = User::create([

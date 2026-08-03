@@ -254,7 +254,9 @@
                                 <span
                                     style="padding: 0.625rem 0.75rem; background: #e2e8f0; border-radius: 8px; font-weight: 600; color: #475569;">+62</span>
                                 <input type="text" name="phone_number" placeholder="81234567890"
-                                    value="{{ $user->phone_number }}" class="input-custom">
+                                    value="{{ $user->phone_number }}" class="input-custom"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                    inputmode="numeric">
                             </div>
                             <p class="help-text">Harap awali nomor dengan angka 8, bukan 0 (Contoh: 8123...).</p>
                             @error('phone_number')

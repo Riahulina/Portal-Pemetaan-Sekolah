@@ -19,7 +19,7 @@ class AdminProfileController extends Controller
     public function updateInfo(Request $request)
     {
         $request->validate([
-            'phone_number' => ['nullable', 'string', 'starts_with:8', 'max:20'],
+            'phone_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/', 'starts_with:8'],
         ], [
             'phone_number.starts_with' => 'Nomor telepon harus diawali dengan angka 8 (tanpa angka 0 di depan).',
         ]);

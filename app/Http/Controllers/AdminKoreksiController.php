@@ -13,8 +13,9 @@ class AdminKoreksiController extends Controller
         return view('admin.koreksi.index', compact('laporans'));
     }
 
-    public function resolve(LaporanKoreksi $laporan)
+    public function resolve(int $laporan)
     {
+        $laporan = LaporanKoreksi::findOrFail($laporan);
         $laporan->update(['status' => 'selesai']);
 
         return back()->with('success', 'Laporan berhasil ditandai selesai.');

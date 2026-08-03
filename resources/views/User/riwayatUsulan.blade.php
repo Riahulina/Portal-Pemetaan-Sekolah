@@ -4,7 +4,20 @@
 
 @section('styles')
 <style>
-    .ru-container { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-top: 20px; }
+    .main-content {
+        padding: 30px;
+        background-color: #f8fafc;
+        box-sizing: border-box;
+        min-height: 100vh;
+    }
+
+    .ru-container {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-top: 24px;
+    }
     .ru-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     .ru-table th, .ru-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; font-size: 0.9rem; }
     .ru-table th { background: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
@@ -12,6 +25,15 @@
     .badge-pending { background: #fef08a; color: #854d0e; }
     .badge-selesai { background: #dcfce3; color: #166534; }
     .ru-empty { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
+
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 16px;
+        }
+        h2 {
+            font-size: 1.25rem !important;
+        }
+    }
 </style>
 @endsection
 

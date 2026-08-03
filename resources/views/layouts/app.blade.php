@@ -164,6 +164,8 @@
         }
     </script>
 
+    @include('partials.auto-logout')
+
     @yield('scripts')
 </body>
 
