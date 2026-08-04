@@ -80,11 +80,11 @@
                         <p class="text-gray-800 font-medium mt-0.5 truncate">{{ $sekolah->social_media ?? '-' }}</p>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswa</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Murid Laki-Laki</label>
                         <p class="text-gray-800 font-medium mt-0.5">{{ $sekolah->siswa_laki ?? 0 }}</p>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswi</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Murid Perempuan</label>
                         <p class="text-gray-800 font-medium mt-0.5">{{ $sekolah->siswa_perempuan ?? 0 }}</p>
                     </div>
                 </div>

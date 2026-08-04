@@ -125,19 +125,19 @@
 
                 <div class="form-grid col-2">
                     <div class="form-group">
-                        <label for="siswa_laki">Siswa Laki-Laki <span class="required">*</span></label>
+                        <label for="siswa_laki">Murid Laki-Laki <span class="required">*</span></label>
                         <input type="number" id="siswa_laki" name="siswa_laki" min="0"
                             value="{{ old('siswa_laki', $sekolah->siswa_laki ?? 0) }}"
-                            placeholder="Jumlah siswa laki-laki" required>
+                            placeholder="Jumlah murid laki-laki" required>
                         @error('siswa_laki')
                             <span class="input-helper text-danger" style="font-size: 12px;">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="siswa_perempuan">Siswa Perempuan <span class="required">*</span></label>
+                        <label for="siswa_perempuan">Murid Perempuan <span class="required">*</span></label>
                         <input type="number" id="siswa_perempuan" name="siswa_perempuan" min="0"
                             value="{{ old('siswa_perempuan', $sekolah->siswa_perempuan ?? 0) }}"
-                            placeholder="Jumlah siswa perempuan" required>
+                            placeholder="Jumlah murid perempuan" required>
                         @error('siswa_perempuan')
                             <span class="input-helper text-danger" style="font-size: 12px;">{{ $message }}</span>
                         @enderror
@@ -150,7 +150,7 @@
                         <input type="number" id="total_siswa" name="total_siswa"
                             value="{{ old('total_siswa', $sekolah->total_siswa ?? 0) }}"
                             style="background-color: #f3f4f6; cursor: not-allowed;" readonly>
-                        <span class="input-helper text-muted" style="font-size: 12px; display: block; margin-top: 4px;">Terhitung otomatis dari jumlah siswa laki-laki + perempuan</span>
+                        <span class="input-helper text-muted" style="font-size: 12px; display: block; margin-top: 4px;">Terhitung otomatis dari jumlah murid laki-laki + perempuan</span>
                     </div>
                     <div></div>
                 </div>
