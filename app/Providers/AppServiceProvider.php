@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\LaporanKoreksi;
+use App\Models\SekolahTemporary;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('admin', function ($user) {
             return $user->is_admin === true;
+        });
+
+        View::composer('partials.adminSidebar', function ($view) {
+            $view->with('pendingKoreksi', LaporanKoreksi::where('status', 'pending')->count());
+            $view->with('pendingPendaftaran', SekolahTemporary::where('status_verifikasi', 'pending')->count());
         });
 
         Event::listen(TransactionBeginning::class, function () {

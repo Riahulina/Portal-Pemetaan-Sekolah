@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PendaftaranStatusMail;
 use App\Models\ActivityLog;
 use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class AdminPendaftaranController extends Controller
@@ -90,11 +92,13 @@ class AdminPendaftaranController extends Controller
         $status = $request->input('status'); // 'approved' atau 'rejected'
 
         if ($status === 'approved') {
+            $catatanAdmin = $request->input('catatan_admin', 'Pendaftaran sekolah telah disetujui oleh admin.');
+
             // Update status di tabel temporary menjadi approved
-            DB::transaction(function () use ($sekolahTemp) {
+            DB::transaction(function () use ($sekolahTemp, $catatanAdmin) {
                 $sekolahTemp->forceFill([
                     'status_verifikasi' => 'approved',
-                    'catatan_admin' => 'Pendaftaran sekolah telah disetujui oleh admin.',
+                    'catatan_admin' => $catatanAdmin,
                 ])->save();
 
                 // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
@@ -141,12 +145,16 @@ class AdminPendaftaranController extends Controller
             $filters[2] = $sekolahTemp->kecamatan;
             Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
 
+            $this->kirimEmailStatus($sekolahTemp, 'disetujui', $catatanAdmin);
+
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah berhasil disetujui dan telah masuk ke Manajemen Sekolah!');
         } elseif ($status === 'rejected') {
-            DB::transaction(function () use ($sekolahTemp, $request) {
+            $catatanAdmin = $request->input('catatan_admin', 'Mohon maaf, pendaftaran ditolak karena data tidak sesuai.');
+
+            DB::transaction(function () use ($sekolahTemp, $catatanAdmin) {
                 $sekolahTemp->forceFill([
                     'status_verifikasi' => 'rejected',
-                    'catatan_admin' => $request->input('catatan_admin', 'Mohon maaf, pendaftaran ditolak karena data tidak sesuai.'),
+                    'catatan_admin' => $catatanAdmin,
                 ])->save();
 
                 ActivityLog::create([
@@ -158,10 +166,25 @@ class AdminPendaftaranController extends Controller
 
             Cache::forget('admin_dashboard_data');
 
+            $this->kirimEmailStatus($sekolahTemp, 'ditolak', $catatanAdmin);
+
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah telah ditolak.');
         }
 
         return back()->with('error', 'Aksi tidak valid.');
+    }
+
+    /**
+     * Mengirim email notifikasi status pendaftaran ke user yang bersangkutan.
+     */
+    private function kirimEmailStatus(SekolahTemporary $sekolahTemp, string $status, string $catatanAdmin): void
+    {
+        if (! $sekolahTemp->user?->email) {
+            return;
+        }
+
+        Mail::to($sekolahTemp->user->email)
+            ->queue(new PendaftaranStatusMail($sekolahTemp, $status, $catatanAdmin));
     }
 
     /**

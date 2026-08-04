@@ -138,6 +138,9 @@
                     <form method="POST" action="{{ route('admin.pendaftaran.verifikasi', $sekolah->id) }}">
                         @csrf
                         <input type="hidden" name="status" value="approved">
+                        <textarea name="catatan_admin" rows="3"
+                            placeholder="Opsional: tambahkan catatan untuk pendaftar"
+                            class="w-full border border-gray-200 rounded-xl p-3 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 mb-3 resize-none"></textarea>
                         <button type="submit"
                             class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm shadow-emerald-600/10">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
