@@ -195,14 +195,15 @@
                             <div class="form-group">
                                 <label for="npsn">NPSN <span class="required">*</span></label>
                                 <input type="text" id="npsn" name="npsn"
-                                    value="{{ old('npsn', $sekolah->npsn ?? '') }}" placeholder="Masukkan NPSN" required>
+                                    value="{{ old('npsn', $sekolah->npsn ?? '') }}" placeholder="Masukkan NPSN"
+                                    {{ isset($sekolah) && $sekolah->id ? 'style="background-color: #f3f4f6; cursor: not-allowed;" readonly' : '' }}
+                                    required>
                                 @error('npsn')
                                     <span class="input-helper text-danger"
                                         style="color: #ef4444; font-size: 12px; display: block; margin-top: 4px;">{{ $message }}</span>
                                 @else
                                     <span class="input-helper text-danger"
-                                        style="font-size: 12px; display: block; margin-top: 4px; color: #6b7280;">NPSN Harus
-                                        unik dan tidak boleh sama</span>
+                                        style="font-size: 12px; display: block; margin-top: 4px; color: #6b7280;">{{ isset($sekolah) && $sekolah->id ? 'NPSN tidak dapat diubah setelah pendaftaran' : 'NPSN Harus unik dan tidak boleh sama' }}</span>
                                 @enderror
                             </div>
                             <div class="form-group">

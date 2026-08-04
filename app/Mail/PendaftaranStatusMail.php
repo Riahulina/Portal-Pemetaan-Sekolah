@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\SekolahTemporary;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -15,7 +14,11 @@ class PendaftaranStatusMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public function __construct(
-        public SekolahTemporary $sekolah,
+        public string $namaSekolah,
+        public string $npsn,
+        public string $jenjang,
+        public string $provinsi,
+        public string $kabupatenKota,
         public string $status,
         public string $catatanAdmin,
     ) {}

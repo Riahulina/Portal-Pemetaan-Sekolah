@@ -21,9 +21,9 @@
                     <!-- Body -->
                     <tr>
                         <td style="padding: 16px 32px 8px 32px;">
-                            <h2 style="margin: 0 0 8px 0; font-size: 22px; color: #111827;">{{ $sekolah->nama_sekolah }}</h2>
-                            <p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">NPSN: {{ $sekolah->npsn }}</p>
-                            <p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">{{ $sekolah->jenjang }} &middot; {{ $sekolah->provinsi }}, {{ $sekolah->kabupaten_kota }}</p>
+                            <h2 style="margin: 0 0 8px 0; font-size: 22px; color: #111827;">{{ $namaSekolah }}</h2>
+                            <p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">NPSN: {{ $npsn }}</p>
+                            <p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">{{ $jenjang }} &middot; {{ $provinsi }}, {{ $kabupatenKota }}</p>
                         </td>
                     </tr>
                     <!-- Catatan Admin -->

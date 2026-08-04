@@ -184,7 +184,15 @@ class AdminPendaftaranController extends Controller
         }
 
         Mail::to($sekolahTemp->user->email)
-            ->queue(new PendaftaranStatusMail($sekolahTemp, $status, $catatanAdmin));
+            ->queue(new PendaftaranStatusMail(
+                $sekolahTemp->nama_sekolah,
+                $sekolahTemp->npsn,
+                $sekolahTemp->jenjang ?? '',
+                $sekolahTemp->provinsi ?? '',
+                $sekolahTemp->kabupaten_kota ?? '',
+                $status,
+                $catatanAdmin,
+            ));
     }
 
     /**
