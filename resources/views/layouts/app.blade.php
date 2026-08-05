@@ -17,6 +17,9 @@
     <!-- 3. Alpine.js (Di-load di head agar x-data langsung siap saat render) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- 3b. Modul wilayah bertingkat (Pulau → Provinsi → Kabupaten → Kecamatan) -->
+    @vite(['resources/js/wilayah.js'])
+
     <!-- 4. CSS Bawaan Aplikasi -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth-custom.css') }}">

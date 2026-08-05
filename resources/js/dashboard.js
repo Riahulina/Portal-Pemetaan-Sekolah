@@ -2,6 +2,7 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import TomSelect from "tom-select";
 import "tom-select/dist/css/tom-select.default.css";
+import { fetchPulau, fetchProvinsi } from "./wilayah";
 
 const tomSelectInstances = {};
 
@@ -785,6 +786,15 @@ function populateSelect(selectId, options, placeholder) {
     });
 }
 
+function repopulateTomSelect(selectId, options, placeholder) {
+    const instance = tomSelectInstances[selectId];
+    if (!instance) return;
+    instance.clear();
+    instance.clearOptions();
+    instance.addOption({ value: "", text: placeholder || "Pilih" });
+    instance.addOptions(options.map((o) => ({ value: o, text: o })));
+}
+
 let _updatingCascading = false;
 
 function updateCascading(prov, kab) {
@@ -887,7 +897,9 @@ function resetFilters() {
 
     tomSelectInstances["filter-jenjang"].clear();
     tomSelectInstances["filter-status"].clear();
+    tomSelectInstances["filter-pulau"].clear();
     tomSelectInstances["filter-provinsi"].clear();
+    repopulateTomSelect("filter-provinsi", provinces, "Pilih Provinsi");
     tomSelectInstances["filter-kabupaten"].clear();
     tomSelectInstances["filter-kabupaten"].clearOptions();
     tomSelectInstances["filter-kabupaten"].addOption({
@@ -1089,9 +1101,41 @@ document.addEventListener("DOMContentLoaded", async () => {
         ["NEGERI", "SWASTA", "Semua"],
         "Pilih Status",
     );
+
+    let pulauNames = [];
+    try {
+        pulauNames = await fetchPulau();
+    } catch (err) {
+        console.error(
+            "[SatuPeta] Gagal memuat daftar pulau:",
+            err.message || err,
+        );
+    }
+    populateSelect("filter-pulau", pulauNames, "Pilih Pulau");
     populateSelect("filter-provinsi", provinces, "Pilih Provinsi");
     populateSelect("filter-kabupaten", [], "Pilih Kabupaten/Kota");
     populateSelect("filter-kecamatan", [], "Pilih Kecamatan");
+
+    let pulauRequestSeq = 0;
+    tomSelectInstances["filter-pulau"].on("change", async function (value) {
+        const seq = ++pulauRequestSeq;
+        let provs = provinces;
+        if (value) {
+            try {
+                provs = await fetchProvinsi(value);
+            } catch (err) {
+                console.error(
+                    "[SatuPeta] Gagal memuat provinsi untuk pulau:",
+                    err.message || err,
+                );
+                provs = [];
+            }
+        }
+        if (seq !== pulauRequestSeq) return;
+        repopulateTomSelect("filter-provinsi", provs, "Pilih Provinsi");
+        repopulateTomSelect("filter-kabupaten", [], "Pilih Kabupaten/Kota");
+        repopulateTomSelect("filter-kecamatan", [], "Pilih Kecamatan");
+    });
 
     tomSelectInstances["filter-provinsi"].on("change", function (value) {
         updateCascading(value, "");

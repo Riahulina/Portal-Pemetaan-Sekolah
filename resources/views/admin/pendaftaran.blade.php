@@ -5,18 +5,18 @@
 @section('content')
     {{-- Inisialisasi Alpine.js state khusus 10 Provinsi Sumatra --}}
     <div x-data="{
-        // Daftar 10 Provinsi di Pulau Sumatra saja
+        // Daftar 10 Provinsi di Pulau Sumatera (nama sesuai dataset referensi wilayah internal)
         provincesSumatra: [
-            { id: '11', name: 'ACEH' },
-            { id: '12', name: 'SUMATERA UTARA' },
-            { id: '13', name: 'SUMATERA BARAT' },
-            { id: '14', name: 'RIAU' },
-            { id: '15', name: 'JAMBI' },
-            { id: '16', name: 'SUMATERA SELATAN' },
-            { id: '17', name: 'BENGKULU' },
-            { id: '18', name: 'LAMPUNG' },
-            { id: '19', name: 'KEPULAUAN BANGKA BELITUNG' },
-            { id: '21', name: 'KEPULAUAN RIAU' }
+            'Aceh',
+            'Sumatera Utara',
+            'Sumatera Barat',
+            'Riau',
+            'Jambi',
+            'Sumatera Selatan',
+            'Bengkulu',
+            'Lampung',
+            'Kepulauan Bangka Belitung',
+            'Kepulauan Riau'
         ],
         regencies: [],
         selectedProv: '{{ request('provinsi') }}',
@@ -30,18 +30,22 @@
             }
         },
     
-        async fetchRegencies(provId) {
-            if (!provId) {
+        async fetchRegencies(provName) {
+            if (!provName) {
                 this.regencies = [];
                 this.selectedKab = '';
                 return;
             }
             this.isLoadingKab = true;
             try {
-                let res = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provId}.json`);
-                this.regencies = await res.json();
+                if (typeof window.wilayahRefApi?.fetchKabupaten === 'function') {
+                    this.regencies = await window.wilayahRefApi.fetchKabupaten(provName);
+                } else {
+                    this.regencies = [];
+                }
             } catch (e) {
                 console.error('Gagal mengambil data kabupaten/kota:', e);
+                this.regencies = [];
             } finally {
                 this.isLoadingKab = false;
             }
@@ -75,8 +79,8 @@
                         <select name="provinsi" x-model="selectedProv" @change="fetchRegencies(selectedProv)"
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 bg-white focus:outline-none focus:border-[#0d9296]">
                             <option value="">Semua Provinsi (Sumatra)</option>
-                            <template x-for="item in provincesSumatra" :key="item.id">
-                                <option :value="item.id" :selected="item.id == selectedProv" x-text="item.name">
+                            <template x-for="item in provincesSumatra" :key="item">
+                                <option :value="item" :selected="item == selectedProv" x-text="item">
                                 </option>
                             </template>
                         </select>
@@ -89,8 +93,8 @@
                             class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 bg-white focus:outline-none focus:border-[#0d9296] disabled:bg-gray-100 disabled:cursor-not-allowed">
                             <option value="" x-text="isLoadingKab ? 'Memuat data...' : 'Semua Kabupaten/Kota'">
                             </option>
-                            <template x-for="item in regencies" :key="item.id">
-                                <option :value="item.name" :selected="item.name == selectedKab" x-text="item.name">
+                            <template x-for="item in regencies" :key="item">
+                                <option :value="item" :selected="item == selectedKab" x-text="item">
                                 </option>
                             </template>
                         </select>
