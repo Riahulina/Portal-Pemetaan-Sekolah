@@ -116,7 +116,10 @@ async function fetchWilayah() {
         }
         return await res.json();
     } catch (err) {
-        console.error("[SatuPeta] Gagal memuat data wilayah:", err.message || err);
+        console.error(
+            "[SatuPeta] Gagal memuat data wilayah:",
+            err.message || err,
+        );
         return [];
     }
 }
@@ -127,8 +130,10 @@ async function fetchFilteredSchools(filters) {
         if (filters.provinsi) params.set("provinsi", filters.provinsi);
         if (filters.kabupaten) params.set("kabupaten", filters.kabupaten);
         if (filters.kecamatan) params.set("kecamatan", filters.kecamatan);
-        if (filters.jenjang && filters.jenjang !== "Semua") params.set("jenjang", filters.jenjang);
-        if (filters.status && filters.status !== "Semua") params.set("status", filters.status);
+        if (filters.jenjang && filters.jenjang !== "Semua")
+            params.set("jenjang", filters.jenjang);
+        if (filters.status && filters.status !== "Semua")
+            params.set("status", filters.status);
 
         if (params.toString() === "") return [];
 
@@ -143,7 +148,10 @@ async function fetchFilteredSchools(filters) {
             .map(mapSekolahRecord)
             .filter((s) => !isNaN(s.lat) && !isNaN(s.lng));
     } catch (err) {
-        console.error("[SatuPeta] Gagal memuat data sekolah:", err.message || err);
+        console.error(
+            "[SatuPeta] Gagal memuat data sekolah:",
+            err.message || err,
+        );
         return [];
     }
 }
@@ -203,9 +211,11 @@ async function fetchAndRenderSummary() {
             totalSekolahEl.textContent = grandTotalSekolah.toLocaleString();
         if (totalMuridEl)
             totalMuridEl.textContent = grandTotalSiswa.toLocaleString();
-
     } catch (err) {
-        console.error("[SatuPeta] Gagal memuat ringkasan provinsi:", err.message || err);
+        console.error(
+            "[SatuPeta] Gagal memuat ringkasan provinsi:",
+            err.message || err,
+        );
     }
 }
 
@@ -276,11 +286,7 @@ function createClusterIcon(cluster) {
 }
 
 function hasRegionFilter(filters) {
-    return !!(
-        filters.provinsi ||
-        filters.kabupaten ||
-        filters.kecamatan
-    );
+    return !!(filters.provinsi || filters.kabupaten || filters.kecamatan);
 }
 
 function flyToSchool(lat, lng, schoolId) {
@@ -443,16 +449,18 @@ function updateStatCards(schoolsList) {
             .toLocaleString();
 }
 
-function initSiswaChart(totalMurid) {
+function initSiswaChart(siswaLaki, siswaPerempuan) {
     const canvas = document.getElementById("siswaChart");
     if (!canvas) return;
+
     if (siswaChart) siswaChart.destroy();
-    const kelas7 = Math.round(totalMurid * 0.35);
-    const kelas8 = Math.round(totalMurid * 0.35);
-    const kelas9 = totalMurid - kelas7 - kelas8;
-    const labels = ["Kelas 7 SMP", "Kelas 8 SMP", "Kelas 9 SMP"];
-    const values = [kelas7, kelas8, kelas9];
-    const colors = ["#22C55E", "#F97316", "#3B82F6"];
+
+    const labels = ["Laki-laki", "Perempuan"];
+    const values = [siswaLaki, siswaPerempuan];
+    const colors = ["#3B82F6", "#EC4899"];
+
+    const totalMurid = siswaLaki + siswaPerempuan;
+
     siswaChart = new Chart(canvas, {
         type: "doughnut",
         data: {
@@ -469,46 +477,47 @@ function initSiswaChart(totalMurid) {
             cutout: "70%",
             plugins: {
                 legend: { display: false },
-                tooltip: { enabled: true },
             },
-            responsive: true,
-            maintainAspectRatio: true,
         },
         plugins: [
             {
                 id: "centerText",
                 beforeDraw(chart) {
-                    const { width, height, ctx: c } = chart;
-                    c.save();
-                    const cx = width / 2;
-                    const cy = height / 2;
-                    c.textAlign = "center";
-                    c.textBaseline = "middle";
-                    c.font = "700 20px 'Inter', sans-serif";
-                    c.fillStyle = "#1A1C1E";
-                    c.fillText(
-                        `Total ${totalMurid.toLocaleString()}`,
-                        cx,
-                        cy - 8,
+                    const { width, height, ctx } = chart;
+
+                    ctx.save();
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+
+                    ctx.font = "700 20px Inter";
+                    ctx.fillStyle = "#1A1C1E";
+                    ctx.fillText(
+                        `Total ${totalMurid}`,
+                        width / 2,
+                        height / 2 - 8,
                     );
-                    c.font = "400 11px 'Inter', sans-serif";
-                    c.fillStyle = "#6B7280";
-                    c.fillText("Siswa", cx, cy + 14);
-                    c.restore();
+
+                    ctx.font = "400 11px Inter";
+                    ctx.fillStyle = "#6B7280";
+                    ctx.fillText("Murid", width / 2, height / 2 + 14);
+
+                    ctx.restore();
                 },
             },
         ],
     });
-    const legendContainer = document.getElementById("chart-legend");
-    if (legendContainer) {
-        legendContainer.innerHTML = "";
-        for (let i = 0; i < labels.length; i++) {
-            const row = document.createElement("div");
-            row.className = "legend-row";
-            row.innerHTML = `<span class="legend-dot" style="background:${colors[i]};"></span> ${labels[i]} - <strong>${values[i].toLocaleString()}</strong>`;
-            legendContainer.appendChild(row);
-        }
-    }
+
+    const legend = document.getElementById("chart-legend");
+    legend.innerHTML = "";
+
+    labels.forEach((label, i) => {
+        legend.innerHTML += `
+            <div class="legend-row">
+                <span class="legend-dot" style="background:${colors[i]}"></span>
+                ${label} - <strong>${values[i].toLocaleString()}</strong>
+            </div>
+        `;
+    });
 }
 
 async function openSchoolDetail(school) {
@@ -532,7 +541,12 @@ async function openSchoolDetail(school) {
 
     const sosmedSection = document.getElementById("social-media-section");
     if (sosmedSection) sosmedSection.style.display = "none";
-    ["btn-sosmed-ig", "btn-sosmed-fb", "btn-sosmed-tiktok", "btn-sosmed-web"].forEach((id) => {
+    [
+        "btn-sosmed-ig",
+        "btn-sosmed-fb",
+        "btn-sosmed-tiktok",
+        "btn-sosmed-web",
+    ].forEach((id) => {
         const btn = document.getElementById(id);
         if (btn) btn.style.display = "none";
     });
@@ -553,7 +567,6 @@ async function openSchoolDetail(school) {
     document.getElementById("school-detail-overlay").classList.add("open");
     document.body.classList.add("mobile-detail-active");
     setSidebarState("detail");
-    initSiswaChart(school.murid);
 
     if (!hasRegionFilter(currentFilters)) {
         detailLayer.clearLayers();
@@ -587,6 +600,12 @@ async function openSchoolDetail(school) {
             throw new Error("Response bukan JSON");
         }
         const detail = await res.json();
+        console.log(detail);
+
+        initSiswaChart(
+            parseInt(detail.jumlah_siswa_laki_laki || 0),
+            parseInt(detail.jumlah_siswa_perempuan || 0),
+        );
 
         const telepon = detail.no_telepon || "-";
         const email = detail.email || "-";
@@ -625,24 +644,48 @@ async function openSchoolDetail(school) {
 
             if (lower.includes("instagram.com")) {
                 const btn = document.getElementById("btn-sosmed-ig");
-                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
-            } else if (lower.includes("facebook.com") || lower.includes("fb.com")) {
+                if (btn) {
+                    btn.setAttribute("href", cleanedUrl);
+                    btn.style.display = "inline-flex";
+                }
+            } else if (
+                lower.includes("facebook.com") ||
+                lower.includes("fb.com")
+            ) {
                 const btn = document.getElementById("btn-sosmed-fb");
-                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+                if (btn) {
+                    btn.setAttribute("href", cleanedUrl);
+                    btn.style.display = "inline-flex";
+                }
             } else if (lower.includes("tiktok.com")) {
                 const btn = document.getElementById("btn-sosmed-tiktok");
-                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+                if (btn) {
+                    btn.setAttribute("href", cleanedUrl);
+                    btn.style.display = "inline-flex";
+                }
             } else {
                 const btn = document.getElementById("btn-sosmed-web");
-                if (btn) { btn.setAttribute("href", cleanedUrl); btn.style.display = "inline-flex"; }
+                if (btn) {
+                    btn.setAttribute("href", cleanedUrl);
+                    btn.style.display = "inline-flex";
+                }
             }
         }
 
         const isPhoneEmpty = !telepon || telepon === "-";
         const isEmailEmpty = !email || email === "-";
         const isMuridIncomplete = !school.murid || school.murid <= 2;
-        const isKoordinatEmpty = !school.lat || !school.lng || isNaN(school.lat) || isNaN(school.lng);
-        const hasIncompleteData = isPhoneEmpty || isEmailEmpty || isMuridIncomplete || isKoordinatEmpty || isSosmedEmpty;
+        const isKoordinatEmpty =
+            !school.lat ||
+            !school.lng ||
+            isNaN(school.lat) ||
+            isNaN(school.lng);
+        const hasIncompleteData =
+            isPhoneEmpty ||
+            isEmailEmpty ||
+            isMuridIncomplete ||
+            isKoordinatEmpty ||
+            isSosmedEmpty;
 
         if (hasIncompleteData) {
             warningCard.classList.remove("hidden");
@@ -669,7 +712,10 @@ async function openSchoolDetail(school) {
             warningBody.innerHTML = "";
         }
     } catch (err) {
-        console.error("[SatuPeta] Gagal memuat detail sekolah:", err.message || err);
+        console.error(
+            "[SatuPeta] Gagal memuat detail sekolah:",
+            err.message || err,
+        );
         document.getElementById("panel-telepon").textContent = "-";
         document.getElementById("panel-email").textContent = "-";
     }
@@ -825,10 +871,8 @@ async function applyFilters() {
 
     renderMarkers(schools);
     if (schools.length > 0) {
-        const midLat =
-            schools.reduce((s, x) => s + x.lat, 0) / schools.length;
-        const midLng =
-            schools.reduce((s, x) => s + x.lng, 0) / schools.length;
+        const midLat = schools.reduce((s, x) => s + x.lat, 0) / schools.length;
+        const midLng = schools.reduce((s, x) => s + x.lng, 0) / schools.length;
         map.setView([midLat, midLng], schools.length === 1 ? 15 : 10);
     }
 
@@ -846,10 +890,16 @@ function resetFilters() {
     tomSelectInstances["filter-provinsi"].clear();
     tomSelectInstances["filter-kabupaten"].clear();
     tomSelectInstances["filter-kabupaten"].clearOptions();
-    tomSelectInstances["filter-kabupaten"].addOption({ value: "", text: "Pilih Kabupaten/Kota" });
+    tomSelectInstances["filter-kabupaten"].addOption({
+        value: "",
+        text: "Pilih Kabupaten/Kota",
+    });
     tomSelectInstances["filter-kecamatan"].clear();
     tomSelectInstances["filter-kecamatan"].clearOptions();
-    tomSelectInstances["filter-kecamatan"].addOption({ value: "", text: "Pilih Kecamatan" });
+    tomSelectInstances["filter-kecamatan"].addOption({
+        value: "",
+        text: "Pilih Kecamatan",
+    });
 
     currentFilters = {};
     pendingPopupSchoolId = null;
@@ -1092,7 +1142,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         koreksiForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const formData = new FormData(koreksiForm);
-            const submitBtn = koreksiModal.querySelector('button[type="submit"]');
+            const submitBtn = koreksiModal.querySelector(
+                'button[type="submit"]',
+            );
             if (submitBtn) submitBtn.disabled = true;
 
             try {
@@ -1105,7 +1157,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (res.ok) {
                     koreksiModal.classList.add("hidden");
                     koreksiForm.reset();
-                    showToast("Laporan berhasil dikirim dan akan segera ditinjau.", "success");
+                    showToast(
+                        "Laporan berhasil dikirim dan akan segera ditinjau.",
+                        "success",
+                    );
                 } else if (res.status === 422) {
                     const data = await res.json().catch(() => ({}));
                     const errors = data.errors;
@@ -1124,16 +1179,25 @@ document.addEventListener("DOMContentLoaded", async () => {
                         : "Terlalu banyak permintaan. Silakan tunggu sebentar lalu coba lagi.";
                     showToast(msg, "error");
                 } else if (res.status === 401 || res.status === 419) {
-                    showToast("Sesi Anda telah berakhir. Mengalihkan ke halaman login...", "error");
-                    setTimeout(() => { window.location.href = "/login"; }, 2500);
+                    showToast(
+                        "Sesi Anda telah berakhir. Mengalihkan ke halaman login...",
+                        "error",
+                    );
+                    setTimeout(() => {
+                        window.location.href = "/login";
+                    }, 2500);
                     return;
                 } else {
                     const data = await res.json().catch(() => ({}));
-                    const msg = data.message || "Terjadi kesalahan. Silakan coba lagi.";
+                    const msg =
+                        data.message || "Terjadi kesalahan. Silakan coba lagi.";
                     showToast(msg, "error");
                 }
             } catch (err) {
-                showToast("Gagal mengirim laporan. Periksa koneksi Anda.", "error");
+                showToast(
+                    "Gagal mengirim laporan. Periksa koneksi Anda.",
+                    "error",
+                );
             } finally {
                 if (submitBtn) submitBtn.disabled = false;
             }
@@ -1141,7 +1205,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && koreksiModal && !koreksiModal.classList.contains("hidden")) {
+        if (
+            e.key === "Escape" &&
+            koreksiModal &&
+            !koreksiModal.classList.contains("hidden")
+        ) {
             koreksiModal.classList.add("hidden");
         }
     });
@@ -1152,9 +1220,10 @@ function showToast(message, type) {
     if (existing) existing.remove();
 
     const bg = type === "success" ? "bg-green-500" : "bg-red-500";
-    const icon = type === "success"
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
-        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    const icon =
+        type === "success"
+            ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+            : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
 
     const toast = document.createElement("div");
     toast.id = "koreksiToast";
@@ -1162,5 +1231,8 @@ function showToast(message, type) {
     toast.innerHTML = `${icon} ${message}`;
     document.body.appendChild(toast);
 
-    setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 4000);
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
 }
