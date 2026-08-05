@@ -449,16 +449,18 @@ function updateStatCards(schoolsList) {
             .toLocaleString();
 }
 
-function initSiswaChart(totalMurid) {
+function initSiswaChart(siswaLaki, siswaPerempuan) {
     const canvas = document.getElementById("siswaChart");
     if (!canvas) return;
+
     if (siswaChart) siswaChart.destroy();
-    const kelas7 = Math.round(totalMurid * 0.35);
-    const kelas8 = Math.round(totalMurid * 0.35);
-    const kelas9 = totalMurid - kelas7 - kelas8;
-    const labels = ["Kelas 7 SMP", "Kelas 8 SMP", "Kelas 9 SMP"];
-    const values = [kelas7, kelas8, kelas9];
-    const colors = ["#22C55E", "#F97316", "#3B82F6"];
+
+    const labels = ["Laki-laki", "Perempuan"];
+    const values = [siswaLaki, siswaPerempuan];
+    const colors = ["#3B82F6", "#EC4899"];
+
+    const totalMurid = siswaLaki + siswaPerempuan;
+
     siswaChart = new Chart(canvas, {
         type: "doughnut",
         data: {
@@ -475,46 +477,47 @@ function initSiswaChart(totalMurid) {
             cutout: "70%",
             plugins: {
                 legend: { display: false },
-                tooltip: { enabled: true },
             },
-            responsive: true,
-            maintainAspectRatio: true,
         },
         plugins: [
             {
                 id: "centerText",
                 beforeDraw(chart) {
-                    const { width, height, ctx: c } = chart;
-                    c.save();
-                    const cx = width / 2;
-                    const cy = height / 2;
-                    c.textAlign = "center";
-                    c.textBaseline = "middle";
-                    c.font = "700 20px 'Inter', sans-serif";
-                    c.fillStyle = "#1A1C1E";
-                    c.fillText(
-                        `Total ${totalMurid.toLocaleString()}`,
-                        cx,
-                        cy - 8,
+                    const { width, height, ctx } = chart;
+
+                    ctx.save();
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+
+                    ctx.font = "700 20px Inter";
+                    ctx.fillStyle = "#1A1C1E";
+                    ctx.fillText(
+                        `Total ${totalMurid}`,
+                        width / 2,
+                        height / 2 - 8,
                     );
-                    c.font = "400 11px 'Inter', sans-serif";
-                    c.fillStyle = "#6B7280";
-                    c.fillText("Siswa", cx, cy + 14);
-                    c.restore();
+
+                    ctx.font = "400 11px Inter";
+                    ctx.fillStyle = "#6B7280";
+                    ctx.fillText("Murid", width / 2, height / 2 + 14);
+
+                    ctx.restore();
                 },
             },
         ],
     });
-    const legendContainer = document.getElementById("chart-legend");
-    if (legendContainer) {
-        legendContainer.innerHTML = "";
-        for (let i = 0; i < labels.length; i++) {
-            const row = document.createElement("div");
-            row.className = "legend-row";
-            row.innerHTML = `<span class="legend-dot" style="background:${colors[i]};"></span> ${labels[i]} - <strong>${values[i].toLocaleString()}</strong>`;
-            legendContainer.appendChild(row);
-        }
-    }
+
+    const legend = document.getElementById("chart-legend");
+    legend.innerHTML = "";
+
+    labels.forEach((label, i) => {
+        legend.innerHTML += `
+            <div class="legend-row">
+                <span class="legend-dot" style="background:${colors[i]}"></span>
+                ${label} - <strong>${values[i].toLocaleString()}</strong>
+            </div>
+        `;
+    });
 }
 
 async function openSchoolDetail(school) {
@@ -564,7 +567,6 @@ async function openSchoolDetail(school) {
     document.getElementById("school-detail-overlay").classList.add("open");
     document.body.classList.add("mobile-detail-active");
     setSidebarState("detail");
-    initSiswaChart(school.murid);
 
     if (!hasRegionFilter(currentFilters)) {
         detailLayer.clearLayers();
@@ -598,6 +600,12 @@ async function openSchoolDetail(school) {
             throw new Error("Response bukan JSON");
         }
         const detail = await res.json();
+        console.log(detail);
+
+        initSiswaChart(
+            parseInt(detail.jumlah_siswa_laki_laki || 0),
+            parseInt(detail.jumlah_siswa_perempuan || 0),
+        );
 
         const telepon = detail.no_telepon || "-";
         const email = detail.email || "-";
