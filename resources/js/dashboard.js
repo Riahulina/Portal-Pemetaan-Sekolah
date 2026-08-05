@@ -2,6 +2,7 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import TomSelect from "tom-select";
 import "tom-select/dist/css/tom-select.default.css";
+import { fetchPulau, fetchProvinsi } from "./wilayah";
 
 const tomSelectInstances = {};
 
@@ -19,7 +20,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 let schools = [];
 let regionTree = {};
-let provinces = [];
+let nationalTotals = { sekolah: 0, siswa: 0 };
 
 let map, clusterGroup, aggregatedLayer, summaryLayer;
 let currentFilters = {};
@@ -211,11 +212,53 @@ async function fetchAndRenderSummary() {
             totalSekolahEl.textContent = grandTotalSekolah.toLocaleString();
         if (totalMuridEl)
             totalMuridEl.textContent = grandTotalSiswa.toLocaleString();
+
+        nationalTotals = { sekolah: grandTotalSekolah, siswa: grandTotalSiswa };
     } catch (err) {
         console.error(
             "[SatuPeta] Gagal memuat ringkasan provinsi:",
             err.message || err,
         );
+    }
+}
+
+async function updateSummaryCards(pulau) {
+    const totalSekolahEl = document.getElementById("total-sekolah");
+    const totalMuridEl = document.getElementById("total-murid");
+
+    const apply = (sekolah, siswa) => {
+        if (totalSekolahEl) totalSekolahEl.textContent = sekolah.toLocaleString();
+        if (totalMuridEl) totalMuridEl.textContent = siswa.toLocaleString();
+    };
+
+    if (!pulau) {
+        apply(nationalTotals.sekolah, nationalTotals.siswa);
+        return;
+    }
+
+    try {
+        const res = await fetch(
+            `/api/sekolah/summary?pulau=${encodeURIComponent(pulau)}`,
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+            throw new Error("Response bukan JSON (kemungkinan HTML error)");
+        }
+        const rows = await res.json();
+        let totalSekolah = 0;
+        let totalSiswa = 0;
+        (rows || []).forEach((row) => {
+            totalSekolah += parseInt(row.total_sekolah, 10) || 0;
+            totalSiswa += parseInt(row.total_siswa, 10) || 0;
+        });
+        apply(totalSekolah, totalSiswa);
+    } catch (err) {
+        console.error(
+            "[SatuPeta] Gagal memuat ringkasan pulau:",
+            err.message || err,
+        );
+        apply(nationalTotals.sekolah, nationalTotals.siswa);
     }
 }
 
@@ -787,6 +830,22 @@ function populateSelect(selectId, options, placeholder) {
     });
 }
 
+function repopulateTomSelect(selectId, options, placeholder) {
+    const instance = tomSelectInstances[selectId];
+    if (!instance) return;
+    instance.clear();
+    instance.clearOptions();
+    instance.addOption({ value: "", text: placeholder || "Pilih" });
+    instance.addOptions(options.map((o) => ({ value: o, text: o })));
+}
+
+function setSelectEnabled(selectId, enabled) {
+    const instance = tomSelectInstances[selectId];
+    if (!instance) return;
+    if (enabled) instance.enable();
+    else instance.disable();
+}
+
 let _updatingCascading = false;
 
 function updateCascading(prov, kab) {
@@ -807,12 +866,19 @@ function updateCascading(prov, kab) {
     if (prov && regionTree[prov]) {
         const kabList = Object.keys(regionTree[prov]).sort();
         kabInstance.addOptions(kabList.map((k) => ({ value: k, text: k })));
+        kabInstance.enable();
 
         if (kab && regionTree[prov][kab]) {
             kabInstance.setValue(kab, true);
             const kecList = regionTree[prov][kab];
             kecInstance.addOptions(kecList.map((k) => ({ value: k, text: k })));
+            kecInstance.enable();
+        } else {
+            kecInstance.disable();
         }
+    } else {
+        kabInstance.disable();
+        kecInstance.disable();
     }
 
     _updatingCascading = false;
@@ -843,6 +909,7 @@ async function applyFilters() {
     _detailMarkerSchoolId = null;
 
     const filters = {
+        pulau: tomSelectInstances["filter-pulau"].getValue(),
         jenjang: tomSelectInstances["filter-jenjang"].getValue(),
         status: tomSelectInstances["filter-status"].getValue(),
         provinsi: tomSelectInstances["filter-provinsi"].getValue(),
@@ -859,7 +926,7 @@ async function applyFilters() {
         schools = [];
         summaryLayer.clearLayers();
         renderAggregatedMarkers(schools);
-        updateStatCards(schools);
+        updateSummaryCards(currentFilters.pulau || "");
         updateLegend(filters.jenjang);
         renderTable(schools);
         map.setView([-2.5, 118.0], 5);
@@ -889,7 +956,9 @@ function resetFilters() {
 
     tomSelectInstances["filter-jenjang"].clear();
     tomSelectInstances["filter-status"].clear();
+    tomSelectInstances["filter-pulau"].clear();
     tomSelectInstances["filter-provinsi"].clear();
+    repopulateTomSelect("filter-provinsi", [], "Pilih Provinsi");
     tomSelectInstances["filter-kabupaten"].clear();
     tomSelectInstances["filter-kabupaten"].clearOptions();
     tomSelectInstances["filter-kabupaten"].addOption({
@@ -902,6 +971,9 @@ function resetFilters() {
         value: "",
         text: "Pilih Kecamatan",
     });
+    setSelectEnabled("filter-provinsi", false);
+    setSelectEnabled("filter-kabupaten", false);
+    setSelectEnabled("filter-kecamatan", false);
 
     currentFilters = {};
     pendingPopupSchoolId = null;
@@ -912,7 +984,7 @@ function resetFilters() {
     detailLayer.clearLayers();
     _detailMarkerSchoolId = null;
     renderAggregatedMarkers(schools);
-    updateStatCards(schools);
+    updateSummaryCards("");
     updateLegend("Semua");
     renderTable(schools);
     map.setView([-2.5, 118.0], 5);
@@ -1079,7 +1151,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const wilayah = await fetchWilayah();
     regionTree = buildRegionTreeFromWilayah(wilayah);
-    provinces = Object.keys(regionTree).sort();
 
     populateSelect(
         "filter-jenjang",
@@ -1091,9 +1162,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         ["NEGERI", "SWASTA", "Semua"],
         "Pilih Status",
     );
-    populateSelect("filter-provinsi", provinces, "Pilih Provinsi");
+
+    let pulauNames = [];
+    try {
+        pulauNames = await fetchPulau();
+    } catch (err) {
+        console.error(
+            "[SatuPeta] Gagal memuat daftar pulau:",
+            err.message || err,
+        );
+    }
+    populateSelect("filter-pulau", pulauNames, "Pilih Pulau");
+    populateSelect("filter-provinsi", [], "Pilih Provinsi");
     populateSelect("filter-kabupaten", [], "Pilih Kabupaten/Kota");
     populateSelect("filter-kecamatan", [], "Pilih Kecamatan");
+    setSelectEnabled("filter-provinsi", false);
+    setSelectEnabled("filter-kabupaten", false);
+    setSelectEnabled("filter-kecamatan", false);
+
+    let pulauRequestSeq = 0;
+    tomSelectInstances["filter-pulau"].on("change", async function (value) {
+        const seq = ++pulauRequestSeq;
+        let provs = [];
+        if (value) {
+            try {
+                provs = await fetchProvinsi(value);
+            } catch (err) {
+                console.error(
+                    "[SatuPeta] Gagal memuat provinsi untuk pulau:",
+                    err.message || err,
+                );
+                provs = [];
+            }
+        }
+        if (seq !== pulauRequestSeq) return;
+        repopulateTomSelect("filter-provinsi", provs, "Pilih Provinsi");
+        repopulateTomSelect("filter-kabupaten", [], "Pilih Kabupaten/Kota");
+        repopulateTomSelect("filter-kecamatan", [], "Pilih Kecamatan");
+        setSelectEnabled("filter-provinsi", !!value && provs.length > 0);
+        setSelectEnabled("filter-kabupaten", false);
+        setSelectEnabled("filter-kecamatan", false);
+    });
 
     tomSelectInstances["filter-provinsi"].on("change", function (value) {
         updateCascading(value, "");

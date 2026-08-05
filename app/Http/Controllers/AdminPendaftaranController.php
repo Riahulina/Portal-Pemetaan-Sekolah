@@ -20,32 +20,12 @@ class AdminPendaftaranController extends Controller
      */
     public function index(Request $request)
     {
-        // Mapping ID Provinsi EMSIFA ke Nama Provinsi
-        $provincesMap = [
-            '11' => 'ACEH',
-            '12' => 'SUMATERA UTARA',
-            '13' => 'SUMATERA BARAT',
-            '14' => 'RIAU',
-            '15' => 'JAMBI',
-            '16' => 'SUMATERA SELATAN',
-            '17' => 'BENGKULU',
-            '18' => 'LAMPUNG',
-            '19' => 'KEPULAUAN BANGKA BELITUNG',
-            '21' => 'KEPULAUAN RIAU',
-        ];
-
         $query = SekolahTemporary::with('user')
             ->where('status_verifikasi', 'pending');
 
-        // 1. Filter Provinsi (Aman untuk ID Angka '13' maupun Teks 'SUMATERA BARAT')
+        // 1. Filter Provinsi (nama provinsi sesuai dataset referensi wilayah internal)
         if ($request->filled('provinsi')) {
-            $provInput = $request->provinsi;
-            $namaProv = $provincesMap[$provInput] ?? $provInput;
-
-            $query->where(function ($q) use ($provInput, $namaProv) {
-                $q->where('provinsi', 'ILIKE', '%'.$provInput.'%')
-                    ->orWhere('provinsi', 'ILIKE', '%'.$namaProv.'%');
-            });
+            $query->where('provinsi', 'ILIKE', '%'.$request->provinsi.'%');
         }
 
         // 2. Filter Kabupaten/Kota

@@ -127,14 +127,20 @@ class SekolahController extends Controller
     }
 
     /**
-     * Mengambil ringkasan nasional — jumlah sekolah & siswa per provinsi, beserta koordinat rata-rata.
-     * Digunakan untuk tampilan awal peta sebelum user memilih filter wilayah.
+     * Mengambil ringkasan — jumlah sekolah & siswa per provinsi, beserta koordinat rata-rata.
+     * Tanpa parameter `pulau`: ringkasan nasional untuk tampilan awal peta.
+     * Dengan parameter `pulau`: ringkasan hanya untuk provinsi di pulau tersebut,
+     * dipakai untuk memperbarui kartu ringkasan ("Total Sekolah" / "Total Siswa").
      * Cache permanen karena data historis tidak sering berubah.
      */
-    public function getProvinsiSummary()
+    public function getProvinsiSummary(Request $request)
     {
-        $summary = Cache::rememberForever('sekolah_provinsi_summary_v1', function () {
-            return DB::table('sekolah')
+        $pulau = $request->query('pulau');
+
+        $cacheKey = 'sekolah_provinsi_summary_v2_'.($pulau ?: 'nasional');
+
+        $summary = Cache::rememberForever($cacheKey, function () use ($pulau) {
+            $query = DB::table('sekolah')
                 ->selectRaw('
                     provinsi,
                     COUNT(npsn) as total_sekolah,
@@ -145,10 +151,13 @@ class SekolahController extends Controller
                 ->whereNotNull('provinsi')
                 ->whereNull('deleted_at')
                 ->whereNotNull('latitude')
-                ->whereNotNull('longitude')
-                ->groupBy('provinsi')
-                ->get()
-                ->toArray();
+                ->whereNotNull('longitude');
+
+            if ($pulau) {
+                $query->where('pulau', $pulau);
+            }
+
+            return $query->groupBy('provinsi')->get()->toArray();
         });
 
         return response()->json($summary);

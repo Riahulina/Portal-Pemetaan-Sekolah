@@ -22,6 +22,7 @@ class SekolahTemporary extends Model
         'jenjang',
         'status',
         'akreditasi',
+        'pulau',
         'provinsi',
         'kabupaten_kota',
         'kecamatan',
@@ -47,6 +48,13 @@ class SekolahTemporary extends Model
     }
 
     protected function kabupaten_kota(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => $value ? Str::title($value) : null,
+        );
+    }
+
+    protected function pulau(): Attribute
     {
         return Attribute::make(
             set: fn (?string $value) => $value ? Str::title($value) : null,

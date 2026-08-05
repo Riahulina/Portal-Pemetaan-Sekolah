@@ -363,21 +363,15 @@
                     </div>
 
                     <!-- SECTION 3: Detail Lokasi -->
-                    <div class="form-section" x-data="locationDropdowns()" x-init="init()">
+                    <div class="form-section">
                         <h3 class="section-title">Detail Lokasi</h3>
 
                         <div class="form-grid col-2">
                             <div class="form-group">
                                 <label for="provinsi">Provinsi <span class="required">*</span></label>
                                 <div class="select-wrapper">
-                                    <select id="provinsi" name="provinsi" required x-model="selectedProvinsi"
-                                        @change="onProvinsiChange()">
+                                    <select id="provinsi" name="provinsi" required>
                                         <option value="" disabled>Pilih Provinsi</option>
-                                        <template x-for="prov in provinces" :key="prov">
-                                            <option :value="prov" x-text="prov"
-                                                :selected="prov === '{{ old('provinsi', $sekolah->provinsi ?? '') }}'">
-                                            </option>
-                                        </template>
                                     </select>
                                 </div>
                                 @error('provinsi')
@@ -388,15 +382,8 @@
                             <div class="form-group">
                                 <label for="kabupaten_kota">Kabupaten / Kota <span class="required">*</span></label>
                                 <div class="select-wrapper">
-                                    <select id="kabupaten_kota" name="kabupaten_kota" required
-                                        x-model="selectedKabupaten" @change="onKabupatenChange()"
-                                        :disabled="!selectedProvinsi">
+                                    <select id="kabupaten_kota" name="kabupaten_kota" required disabled>
                                         <option value="" disabled>Pilih Kabupaten / Kota</option>
-                                        <template x-for="kab in kabupatens" :key="kab">
-                                            <option :value="kab" x-text="kab"
-                                                :selected="kab === '{{ old('kabupaten_kota', $sekolah->kabupaten_kota ?? '') }}'">
-                                            </option>
-                                        </template>
                                     </select>
                                 </div>
                                 @error('kabupaten_kota')
@@ -410,14 +397,8 @@
                             <div class="form-group">
                                 <label for="kecamatan">Kecamatan <span class="required">*</span></label>
                                 <div class="select-wrapper">
-                                    <select id="kecamatan" name="kecamatan" required x-model="selectedKecamatan"
-                                        :disabled="!selectedKabupaten">
+                                    <select id="kecamatan" name="kecamatan" required disabled>
                                         <option value="" disabled>Pilih Kecamatan</option>
-                                        <template x-for="kec in kecamatans" :key="kec">
-                                            <option :value="kec" x-text="kec"
-                                                :selected="kec === '{{ old('kecamatan', $sekolah->kecamatan ?? '') }}'">
-                                            </option>
-                                        </template>
                                     </select>
                                 </div>
                                 @error('kecamatan')
@@ -514,64 +495,20 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        function locationDropdowns() {
-            return {
-                allRows: [],
-                provinces: [],
-                kabupatens: [],
-                kecamatans: [],
-                selectedProvinsi: '{{ old('provinsi', $sekolah->provinsi ?? '') }}',
-                selectedKabupaten: '{{ old('kabupaten_kota', $sekolah->kabupaten_kota ?? '') }}',
-                selectedKecamatan: '{{ old('kecamatan', $sekolah->kecamatan ?? '') }}',
-
-                async init() {
-                    try {
-                        const res = await fetch('/api/wilayah');
-                        this.allRows = await res.json();
-                    } catch (e) {
-                        this.allRows = [];
-                    }
-
-                    const uniqueProvinces = [...new Set(this.allRows.map(r => r.provinsi).filter(Boolean))];
-                    this.provinces = uniqueProvinces.sort((a, b) => a.localeCompare(b, 'id'));
-
-                    if (this.selectedProvinsi) {
-                        this.onProvinsiChange(true);
-                    }
-                },
-
-                onProvinsiChange(isInitial = false) {
-                    if (!isInitial) {
-                        this.selectedKabupaten = '';
-                        this.selectedKecamatan = '';
-                    }
-                    const kabSet = [...new Set(
-                        this.allRows
-                        .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota)
-                        .map(r => r.kabupaten_kota)
-                    )];
-                    this.kabupatens = kabSet.sort((a, b) => a.localeCompare(b, 'id'));
-                    this.kecamatans = [];
-
-                    if (this.selectedKabupaten) {
-                        this.onKabupatenChange(isInitial);
-                    }
-                },
-
-                onKabupatenChange(isInitial = false) {
-                    if (!isInitial) {
-                        this.selectedKecamatan = '';
-                    }
-                    const kecSet = [...new Set(
-                        this.allRows
-                        .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota === this
-                            .selectedKabupaten && r.kecamatan)
-                        .map(r => r.kecamatan)
-                    )];
-                    this.kecamatans = kecSet.sort((a, b) => a.localeCompare(b, 'id'));
-                }
-            };
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.initWilayahCascade === 'function') {
+                window.initWilayahCascade({
+                    provinsi: '#provinsi',
+                    kabupaten: '#kabupaten_kota',
+                    kecamatan: '#kecamatan',
+                    initial: {
+                        provinsi: {{ Js::from(old('provinsi', $sekolah->provinsi ?? '')) }},
+                        kabupaten: {{ Js::from(old('kabupaten_kota', $sekolah->kabupaten_kota ?? '')) }},
+                        kecamatan: {{ Js::from(old('kecamatan', $sekolah->kecamatan ?? '')) }},
+                    },
+                });
+            }
+        });
     </script>
 
     <script>

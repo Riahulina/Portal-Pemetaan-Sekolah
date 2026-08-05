@@ -375,36 +375,25 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Provinsi</label>
-                                    <select name="provinsi" x-model="selectedProvinsi" @change="onProvinsiChange()"
+                                    <select id="edit-provinsi" name="provinsi"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                         <option value="" disabled>Pilih Provinsi</option>
-                                        <template x-for="prov in provinces" :key="prov">
-                                            <option :value="prov" x-text="prov"></option>
-                                        </template>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Kabupaten/Kota</label>
-                                    <select name="kabupaten_kota" x-model="selectedKabupaten" @change="onKabupatenChange()"
-                                        :disabled="!selectedProvinsi"
+                                    <select id="edit-kabupaten" name="kabupaten_kota" disabled
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                         <option value="" disabled>Pilih Kabupaten/Kota</option>
-                                        <template x-for="kab in kabupatens" :key="kab">
-                                            <option :value="kab" x-text="kab"></option>
-                                        </template>
                                     </select>
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Kecamatan</label>
-                                    <select name="kecamatan" x-model="selectedKecamatan"
-                                        :disabled="!selectedKabupaten"
+                                    <select id="edit-kecamatan" name="kecamatan" disabled
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
                                         <option value="" disabled>Pilih Kecamatan</option>
-                                        <template x-for="kec in kecamatans" :key="kec">
-                                            <option :value="kec" x-text="kec"></option>
-                                        </template>
                                     </select>
                                 </div>
                             </div>
@@ -485,6 +474,18 @@
 
 @push('scripts')
     <script>
+        let wilayahCascade = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.initWilayahCascade === 'function') {
+                wilayahCascade = window.initWilayahCascade({
+                    provinsi: '#edit-provinsi',
+                    kabupaten: '#edit-kabupaten',
+                    kecamatan: '#edit-kecamatan',
+                });
+            }
+        });
+
         function sekolahManager() {
             return {
                 viewModal: false,
@@ -493,68 +494,9 @@
                 viewData: null,
                 editData: null,
                 deleteData: null,
-                allRows: [],
-                provinces: [],
-                kabupatens: [],
-                kecamatans: [],
-                wilayahPromise: null,
-                selectedProvinsi: '',
-                selectedKabupaten: '',
-                selectedKecamatan: '',
                 editMap: null,
                 editMarker: null,
                 isSearching: false,
-
-                init() {
-                    this.wilayahPromise = this.loadWilayah();
-                },
-
-                async loadWilayah() {
-                    if (this.allRows.length) return;
-                    try {
-                        const res = await fetch('/api/wilayah');
-                        this.allRows = await res.json();
-                    } catch (e) {
-                        this.allRows = [];
-                    }
-                    this.provinces = [...new Set(this.allRows.map(r => r.provinsi).filter(Boolean))]
-                        .sort((a, b) => a.localeCompare(b, 'id'));
-                },
-
-                onProvinsiChange(isInitial = false) {
-                    if (!isInitial) {
-                        this.selectedKabupaten = '';
-                        this.selectedKecamatan = '';
-                    }
-                    this.kabupatens = [...new Set(
-                        this.allRows
-                        .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota)
-                        .map(r => r.kabupaten_kota)
-                    )].sort((a, b) => a.localeCompare(b, 'id'));
-                    this.kecamatans = [];
-
-                    if (this.selectedKabupaten) {
-                        this.onKabupatenChange(isInitial);
-                    }
-                },
-
-                onKabupatenChange(isInitial = false) {
-                    if (!isInitial) {
-                        this.selectedKecamatan = '';
-                    }
-                    this.kecamatans = [...new Set(
-                        this.allRows
-                        .filter(r => r.provinsi === this.selectedProvinsi && r.kabupaten_kota === this.selectedKabupaten && r.kecamatan)
-                        .map(r => r.kecamatan)
-                    )].sort((a, b) => a.localeCompare(b, 'id'));
-                },
-
-                populateRegionOptions() {
-                    this.selectedProvinsi = this.editData?.provinsi || '';
-                    this.selectedKabupaten = this.editData?.kabupaten_kota || '';
-                    this.selectedKecamatan = this.editData?.kecamatan || '';
-                    this.onProvinsiChange(true);
-                },
 
                 openViewModal(data) {
                     this.viewData = data;
@@ -564,7 +506,13 @@
                 openEditModal(data) {
                     this.editData = { ...data };
                     this.editModal = true;
-                    (this.wilayahPromise || Promise.resolve()).then(() => this.populateRegionOptions());
+                    if (wilayahCascade) {
+                        wilayahCascade.setValues({
+                            provinsi: data.provinsi || '',
+                            kabupaten: data.kabupaten_kota || '',
+                            kecamatan: data.kecamatan || '',
+                        });
+                    }
                     this.initEditMap();
                     setTimeout(() => this.editMap?.invalidateSize(), 250);
                 },
