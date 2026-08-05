@@ -3,7 +3,7 @@
 @section('title', 'Detail Pendaftaran Sekolah')
 
 @section('content')
-    <div x-data="{ rejectModal: false }">
+    <div x-data="{ rejectModal: false, approveModal: false }">
 
         <!-- TOP ACTION BAR -->
         <div class="flex items-center justify-between mb-6">
@@ -80,11 +80,11 @@
                         <p class="text-gray-800 font-medium mt-0.5 truncate">{{ $sekolah->social_media ?? '-' }}</p>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswa</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Murid Laki-Laki</label>
                         <p class="text-gray-800 font-medium mt-0.5">{{ $sekolah->siswa_laki ?? 0 }}</p>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Siswi</label>
+                        <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Jumlah Murid Perempuan</label>
                         <p class="text-gray-800 font-medium mt-0.5">{{ $sekolah->siswa_perempuan ?? 0 }}</p>
                     </div>
                 </div>
@@ -134,18 +134,14 @@
                 </div>
 
                 <div class="flex flex-col gap-3">
-                    <!-- FORM APPROVE -->
-                    <form method="POST" action="{{ route('admin.pendaftaran.verifikasi', $sekolah->id) }}">
-                        @csrf
-                        <input type="hidden" name="status" value="approved">
-                        <button type="submit"
-                            class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm shadow-emerald-600/10">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path d="M5 13l4 4L19 7" />
-                            </svg>
-                            Setujui Pendaftaran
-                        </button>
-                    </form>
+                    <!-- TOMBOL TRIGGER MODAL APPROVE -->
+                    <button @click="approveModal = true"
+                        class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm shadow-emerald-600/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" />
+                        </svg>
+                        Setujui Pendaftaran
+                    </button>
 
                     <!-- TOMBOL TRIGGER MODAL REJECT -->
                     <button @click="rejectModal = true"
@@ -192,6 +188,32 @@
                             class="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Batal</button>
                         <button type="submit"
                             class="px-4 py-2 text-xs font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm">Kirim & Tolak</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL KONFIRMASI PERSETUJUAN -->
+        <div x-show="approveModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="approveModal = false"></div>
+            <div x-show="approveModal" x-transition
+                class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6 overflow-hidden">
+                <h3 class="text-base font-bold text-gray-900 mb-2">Setujui Pendaftaran Sekolah</h3>
+                <p class="text-xs text-gray-500 mb-4">Konfirmasi persetujuan pendaftaran sekolah. Anda dapat menambahkan catatan untuk pendaftar.</p>
+
+                <form method="POST" action="{{ route('admin.pendaftaran.verifikasi', $sekolah->id) }}">
+                    @csrf
+                    <input type="hidden" name="status" value="approved">
+
+                    <textarea name="catatan_admin" rows="4"
+                        placeholder="Opsional: tambahkan catatan untuk pendaftar"
+                        class="w-full border border-gray-200 rounded-xl p-3 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 mb-4 resize-none">Pendaftaran sekolah telah disetujui oleh admin.</textarea>
+
+                    <div class="flex items-center justify-end gap-2">
+                        <button type="button" @click="approveModal = false"
+                            class="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Batal</button>
+                        <button type="submit"
+                            class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors shadow-sm">Konfirmasi & Setujui</button>
                     </div>
                 </form>
             </div>

@@ -408,6 +408,20 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="mt-4">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Cari Lokasi</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="editPlaceSearch" placeholder="Cari lokasi, misalnya 'Jl. Jamin Ginting'"
+                                        @keydown.enter.prevent="searchPlace()"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                    <button type="button" @click="searchPlace()"
+                                        class="shrink-0 px-4 py-2 text-sm font-medium text-white bg-[#0d9296] rounded-lg hover:bg-[#0b7e82] transition-colors">Cari</button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Titik Koordinat Peta</label>
+                                <div id="editMap" class="w-full h-64 sm:h-80 md:h-96" style="border-radius: 8px; border: 1px solid #d1d5db; position: relative; z-index: 0;"></div>
+                            </div>
                             <div class="grid grid-cols-2 gap-4 mt-4">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Latitude</label>
@@ -487,6 +501,9 @@
                 selectedProvinsi: '',
                 selectedKabupaten: '',
                 selectedKecamatan: '',
+                editMap: null,
+                editMarker: null,
+                isSearching: false,
 
                 init() {
                     this.wilayahPromise = this.loadWilayah();
@@ -548,6 +565,55 @@
                     this.editData = { ...data };
                     this.editModal = true;
                     (this.wilayahPromise || Promise.resolve()).then(() => this.populateRegionOptions());
+                    this.initEditMap();
+                    setTimeout(() => this.editMap?.invalidateSize(), 250);
+                },
+
+                initEditMap() {
+                    if (this.editMap) return;
+                    const lat = parseFloat(this.editData?.latitude) || -0.789275;
+                    const lng = parseFloat(this.editData?.longitude) || 113.921327;
+                    this.editMap = L.map('editMap').setView([lat, lng], this.editData?.latitude ? 16 : 5);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(this.editMap);
+                    // Center-pinned marker (Gojek/Grab style): the marker stays fixed at the
+                    // map center while the map pans beneath it; coordinates sync on moveend.
+                    this.editMarker = L.marker(this.editMap.getCenter(), { interactive: false }).addTo(this.editMap);
+                    this.editMap.on('move', () => {
+                        this.editMarker.setLatLng(this.editMap.getCenter());
+                    });
+                    this.editMap.on('moveend', () => {
+                        const center = this.editMap.getCenter();
+                        this.editData.latitude = center.lat.toFixed(7);
+                        this.editData.longitude = center.lng.toFixed(7);
+                    });
+                    this.editMap.on('click', (e) => this.editMap.panTo(e.latlng));
+                },
+
+                async searchPlace() {
+                    const q = document.getElementById('editPlaceSearch').value.trim();
+                    if (!q || this.isSearching) return;
+                    this.isSearching = true;
+                    try {
+                        const res = await fetch(
+                            'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=id&q=' +
+                            encodeURIComponent(q)
+                        );
+                        const results = await res.json();
+                        if (!results.length) {
+                            alert('Lokasi tidak ditemukan.');
+                            return;
+                        }
+                        const lat = parseFloat(results[0].lat);
+                        const lng = parseFloat(results[0].lon);
+                        this.editMap.setView([lat, lng], 16);
+                    } catch (e) {
+                        alert('Gagal mencari lokasi. Coba lagi.');
+                    } finally {
+                        this.isSearching = false;
+                    }
                 },
 
                 openDeleteModal(data) {
