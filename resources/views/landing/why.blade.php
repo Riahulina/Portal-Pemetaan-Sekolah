@@ -35,6 +35,175 @@
         </div>
     </div>
 
+    <!-- SECTION TIM PENGEMBANG -->
+    <section id="tentang" class="dev-section">
+        <div class="dev-container">
+
+            <!-- Header Section -->
+            <div class="dev-header">
+                <span class="dev-badge">Tim Pengembang</span>
+                <h2 class="dev-title">Sosok Di Balik <span>SatuPeta</span></h2>
+                <p class="dev-subtitle">
+                    Tim pengembang di balik visualisasi dan pemetaan data pendidikan Indonesia.
+                </p>
+            </div>
+
+            <!-- Grid 3 Developer -->
+            <div class="dev-grid">
+
+                <!-- Developer 1 -->
+                <div class="dev-card">
+                    <div class="dev-avatar-wrapper">
+                        <img src="https://ui-avatars.com/api/?name=Riah+Ulina+Hutasoit&background=0d7a75&color=fff&size=200"
+                            alt="Riah Ulina Hutasoit" class="dev-avatar">
+                    </div>
+                    <h3 class="dev-name">Riah Ulina Hutasoit</h3>
+                    <p class="dev-instansi">Politeknik Negeri Medan</p>
+                </div>
+
+                <!-- Developer 2 -->
+                <div class="dev-card">
+                    <div class="dev-avatar-wrapper">
+                        <img src="https://ui-avatars.com/api/?name=Nama+Developer+2&background=0d7a75&color=fff&size=200"
+                            alt="Nama Developer 2" class="dev-avatar">
+                    </div>
+                    <h3 class="dev-name">Nama Developer 2</h3>
+                    <p class="dev-instansi">Politeknik Negeri Medan</p>
+                </div>
+
+                <!-- Developer 3 -->
+                <div class="dev-card">
+                    <div class="dev-avatar-wrapper">
+                        <img src="https://ui-avatars.com/api/?name=Nama+Developer+3&background=0d7a75&color=fff&size=200"
+                            alt="Nama Developer 3" class="dev-avatar">
+                    </div>
+                    <h3 class="dev-name">Nama Developer 3</h3>
+                    <p class="dev-instansi">Politeknik Negeri Medan</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- CSS PENGEMBANG (FOTO KOTAK & TIDAK MEPET) -->
+    <style>
+        .dev-section {
+            padding: 70px 20px 90px 20px !important;
+            /* Spasi atas & bawah agar lega dari banner bawah */
+            background-color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dev-container {
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+
+        /* Header Section */
+        .dev-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 40px auto;
+        }
+
+        .dev-badge {
+            background-color: rgba(13, 122, 117, 0.1);
+            color: #0d7a75;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .dev-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .dev-title span {
+            color: #0d7a75;
+        }
+
+        .dev-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* Grid Layout 3 Kolom */
+        .dev-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        /* Card Styling */
+        .dev-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .dev-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(13, 122, 117, 0.12);
+            border-color: #0d7a75;
+        }
+
+        /* Foto Kotak Rounded */
+        .dev-avatar-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            /* Membuat bingkai kotak sempurna */
+            max-width: 200px;
+            margin: 0 auto 16px auto;
+            border-radius: 12px;
+            /* Melengkung halus di sudut kotak */
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+        }
+
+        .dev-avatar {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* Informasi Nama & Instansi */
+        .dev-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 6px 0;
+        }
+
+        .dev-instansi {
+            font-size: 13px;
+            font-weight: 500;
+            color: #0d7a75;
+            margin: 0;
+        }
+
+        /* Responsive HP */
+        @media (max-width: 768px) {
+            .dev-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+
     <!-- STATS BAND -->
     <div class="stats-band">
         <div class="container">
@@ -71,7 +240,7 @@
                             <circle cx="12" cy="9" r="2.4" />
                         </svg></div>
                     <div>
-                        <div class="stat-num">10</div>
+                        <div class="stat-num">38</div>
                         <div class="stat-label">Provinsi Terpetakan</div>
                     </div>
                 </div>
