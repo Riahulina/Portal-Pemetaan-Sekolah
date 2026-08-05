@@ -54,17 +54,17 @@
                 </div>
                 <div class="filter-group">
                     <label for="filter-provinsi">Pilih Provinsi</label>
-                    <select id="filter-provinsi"></select>
+                    <select id="filter-provinsi" disabled></select>
                 </div>
                 <div class="filter-group">
                     <label for="filter-kabupaten">Pilih Kabupaten/Kota</label>
-                    <select id="filter-kabupaten">
+                    <select id="filter-kabupaten" disabled>
                         <option value="">Pilih Kabupaten/Kota</option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <label for="filter-kecamatan">Pilih Kecamatan</label>
-                    <select id="filter-kecamatan">
+                    <select id="filter-kecamatan" disabled>
                         <option value="">Pilih Kecamatan</option>
                     </select>
                 </div>
