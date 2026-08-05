@@ -47,6 +47,12 @@
                     <select id="filter-status"></select>
                 </div>
                 <div class="filter-group">
+                    <label for="filter-pulau">Pilih Pulau</label>
+                    <select id="filter-pulau">
+                        <option value="">Pilih Pulau</option>
+                    </select>
+                </div>
+                <div class="filter-group">
                     <label for="filter-provinsi">Pilih Provinsi</label>
                     <select id="filter-provinsi"></select>
                 </div>
@@ -118,7 +124,8 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-card__inner">
-                                <img src="{{ asset('assets/iconsiswa.png') }}" alt="" class="stat-card__icon">
+                                <img src="{{ asset('assets/iconsiswa.png') }}" alt=""
+                                    class="stat-card__icon">
                                 <div class="stat-card__value" id="total-murid">0</div>
                             </div>
                             <div class="stat-card__label">Total Peserta Didik Terdaftar</div>
@@ -271,31 +278,27 @@
                             </div>
 
                             @auth
-                                <button id="btn-koreksi" class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                                <button id="btn-koreksi"
+                                    class="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors">
                                     Usulkan Perbaikan Data
                                 </button>
                             @else
-                                <a href="{{ route('login') }}" class="mt-4 w-full block text-center bg-[#0D9296] hover:bg-[#0b7c80] text-white font-bold py-2 px-4 rounded transition-colors">Login untuk Usulkan Perbaikan</a>
+                                <a href="{{ route('login') }}"
+                                    class="mt-4 w-full block text-center bg-[#0D9296] hover:bg-[#0b7c80] text-white font-bold py-2 px-4 rounded transition-colors">Login
+                                    untuk Usulkan Perbaikan</a>
                             @endauth
                         </div>
                         <div class="detail-panel__col detail-panel__col--right">
                             <div class="detail-chart-container">
-                                <h4 class="detail-chart__title">Jumlah Siswa per Jenjang</h4>
+                                <h4 class="detail-chart__title">Jumlah Murid Berdasarkan Jenis Kelamin</h4>
+
                                 <div class="detail-chart__canvas-wrap">
                                     <canvas id="siswaChart"></canvas>
                                 </div>
-                                <div class="detail-chart__legend" id="chart-legend">
-                                    <div class="legend-row"><span class="legend-dot"
-                                            style="background:#22C55E;"></span> Kelas 7 SMP - <strong>350</strong>
-                                    </div>
-                                    <div class="legend-row"><span class="legend-dot"
-                                            style="background:#F97316;"></span> Kelas 8 SMP - <strong>350</strong>
-                                    </div>
-                                    <div class="legend-row"><span class="legend-dot"
-                                            style="background:#10a5b0;"></span> Kelas 9 SMP - <strong>350</strong>
-                                    </div>
-                                </div>
 
+                                <div class="detail-chart__legend" id="chart-legend">
+                                    <!-- Diisi otomatis oleh JavaScript -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -311,7 +314,8 @@
         <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col z-10">
             <div class="flex items-center justify-between px-6 py-4 border-b shrink-0">
                 <h3 class="text-lg font-semibold text-gray-800">Koreksi Data Sekolah</h3>
-                <button onclick="document.getElementById('koreksiModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                <button onclick="document.getElementById('koreksiModal').classList.add('hidden')"
+                    class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             </div>
 
             <div class="overflow-y-auto overscroll-contain px-6 py-4 flex-1">
@@ -319,31 +323,48 @@
                     @csrf
                     <input type="hidden" name="sekolah_npsn" id="modal_sekolah_npsn" value="">
 
-                    <p class="text-sm text-gray-600 mb-3 bg-gray-100 p-2 rounded">Melaporkan sebagai: <strong>{{ auth()->user()?->name ?? 'Tamu' }}</strong></p>
+                    <p class="text-sm text-gray-600 mb-3 bg-gray-100 p-2 rounded">Melaporkan sebagai:
+                        <strong>{{ auth()->user()?->name ?? 'Tamu' }}</strong>
+                    </p>
 
                     <div class="mb-2">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Detail Perbaikan</label>
-                        <textarea name="pesan_koreksi" rows="4" required class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#0d9296] focus:ring-[#0d9296]" placeholder="Jelaskan data apa yang salah dan apa yang seharusnya..."></textarea>
+                        <textarea name="pesan_koreksi" rows="4" required
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-[#0d9296] focus:ring-[#0d9296]"
+                            placeholder="Jelaskan data apa yang salah dan apa yang seharusnya..."></textarea>
                     </div>
                 </form>
             </div>
 
             <div class="flex justify-end gap-3 px-6 py-4 border-t shrink-0 bg-gray-50 rounded-b-xl">
-                <button type="button" onclick="document.getElementById('koreksiModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
-                <button type="submit" form="formKoreksi" class="px-4 py-2 text-sm font-medium text-white bg-[#0d9296] border border-transparent rounded-md hover:bg-[#0b7c80]">Kirim Usulan</button>
+                <button type="button" onclick="document.getElementById('koreksiModal').classList.add('hidden')"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
+                <button type="submit" form="formKoreksi"
+                    class="px-4 py-2 text-sm font-medium text-white bg-[#0d9296] border border-transparent rounded-md hover:bg-[#0b7c80]">Kirim
+                    Usulan</button>
             </div>
         </div>
     </div>
 
     <!-- Success toast -->
-    @if(session('success'))
-    <div id="koreksiToast" class="fixed top-6 right-6 z-[10001] bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-medium text-sm flex items-center gap-2 transition-opacity duration-300">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        {{ session('success') }}
-    </div>
-    <script>
-        setTimeout(() => { const t = document.getElementById('koreksiToast'); if (t) { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); } }, 4000);
-    </script>
+    @if (session('success'))
+        <div id="koreksiToast"
+            class="fixed top-6 right-6 z-[10001] bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-medium text-sm flex items-center gap-2 transition-opacity duration-300">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+            </svg>
+            {{ session('success') }}
+        </div>
+        <script>
+            setTimeout(() => {
+                const t = document.getElementById('koreksiToast');
+                if (t) {
+                    t.style.opacity = '0';
+                    setTimeout(() => t.remove(), 300);
+                }
+            }, 4000);
+        </script>
     @endif
 </body>
 
