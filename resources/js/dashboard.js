@@ -2,7 +2,7 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import TomSelect from "tom-select";
 import "tom-select/dist/css/tom-select.default.css";
-import { fetchPulau, fetchProvinsi } from "./wilayah";
+import { fetchPulau, fetchProvinsi, fetchKabupaten, fetchKecamatan } from "./wilayah";
 
 const tomSelectInstances = {};
 
@@ -19,7 +19,6 @@ const TABLE_PAGE_SIZE = 20;
 const SEARCH_DEBOUNCE_MS = 300;
 
 let schools = [];
-let regionTree = {};
 let nationalTotals = { sekolah: 0, siswa: 0 };
 
 let map, clusterGroup, aggregatedLayer, summaryLayer;
@@ -105,24 +104,6 @@ function mapSekolahRecord(row) {
         lng: parseFloat(row.longitude),
         murid: parseInt(row.total_siswa, 10) || 0,
     };
-}
-
-async function fetchWilayah() {
-    try {
-        const res = await fetch("/api/wilayah");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const ct = res.headers.get("content-type") || "";
-        if (!ct.includes("application/json")) {
-            throw new Error("Response bukan JSON (kemungkinan HTML error)");
-        }
-        return await res.json();
-    } catch (err) {
-        console.error(
-            "[SatuPeta] Gagal memuat data wilayah:",
-            err.message || err,
-        );
-        return [];
-    }
 }
 
 async function fetchFilteredSchools(filters) {
@@ -260,33 +241,6 @@ async function updateSummaryCards(pulau) {
         );
         apply(nationalTotals.sekolah, nationalTotals.siswa);
     }
-}
-
-function buildRegionTreeFromWilayah(wilayah) {
-    const tree = {};
-    for (let i = 0; i < wilayah.length; i++) {
-        const w = wilayah[i];
-        const prov = (w.provinsi || "").trim();
-        const kab = (w.kabupaten_kota || "").trim();
-        const kec = (w.kecamatan || "").trim();
-        if (!prov || !kab || !kec) continue;
-
-        if (!tree[prov]) tree[prov] = {};
-        if (!tree[prov][kab]) tree[prov][kab] = {};
-        tree[prov][kab][kec] = true;
-    }
-
-    const provKeys = Object.keys(tree);
-    for (let p = 0; p < provKeys.length; p++) {
-        const kabKeys = Object.keys(tree[provKeys[p]]);
-        for (let k = 0; k < kabKeys.length; k++) {
-            tree[provKeys[p]][kabKeys[k]] = Object.keys(
-                tree[provKeys[p]][kabKeys[k]],
-            ).sort();
-        }
-    }
-
-    return tree;
 }
 
 function buildPopupContent(s) {
@@ -844,12 +798,10 @@ function setSelectEnabled(selectId, enabled) {
     else instance.disable();
 }
 
-let _updatingCascading = false;
+let _cascadeSeq = 0;
 
-function updateCascading(prov, kab) {
-    if (_updatingCascading) return;
-    _updatingCascading = true;
-
+async function loadKabupatenOptions(prov) {
+    const seq = ++_cascadeSeq;
     const kabInstance = tomSelectInstances["filter-kabupaten"];
     const kecInstance = tomSelectInstances["filter-kecamatan"];
 
@@ -861,25 +813,59 @@ function updateCascading(prov, kab) {
     kecInstance.clearOptions();
     kecInstance.addOption({ value: "", text: "Pilih Kecamatan" });
 
-    if (prov && regionTree[prov]) {
-        const kabList = Object.keys(regionTree[prov]).sort();
-        kabInstance.addOptions(kabList.map((k) => ({ value: k, text: k })));
-        kabInstance.enable();
-
-        if (kab && regionTree[prov][kab]) {
-            kabInstance.setValue(kab, true);
-            const kecList = regionTree[prov][kab];
-            kecInstance.addOptions(kecList.map((k) => ({ value: k, text: k })));
-            kecInstance.enable();
-        } else {
-            kecInstance.disable();
-        }
-    } else {
-        kabInstance.disable();
-        kecInstance.disable();
+    if (!prov) {
+        setSelectEnabled("filter-kabupaten", false);
+        setSelectEnabled("filter-kecamatan", false);
+        return;
     }
 
-    _updatingCascading = false;
+    let kabList = [];
+    try {
+        kabList = await fetchKabupaten(prov);
+    } catch (err) {
+        console.error("[SatuPeta] Gagal memuat kabupaten/kota:", err.message || err);
+    }
+    if (seq !== _cascadeSeq) return;
+
+    if (!kabList.length) {
+        setSelectEnabled("filter-kabupaten", false);
+        setSelectEnabled("filter-kecamatan", false);
+        return;
+    }
+
+    kabInstance.addOptions(kabList.map((k) => ({ value: k, text: k })));
+    setSelectEnabled("filter-kabupaten", true);
+    setSelectEnabled("filter-kecamatan", false);
+}
+
+async function loadKecamatanOptions(kab) {
+    const seq = ++_cascadeSeq;
+    const kecInstance = tomSelectInstances["filter-kecamatan"];
+
+    kecInstance.clear();
+    kecInstance.clearOptions();
+    kecInstance.addOption({ value: "", text: "Pilih Kecamatan" });
+
+    if (!kab) {
+        setSelectEnabled("filter-kecamatan", false);
+        return;
+    }
+
+    let kecList = [];
+    try {
+        kecList = await fetchKecamatan(kab);
+    } catch (err) {
+        console.error("[SatuPeta] Gagal memuat kecamatan:", err.message || err);
+    }
+    if (seq !== _cascadeSeq) return;
+
+    if (!kecList.length) {
+        setSelectEnabled("filter-kecamatan", false);
+        return;
+    }
+
+    kecInstance.addOptions(kecList.map((k) => ({ value: k, text: k })));
+    setSelectEnabled("filter-kecamatan", true);
 }
 
 function setSidebarState(state) {
@@ -951,6 +937,7 @@ async function applyFilters() {
 function resetFilters() {
     closeSchoolDetail();
     invalidateFilterCache();
+    _cascadeSeq++;
 
     tomSelectInstances["filter-jenjang"].clear();
     tomSelectInstances["filter-status"].clear();
@@ -1147,9 +1134,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const resultCount = document.getElementById("result-count");
     if (resultCount) resultCount.textContent = "0";
 
-    const wilayah = await fetchWilayah();
-    regionTree = buildRegionTreeFromWilayah(wilayah);
-
     populateSelect(
         "filter-jenjang",
         ["KB", "TK", "SD", "SMP", "SMA/SMK", "Semua"],
@@ -1181,6 +1165,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let pulauRequestSeq = 0;
     tomSelectInstances["filter-pulau"].on("change", async function (value) {
         const seq = ++pulauRequestSeq;
+        _cascadeSeq++;
         let provs = [];
         if (value) {
             try {
@@ -1203,15 +1188,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     tomSelectInstances["filter-provinsi"].on("change", function (value) {
-        updateCascading(value, "");
-        tomSelectInstances["filter-kabupaten"].clear();
-        tomSelectInstances["filter-kecamatan"].clear();
+        loadKabupatenOptions(value);
     });
 
     tomSelectInstances["filter-kabupaten"].on("change", function (value) {
-        const prov = tomSelectInstances["filter-provinsi"].getValue();
-        updateCascading(prov, value);
-        tomSelectInstances["filter-kecamatan"].clear();
+        loadKecamatanOptions(value);
     });
 
     document
