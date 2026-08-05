@@ -125,19 +125,19 @@
 
                 <div class="form-grid col-2">
                     <div class="form-group">
-                        <label for="siswa_laki">Siswa Laki-Laki <span class="required">*</span></label>
+                        <label for="siswa_laki">Murid Laki-Laki <span class="required">*</span></label>
                         <input type="number" id="siswa_laki" name="siswa_laki" min="0"
                             value="{{ old('siswa_laki', $sekolah->siswa_laki ?? 0) }}"
-                            placeholder="Jumlah siswa laki-laki" required>
+                            placeholder="Jumlah murid laki-laki" required>
                         @error('siswa_laki')
                             <span class="input-helper text-danger" style="font-size: 12px;">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="siswa_perempuan">Siswa Perempuan <span class="required">*</span></label>
+                        <label for="siswa_perempuan">Murid Perempuan <span class="required">*</span></label>
                         <input type="number" id="siswa_perempuan" name="siswa_perempuan" min="0"
                             value="{{ old('siswa_perempuan', $sekolah->siswa_perempuan ?? 0) }}"
-                            placeholder="Jumlah siswa perempuan" required>
+                            placeholder="Jumlah murid perempuan" required>
                         @error('siswa_perempuan')
                             <span class="input-helper text-danger" style="font-size: 12px;">{{ $message }}</span>
                         @enderror
@@ -150,7 +150,7 @@
                         <input type="number" id="total_siswa" name="total_siswa"
                             value="{{ old('total_siswa', $sekolah->total_siswa ?? 0) }}"
                             style="background-color: #f3f4f6; cursor: not-allowed;" readonly>
-                        <span class="input-helper text-muted" style="font-size: 12px; display: block; margin-top: 4px;">Terhitung otomatis dari jumlah siswa laki-laki + perempuan</span>
+                        <span class="input-helper text-muted" style="font-size: 12px; display: block; margin-top: 4px;">Terhitung otomatis dari jumlah murid laki-laki + perempuan</span>
                     </div>
                     <div></div>
                 </div>
@@ -216,11 +216,23 @@
                     <span class="input-helper text-warning" style="font-size: 12px; display: block; margin-top: 4px; margin-bottom: 12px;">Tulis alamat lengkap termasuk nama jalan, RT/RW, Kode Pos, dll</span>
                 </div>
 
+                <!-- Cari Lokasi -->
+                <div class="form-group full-width" style="margin-bottom: 16px;">
+                    <label style="font-weight: 600; margin-bottom: 6px; display: block;">Cari Lokasi</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="placeSearch" placeholder="Cari lokasi, misalnya 'Jl. Jamin Ginting'"
+                            style="flex: 1; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; box-sizing: border-box;">
+                        <button type="button" id="btnSearch"
+                            style="padding: 10px 20px; background: #008080; color: #fff; border: none; border-radius: 6px; font-size: 0.875rem; cursor: pointer; white-space: nowrap;">Cari</button>
+                    </div>
+                    <span class="input-helper text-muted" style="font-size: 12px; display: block; margin-top: 6px;">Ketik nama jalan/tempat lalu klik Cari atau tekan Enter. Klik pada peta atau geser marker untuk menyempurnakan koordinat.</span>
+                </div>
+
                 <!-- Peta Interaktif Leaflet -->
                 <div class="form-group full-width" style="margin-bottom: 20px;">
                     <label style="font-weight: 600; margin-bottom: 6px; display: block;">Titik Koordinat Peta <span class="required">*</span></label>
                     <span class="input-helper text-muted" style="font-size: 12px; display: block; margin-bottom: 10px;">Silakan cari lokasi sekolah Anda, perbesar (zoom in), lalu <strong>klik pada titik lokasi bangunan sekolah</strong> untuk mengisi koordinat secara otomatis.</span>
-                    <div id="map" style="height: 350px; border-radius: 8px; border: 1px solid #d1d5db; z-index: 1;"></div>
+                    <div id="map" class="w-full h-64 sm:h-80 md:h-96" style="border-radius: 8px; border: 1px solid #d1d5db; z-index: 1;"></div>
                 </div>
 
                 <!-- Input Koordinat Terisi Otomatis -->
@@ -345,23 +357,61 @@
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
-            let marker;
+            // Center-pinned marker (Gojek/Grab style): the marker stays fixed at the map
+            // center while the map pans beneath it; coordinates sync on moveend.
+            const marker = L.marker(map.getCenter(), { interactive: false }).addTo(map);
 
-            if (latInput.value && lngInput.value) {
-                marker = L.marker([defaultLat, defaultLng]).addTo(map);
+            function setCoordinateInputs(lat, lng) {
+                latInput.value = lat.toFixed(7);
+                lngInput.value = lng.toFixed(7);
             }
 
+            map.on('move', function() {
+                marker.setLatLng(map.getCenter());
+            });
+
+            map.on('moveend', function() {
+                const center = map.getCenter();
+                setCoordinateInputs(center.lat, center.lng);
+            });
+
             map.on('click', function(e) {
-                const lat = e.latlng.lat.toFixed(7);
-                const lng = e.latlng.lng.toFixed(7);
+                map.panTo(e.latlng);
+            });
 
-                latInput.value = lat;
-                lngInput.value = lng;
+            let isSearching = false;
 
-                if (marker) {
-                    marker.setLatLng(e.latlng);
-                } else {
-                    marker = L.marker(e.latlng).addTo(map);
+            async function searchPlace() {
+                const q = document.getElementById('placeSearch').value.trim();
+                if (!q || isSearching) return;
+                isSearching = true;
+                document.getElementById('btnSearch').disabled = true;
+                try {
+                    const res = await fetch(
+                        'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=id&q=' +
+                        encodeURIComponent(q)
+                    );
+                    const results = await res.json();
+                    if (!results.length) {
+                        alert('Lokasi tidak ditemukan.');
+                        return;
+                    }
+                    const lat = parseFloat(results[0].lat);
+                    const lng = parseFloat(results[0].lon);
+                    map.setView([lat, lng], 16);
+                } catch (e) {
+                    alert('Gagal mencari lokasi. Coba lagi.');
+                } finally {
+                    isSearching = false;
+                    document.getElementById('btnSearch').disabled = false;
+                }
+            }
+
+            document.getElementById('btnSearch').addEventListener('click', searchPlace);
+            document.getElementById('placeSearch').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchPlace();
                 }
             });
 

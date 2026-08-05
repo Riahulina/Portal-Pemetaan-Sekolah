@@ -161,7 +161,7 @@
                 <th style="width: 25%">Provinsi</th>
                 <th style="width: 30%">Kabupaten/Kota</th>
                 <th style="width: 20%">Total Sekolah</th>
-                <th style="width: 20%">Total Siswa</th>
+                <th style="width: 20%">Total Murid</th>
             </tr>
         </thead>
         <tbody>

@@ -62,7 +62,7 @@ class SekolahController extends Controller
             return response()->json([]);
         }
 
-        $cacheKey = 'sekolah_map_v5_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
+        $cacheKey = 'sekolah_map_v5_' . md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
 
         $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan, $jenjang, $status) {
             $query = DB::table('sekolah')
@@ -75,6 +75,7 @@ class SekolahController extends Controller
                     'kabupaten_kota',
                     'kecamatan',
                     'kelurahan',
+                    'alamat',
                     'latitude',
                     'longitude'
                 )
@@ -165,7 +166,9 @@ class SekolahController extends Controller
 
         $request->validate([
             'npsn' => [
-                'required', 'string', 'max:10',
+                'required',
+                'string',
+                'max:10',
                 Rule::unique('sekolah_temporary', 'npsn')->whereNull('deleted_at'),
                 Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
             ],
@@ -265,26 +268,16 @@ class SekolahController extends Controller
     {
         $sekolah = SekolahTemporary::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
+        if ($sekolah->status_verifikasi === 'approved') {
+            return back()->with('error', 'Data yang sudah disetujui tidak dapat diedit.');
+        }
+
         // Strip leading zero from phone number before validation
         if ($request->filled('no_telepon')) {
             $request->merge(['no_telepon' => ltrim($request->input('no_telepon'), '0')]);
         }
 
         $request->validate([
-            'npsn' => [
-                'required',
-                'numeric',
-                Rule::unique('sekolah_temporary', 'npsn')
-                    ->ignore($sekolah->id, 'id')
-                    ->where(function ($query) {
-                        $query->whereNull('deleted_at');
-                        $query->where('status_verifikasi', '!=', 'approved');
-                    }),
-                Rule::unique('sekolah', 'npsn')
-                    ->where(function ($query) {
-                        $query->whereNull('deleted_at');
-                    }),
-            ],
             'nama_sekolah' => 'required|string|max:150',
             'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
             'status' => 'required|in:NEGERI,SWASTA',
@@ -305,7 +298,6 @@ class SekolahController extends Controller
 
         // Update data dengan nilai baru dari form
         $sekolah->update([
-            'npsn' => $request->npsn,
             'nama_sekolah' => $request->nama_sekolah,
             'jenjang' => $request->jenjang,
             'status' => $request->status,
@@ -323,9 +315,14 @@ class SekolahController extends Controller
             'siswa_laki' => $request->siswa_laki,
             'siswa_perempuan' => $request->siswa_perempuan,
             'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
-            'status_verifikasi' => 'pending',
-            'catatan_admin' => null,
         ]);
+
+        // Kolom status_verifikasi dan catatan_admin tidak ada di $fillable,
+        // sehingga tidak bisa diubah lewat mass assignment. Hard-assign secara
+        // eksplisit agar status kembali ke 'pending' dan masuk antrean admin.
+        $sekolah->status_verifikasi = 'pending';
+        $sekolah->catatan_admin = null;
+        $sekolah->save();
 
         return redirect()->route('sekolah.index')->with('success', 'Data sekolah berhasil diperbarui.');
     }
