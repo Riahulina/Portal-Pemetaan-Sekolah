@@ -126,11 +126,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | This value determines the classes that can be unserialized from cache
-    | storage. By default, no PHP classes will be unserialized from your
-    | cache to prevent gadget chain attacks if your APP_KEY is leaked.
+    | storage. stdClass is allowed so query-builder rows (DB::table(...)->get())
+    | cached as plain objects can be unserialized correctly. Restricting to
+    | stdClass only still prevents gadget chain attacks from leaked APP_KEY.
     |
     */
 
-    'serializable_classes' => false,
+    'serializable_classes' => ['stdClass'],
 
 ];
