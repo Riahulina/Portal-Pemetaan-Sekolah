@@ -37,7 +37,8 @@
                         </div>
                         <div class="item-text">
                             <h4>Lokasi Kantor</h4>
-                            <p>Jl. Bunga Rinte, Simpang Selayang, Kec. Medan Tuntungan, Kota Medan, Sumatera Utara 20136
+                            <p> LMS SEKOLAH | SAEDIGITAL, Jl. Bunga Rinte, Simpang Selayang, Kec. Medan Tuntungan, Kota
+                                Medan, Sumatera Utara 20136
                             </p>
                         </div>
                     </div>
@@ -53,7 +54,7 @@
                         </div>
                         <div class="item-text">
                             <h4>Email Resmi</h4>
-                            <a href="mailto:hello@SatuPeta.com">hello@SatuPeta.com</a>
+                            <a href="mailto:halo@lmssekolah.com">halo@lmssekolah.com</a>
                         </div>
                     </div>
 
@@ -68,7 +69,7 @@
                         </div>
                         <div class="item-text">
                             <h4>Telepon / WhatsApp</h4>
-                            <a href="https://wa.me/6282138788678" target="_blank">+62 821-3878-8678</a>
+                            <a href="https://wa.me/6281264620118" target="_blank">+62 81264620118 </a>
                         </div>
                     </div>
 
@@ -84,6 +85,7 @@
                         <div class="item-text">
                             <h4>Jam Operasional</h4>
                             <p>Senin - Jumat: 08.00 - 17.00 WIB</p>
+                            <p>Sabtu: 08.00 - 14.00 WIB</p>
                         </div>
                     </div>
                 </div>

@@ -99,7 +99,7 @@ function mapSekolahRecord(row) {
         provinsi: (row.provinsi || "").trim(),
         kabupaten: (row.kabupaten_kota || "").trim(),
         kecamatan: (row.kecamatan || "").trim(),
-        kelurahan: (row.kelurahan || "").trim(),
+        alamat: (row.alamat || "").trim(),
         lat: parseFloat(row.latitude),
         lng: parseFloat(row.longitude),
         murid: parseInt(row.total_siswa, 10) || 0,
@@ -250,7 +250,7 @@ function buildPopupContent(s) {
             ${s.jenjang} &middot; ${s.status}
         </div>
         <div style="font-size:0.85rem;color:#4b5563;">
-            ${s.kelurahan}, ${s.kecamatan}
+            ${s.alamat}, ${s.kecamatan}
         </div>
         <div style="margin-top:6px;display:flex;justify-content:space-between;font-size:0.85rem;">
             <span>Murid Aktif:</span>
@@ -778,7 +778,9 @@ function populateSelect(selectId, options, placeholder) {
     }
     tomSelectInstances[selectId] = new TomSelect(sel, {
         allowEmptyOption: true,
-        controlInput: null,
+        create: false,
+        searchField: ["text"],
+        placeholder: placeholder,
     });
 }
 

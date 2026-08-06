@@ -62,7 +62,7 @@ class SekolahController extends Controller
             return response()->json([]);
         }
 
-        $cacheKey = 'sekolah_map_v5_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
+        $cacheKey = 'sekolah_map_v5_' . md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
 
         $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan, $jenjang, $status) {
             $query = DB::table('sekolah')
@@ -75,6 +75,7 @@ class SekolahController extends Controller
                     'kabupaten_kota',
                     'kecamatan',
                     'kelurahan',
+                    'alamat',
                     'latitude',
                     'longitude'
                 )
@@ -174,7 +175,9 @@ class SekolahController extends Controller
 
         $request->validate([
             'npsn' => [
-                'required', 'string', 'max:10',
+                'required',
+                'string',
+                'max:10',
                 Rule::unique('sekolah_temporary', 'npsn')->whereNull('deleted_at'),
                 Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
             ],
