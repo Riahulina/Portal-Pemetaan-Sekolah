@@ -119,7 +119,7 @@
                                 </svg>
                             </div>
                             <div class="support-item-text">
-                                <strong>0821-3878-8678</strong><br>
+                                <strong>+62 812-6462-0118</strong><br>
                                 <span>Senin - Jumat, 08:30-17:00 WIB<br>Sabtu, 08:30 - 14:00 WIB</span>
                             </div>
                         </div>
@@ -133,7 +133,7 @@
                                 </svg>
                             </div>
                             <div class="support-item-text">
-                                <strong>hello@satupeta.com</strong><br>
+                                <strong>hello@lmssekolah.com</strong><br>
                                 <span>Respons dalam 1 x 24 jam</span>
                             </div>
                         </div>
