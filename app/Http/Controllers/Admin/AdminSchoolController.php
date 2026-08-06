@@ -30,6 +30,7 @@ class AdminSchoolController extends Controller
                 'jenjang' => $sekolah->jenjang,
                 'status' => $sekolah->status ?? 'SWASTA',
                 'akreditasi' => $sekolah->akreditasi,
+                'pulau' => $sekolah->pulau,
                 'provinsi' => $sekolah->provinsi,
                 'kabupaten_kota' => $sekolah->kabupaten_kota,
                 'kecamatan' => $sekolah->kecamatan,

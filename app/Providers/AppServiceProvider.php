@@ -4,11 +4,14 @@ namespace App\Providers;
 
 use App\Models\LaporanKoreksi;
 use App\Models\SekolahTemporary;
+use Illuminate\Cache\RateLimiter\Limit;
 use Illuminate\Database\Events\TransactionBeginning;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('admin', function ($user) {
             return $user->is_admin === true;
+        });
+
+        RateLimiter::for('public_api', function (Request $request) {
+            return Limit::perMinute(120)->by($request->ip());
         });
 
         View::composer('partials.adminSidebar', function ($view) {

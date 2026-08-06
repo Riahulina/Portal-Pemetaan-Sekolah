@@ -374,6 +374,13 @@
                             <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-3">Detail Lokasi</h4>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
+                                    <label class="block text-xs font-medium text-gray-600 mb-1">Pulau</label>
+                                    <select id="edit-pulau" name="pulau"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
+                                        <option value="" disabled>Pilih Pulau</option>
+                                    </select>
+                                </div>
+                                <div>
                                     <label class="block text-xs font-medium text-gray-600 mb-1">Provinsi</label>
                                     <select id="edit-provinsi" name="provinsi"
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#0d9296]/30 focus:border-[#0d9296]">
@@ -479,6 +486,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof window.initWilayahCascade === 'function') {
                 wilayahCascade = window.initWilayahCascade({
+                    pulau: '#edit-pulau',
                     provinsi: '#edit-provinsi',
                     kabupaten: '#edit-kabupaten',
                     kecamatan: '#edit-kecamatan',
@@ -503,11 +511,13 @@
                     this.viewModal = true;
                 },
 
-                openEditModal(data) {
+                async openEditModal(data) {
                     this.editData = { ...data };
                     this.editModal = true;
                     if (wilayahCascade) {
+                        const pulau = data.pulau || (data.provinsi ? await window.wilayahRefApi.fetchPulauByProvinsi(data.provinsi) : '');
                         wilayahCascade.setValues({
+                            pulau: pulau,
                             provinsi: data.provinsi || '',
                             kabupaten: data.kabupaten_kota || '',
                             kecamatan: data.kecamatan || '',

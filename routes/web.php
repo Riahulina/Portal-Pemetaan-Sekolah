@@ -122,10 +122,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 | 4. Rute API Data JSON Peta
 |--------------------------------------------------------------------------
 */
-Route::get('/api/wilayah', [SekolahController::class, 'getWilayah'])->name('sekolah.wilayah');
-Route::get('/api/sekolah/summary', [SekolahController::class, 'getProvinsiSummary'])->name('sekolah.summary');
-Route::get('/api/sekolah', [SekolahController::class, 'apiPeta'])->name('sekolah.api');
-Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail'])->name('sekolah.detail');
+Route::middleware('throttle:public_api')->group(function () {
+    Route::get('/api/wilayah', [SekolahController::class, 'getWilayah'])->name('sekolah.wilayah');
+    Route::get('/api/sekolah/summary', [SekolahController::class, 'getProvinsiSummary'])->name('sekolah.summary');
+    Route::get('/api/sekolah', [SekolahController::class, 'apiPeta'])->name('sekolah.api');
+    Route::get('/api/sekolah/{npsn}/detail', [SekolahController::class, 'getDetail'])->name('sekolah.detail');
+});
 
 /*
 |--------------------------------------------------------------------------

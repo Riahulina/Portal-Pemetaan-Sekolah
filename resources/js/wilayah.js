@@ -35,6 +35,23 @@ export async function fetchKecamatan(kabupaten) {
     return (await apiGet("/kecamatan", { kabupaten })).map((row) => row.nama);
 }
 
+let provinsiPulauMapCache = null;
+
+export async function fetchPulauByProvinsi(provinsi) {
+    if (!provinsi) return "";
+    if (!provinsiPulauMapCache) {
+        const rows = await apiGet("/provinsi");
+        provinsiPulauMapCache = new Map(
+            rows.map((row) => [normalizeName(row.nama), row.pulau]),
+        );
+    }
+    return provinsiPulauMapCache.get(normalizeName(provinsi)) || "";
+}
+
+function normalizeName(value) {
+    return String(value || "").toLowerCase().trim();
+}
+
 function toElement(selector) {
     if (typeof selector === "string") return document.querySelector(selector);
     return selector;
@@ -115,12 +132,15 @@ export function initWilayahCascade(config = {}) {
     async function loadProvinsi() {
         const isFresh = fresh();
         let names = [];
-        try {
-            names = config.fetchProvinsi
-                ? await config.fetchProvinsi(state.pulau)
-                : await fetchProvinsi(state.pulau);
-        } catch (error) {
-            console.error("[wilayah] Gagal memuat daftar provinsi:", error);
+        const pulauRequired = pulauSelect && !state.pulau;
+        if (!pulauRequired) {
+            try {
+                names = config.fetchProvinsi
+                    ? await config.fetchProvinsi(state.pulau)
+                    : await fetchProvinsi(state.pulau);
+            } catch (error) {
+                console.error("[wilayah] Gagal memuat daftar provinsi:", error);
+            }
         }
         if (!isFresh()) return;
 
@@ -251,6 +271,6 @@ export function initWilayahCascade(config = {}) {
 }
 
 if (typeof window !== "undefined") {
-    window.wilayahRefApi = { fetchPulau, fetchProvinsi, fetchKabupaten, fetchKecamatan };
+    window.wilayahRefApi = { fetchPulau, fetchProvinsi, fetchKabupaten, fetchKecamatan, fetchPulauByProvinsi };
     window.initWilayahCascade = initWilayahCascade;
 }

@@ -115,6 +115,28 @@ class SekolahController extends Controller
     public function getDetail(string $npsn)
     {
         $sekolah = DB::table('sekolah')
+            ->select([
+                'npsn',
+                'nama_sekolah',
+                'jenjang',
+                'status',
+                'akreditasi',
+                'provinsi',
+                'kabupaten_kota',
+                'kecamatan',
+                'kelurahan',
+                'alamat',
+                'latitude',
+                'longitude',
+                'no_telepon',
+                'email',
+                'social_media',
+                'yayasan',
+                'total_siswa',
+                'jumlah_siswa_perempuan',
+                'jumlah_siswa_laki_laki',
+                'gambar_url',
+            ])
             ->where('npsn', $npsn)
             ->whereNull('deleted_at')
             ->first();
@@ -185,6 +207,7 @@ class SekolahController extends Controller
             'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
             'status' => 'required|in:NEGERI,SWASTA',
             'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
+            'pulau' => 'required|string|max:100',
             'provinsi' => 'required|string|max:100',
             'kabupaten_kota' => 'required|string|max:100',
             'kecamatan' => 'required|string|max:100',
@@ -207,6 +230,7 @@ class SekolahController extends Controller
                 'jenjang' => $request->jenjang,
                 'status' => $request->status,
                 'akreditasi' => $request->akreditasi,
+                'pulau' => $request->pulau,
                 'provinsi' => $request->provinsi,
                 'kabupaten_kota' => $request->kabupaten_kota,
                 'kecamatan' => $request->kecamatan,
@@ -291,6 +315,7 @@ class SekolahController extends Controller
             'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
             'status' => 'required|in:NEGERI,SWASTA',
             'akreditasi' => 'required|in:A,B,C,Tidak Terakreditasi',
+            'pulau' => 'required|string|max:100',
             'provinsi' => 'required|string|max:100',
             'kabupaten_kota' => 'required|string|max:100',
             'kecamatan' => 'required|string|max:100',
@@ -311,6 +336,7 @@ class SekolahController extends Controller
             'jenjang' => $request->jenjang,
             'status' => $request->status,
             'akreditasi' => $request->akreditasi,
+            'pulau' => $request->pulau,
             'provinsi' => $request->provinsi,
             'kabupaten_kota' => $request->kabupaten_kota,
             'kecamatan' => $request->kecamatan,
