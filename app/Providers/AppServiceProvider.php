@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Models\LaporanKoreksi;
 use App\Models\SekolahTemporary;
-use Illuminate\Cache\RateLimiter\Limit;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
