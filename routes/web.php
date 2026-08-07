@@ -34,39 +34,43 @@ Route::get('/dashboard', function () {
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Route Dashboard User (Sudah diarahkan ke DashboardUserController)
-    Route::get('/user/dashboard', [DashboardUserController::class, 'index'])->name('dashboard.user');
+    // Rute yang membutuhkan profil lengkap (non-admin harus punya no. telepon)
+    Route::middleware('profile.completed')->group(function () {
 
-    // --- MANAJEMEN DATA SEKOLAH USER ---
-    // A. Halaman TABEL Daftar Sekolah Saya
-    Route::get('/sekolah-saya', [SekolahController::class, 'index'])->name('sekolah.index');
+        // Route Dashboard User (Sudah diarahkan ke DashboardUserController)
+        Route::get('/user/dashboard', [DashboardUserController::class, 'index'])->name('dashboard.user');
 
-    // B. Halaman FORMULIR Pendaftaran Sekolah (Ubah href tombol kamu di dashboardUser ke route ini)
-    Route::get('/user/Form', function () {
-        return view('User.Form');
-    })->name('Form.user');
+        // --- MANAJEMEN DATA SEKOLAH USER ---
+        // A. Halaman TABEL Daftar Sekolah Saya
+        Route::get('/sekolah-saya', [SekolahController::class, 'index'])->name('sekolah.index');
 
-    // C. PROSES SIMPAN Data Form ke Database (POST)
-    Route::post('/user/form/store', [SekolahController::class, 'store'])->name('sekolah.store');
+        // B. Halaman FORMULIR Pendaftaran Sekolah (Ubah href tombol kamu di dashboardUser ke route ini)
+        Route::get('/user/Form', function () {
+            return view('User.Form');
+        })->name('Form.user');
 
-    // D. Halaman STATUS STEPPER Verifikasi (dengan optional ID untuk navigasi dari tabel)
-    Route::get('/user/status-verifikasi/{id?}', [SekolahController::class, 'statusVerifikasi'])->name('status.user');
+        // C. PROSES SIMPAN Data Form ke Database (POST)
+        Route::post('/user/form/store', [SekolahController::class, 'store'])->name('sekolah.store');
 
-    // E. Halaman Form Edit (Menampilkan data lama)
-    Route::get('/sekolah/edit/{id}', [SekolahController::class, 'edit'])->name('sekolah.edit');
+        // D. Halaman STATUS STEPPER Verifikasi (dengan optional ID untuk navigasi dari tabel)
+        Route::get('/user/status-verifikasi/{id?}', [SekolahController::class, 'statusVerifikasi'])->name('status.user');
 
-    // F. Proses Simpan Perubahan Data (PUT/PATCH)
-    Route::put('/sekolah/update/{id}', [SekolahController::class, 'update'])->name('sekolah.update');
+        // E. Halaman Form Edit (Menampilkan data lama)
+        Route::get('/sekolah/edit/{id}', [SekolahController::class, 'edit'])->name('sekolah.edit');
 
-    // G. Proses Hapus Data Pengajuan (DELETE)
-    Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
+        // F. Proses Simpan Perubahan Data (PUT/PATCH)
+        Route::put('/sekolah/update/{id}', [SekolahController::class, 'update'])->name('sekolah.update');
 
-    // H. Laporan Koreksi Data Sekolah
-    Route::post('/laporan-koreksi', [LaporanKoreksiController::class, 'store'])
-        ->name('laporan.store')
-        ->middleware('throttle:5,1');
+        // G. Proses Hapus Data Pengajuan (DELETE)
+        Route::delete('/sekolah/hapus/{id}', [SekolahController::class, 'destroy'])->name('sekolah.destroy');
 
-    Route::get('/riwayat-usulan', [LaporanKoreksiController::class, 'index'])->name('laporan.index');
+        // H. Laporan Koreksi Data Sekolah
+        Route::post('/laporan-koreksi', [LaporanKoreksiController::class, 'store'])
+            ->name('laporan.store')
+            ->middleware('throttle:5,1');
+
+        Route::get('/riwayat-usulan', [LaporanKoreksiController::class, 'index'])->name('laporan.index');
+    });
 
     // Rute Profile Akun
     Route::get('/user/profile', [DashboardUserController::class, 'profile'])->name('profile.user');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\EnsureProfileCompleted;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetRlsContext;
 use Illuminate\Foundation\Application;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'profile.completed' => EnsureProfileCompleted::class,
         ]);
 
         $middleware->web(append: [
