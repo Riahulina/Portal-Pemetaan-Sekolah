@@ -8,6 +8,7 @@
     <title>SatuPeta — Dashboard</title>
 
     <title>Satu Peta — Peta Pendidikan Indonesia</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/logo.png') }}?v=2">
 
     @fonts
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>

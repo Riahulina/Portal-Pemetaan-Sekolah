@@ -35,174 +35,109 @@
         </div>
     </div>
 
-    <!-- SECTION TIM PENGEMBANG -->
-    <section id="tentang" class="dev-section">
+
+    <!-- ============================================= -->
+    <!-- SECTION: PENGEMBANG / CORE TEAM (MAP-PIN STYLE) -->
+    <!-- Tempel section ini menggantikan section dev-section lama kamu -->
+    <!-- Ganti src foto di .dev-pin-inner img dengan foto asli tiap orang -->
+    <!-- ============================================= -->
+
+    <section class="dev-section" id="pengembang">
         <div class="dev-container">
 
-            <!-- Header Section -->
             <div class="dev-header">
-                <span class="dev-badge">Tim Pengembang</span>
-                <h2 class="dev-title">Sosok Di Balik <span>SatuPeta</span></h2>
+
+                <h2 class="dev-title">Tim Pengembang <span>Satu Peta</span></h2>
                 <p class="dev-subtitle">
-                    Tim pengembang di balik visualisasi dan pemetaan data pendidikan Indonesia.
+                    Dibangun oleh tim pengembang yang berfokus pada inovasi, kolaborasi, dan teknologi untuk
+                    menghadirkan platform pemetaan pendidikan Indonesia yang akurat dan bermanfaat.
                 </p>
             </div>
 
-            <!-- Grid 3 Developer -->
-            <div class="dev-grid">
+            <div class="dev-map-row">
 
-                <!-- Developer 1 -->
-                <div class="dev-card">
-                    <div class="dev-avatar-wrapper">
-                        <img src="https://ui-avatars.com/api/?name=Riah+Ulina+Hutasoit&background=0d7a75&color=fff&size=200"
-                            alt="Riah Ulina Hutasoit" class="dev-avatar">
+                <svg class="dev-route" viewBox="0 0 1420 340" preserveAspectRatio="none">
+                    <path d="M 236 175 C 400 60, 520 60, 710 130 C 900 200, 1020 200, 1184 190" fill="none"
+                        stroke="#f2a53e" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" />
+                    <circle cx="236" cy="175" r="4" fill="#f2a53e" />
+                    <circle cx="710" cy="130" r="4" fill="#f2a53e" />
+                    <circle cx="1184" cy="190" r="4" fill="#f2a53e" />
+                </svg>
+
+                <!-- PIN 01 -->
+                <div class="dev-pin-wrap p1">
+                    <div class="dev-pin-num"><span class="dash"></span>PENGEMBANG 1</div>
+                    <div class="dev-pin">
+                        <div class="dev-pin-inner">
+                            <img class="dev-img-riah" src="{{ asset('assets/riahtes.png') }}" alt="Riah Ulina">
+                        </div>
                     </div>
-                    <h3 class="dev-name">Riah Ulina Hutasoit</h3>
-                    <p class="dev-instansi">Politeknik Negeri Medan</p>
+                    <div class="dev-pin-shadow"></div>
+                    <div class="dev-info">
+                        <div class="dev-name">Riah Ulina Hutasoit</div>
+                        <div class="dev-role">UI/UX • Frontend • Backend</div>
+                        <div class="dev-coord">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" />
+                            </svg>
+                            Politeknik Negeri Medan
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Developer 2 -->
-                <div class="dev-card">
-                    <div class="dev-avatar-wrapper">
-                        <img src="https://ui-avatars.com/api/?name=Nama+Developer+2&background=0d7a75&color=fff&size=200"
-                            alt="Nama Developer 2" class="dev-avatar">
+                <!-- PIN 02 -->
+                <div class="dev-pin-wrap p2">
+                    <div class="dev-pin-num"><span class="dash"></span>FOUNDER SAE DIGITAL AKADEMI</div>
+                    <div class="dev-pin">
+                        <div class="dev-pin-inner">
+                            <img class="dev-img-sugi" src="{{ asset('assets/sugites.png') }}" alt="Sugianto">
+                        </div>
                     </div>
-                    <h3 class="dev-name">Nama Developer 2</h3>
-                    <p class="dev-instansi">Politeknik Negeri Medan</p>
+                    <div class="dev-pin-shadow"></div>
+                    <div class="dev-info">
+                        <div class="dev-name">Sugianto, S.T., M.Kom.</div>
+
+                        <div class="dev-coord">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" />
+                            </svg>
+                            Sae Digital Akademi Medan
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Developer 3 -->
-                <div class="dev-card">
-                    <div class="dev-avatar-wrapper">
-                        <img src="https://ui-avatars.com/api/?name=Nama+Developer+3&background=0d7a75&color=fff&size=200"
-                            alt="Nama Developer 3" class="dev-avatar">
+                <!-- PIN 03 -->
+                <div class="dev-pin-wrap p3">
+                    <div class="dev-pin-num"><span class="dash"></span>PENGEMBANG 2</div>
+                    <div class="dev-pin">
+                        <div class="dev-pin-inner">
+                            <img class="dev-img-yedith" src="{{ asset('assets/yedithtes.png') }}" alt="Yedith Yah">
+                        </div>
                     </div>
-                    <h3 class="dev-name">Nama Developer 3</h3>
-                    <p class="dev-instansi">Politeknik Negeri Medan</p>
+                    <div class="dev-pin-shadow"></div>
+                    <div class="dev-info">
+                        <div class="dev-name">Yedith Yah Jeconiah Purba</div>
+                        <div class="dev-role">Data Management • Frontend • Backend</div>
+                        <div class="dev-coord">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" />
+                            </svg>
+                            Politeknik Negeri Medan
+                        </div>
+
+                    </div>
                 </div>
 
             </div>
         </div>
     </section>
 
-    <!-- CSS PENGEMBANG (FOTO KOTAK & TIDAK MEPET) -->
-    <style>
-        .dev-section {
-            padding: 70px 20px 90px 20px !important;
-            /* Spasi atas & bawah agar lega dari banner bawah */
-            background-color: #ffffff;
-            font-family: 'Inter', sans-serif;
-        }
 
-        .dev-container {
-            max-width: 1040px;
-            margin: 0 auto;
-        }
-
-        /* Header Section */
-        .dev-header {
-            text-align: center;
-            max-width: 600px;
-            margin: 0 auto 40px auto;
-        }
-
-        .dev-badge {
-            background-color: rgba(13, 122, 117, 0.1);
-            color: #0d7a75;
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-
-        .dev-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-
-        .dev-title span {
-            color: #0d7a75;
-        }
-
-        .dev-subtitle {
-            font-size: 14px;
-            color: #64748b;
-            line-height: 1.5;
-        }
-
-        /* Grid Layout 3 Kolom */
-        .dev-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        /* Card Styling */
-        .dev-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .dev-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(13, 122, 117, 0.12);
-            border-color: #0d7a75;
-        }
-
-        /* Foto Kotak Rounded */
-        .dev-avatar-wrapper {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            /* Membuat bingkai kotak sempurna */
-            max-width: 200px;
-            margin: 0 auto 16px auto;
-            border-radius: 12px;
-            /* Melengkung halus di sudut kotak */
-            overflow: hidden;
-            border: 2px solid #e2e8f0;
-        }
-
-        .dev-avatar {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-
-        /* Informasi Nama & Instansi */
-        .dev-name {
-            font-size: 17px;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0 0 6px 0;
-        }
-
-        .dev-instansi {
-            font-size: 13px;
-            font-weight: 500;
-            color: #0d7a75;
-            margin: 0;
-        }
-
-        /* Responsive HP */
-        @media (max-width: 768px) {
-            .dev-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-    </style>
 
     <!-- STATS BAND -->
     <div class="stats-band">
