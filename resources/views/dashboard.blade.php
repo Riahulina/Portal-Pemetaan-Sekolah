@@ -69,7 +69,16 @@
                         <option value="">Pilih Kecamatan</option>
                     </select>
                 </div>
-                <button id="btn-terapkan" class="btn-apply">Terapkan Filter</button>
+                <button id="btn-terapkan" class="btn-apply">
+                    <span class="btn-text">
+                        Terapkan Filter
+                    </span>
+
+                    <span class="btn-loading" style="display:none;">
+                        <span class="loading-spinner"></span>
+                        Memuat...
+                    </span>
+                </button>
                 <button id="btn-reset" class="btn-reset">Mulai Ulang</button>
                 <a href="/"> <button class="btn-back">Kembali Kehalaman Utama</button></a>
             </div>
@@ -118,7 +127,8 @@
                     <div id="stat-cards">
                         <div class="stat-card">
                             <div class="stat-card__inner">
-                                <img src="{{ asset('assets/iconsekolah.png') }}" alt="" class="stat-card__icon">
+                                <img src="{{ asset('assets/iconsekolah.png') }}" alt=""
+                                    class="stat-card__icon">
                                 <div class="stat-card__value" id="total-sekolah">0</div>
                             </div>
                             <div class="stat-card__label">Total Sekolah Terdaftar</div>
