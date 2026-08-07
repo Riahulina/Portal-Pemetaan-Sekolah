@@ -162,6 +162,14 @@
 
                 <div class="form-grid col-2">
                     <div class="form-group">
+                        <label for="pulau">Pulau <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select id="pulau" name="pulau" required>
+                                <option value="" disabled>Pilih Pulau</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="provinsi">Provinsi <span class="required">*</span></label>
                         <div class="select-wrapper">
                             <select id="provinsi" name="provinsi" required>
@@ -260,10 +268,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof window.initWilayahCascade === 'function') {
                 window.initWilayahCascade({
+                    pulau: '#pulau',
                     provinsi: '#provinsi',
                     kabupaten: '#kabupaten_kota',
                     kecamatan: '#kecamatan',
                     initial: {
+                        pulau: {{ Js::from(old('pulau', $sekolah->pulau ?? '')) }},
                         provinsi: {{ Js::from(old('provinsi', $sekolah->provinsi ?? '')) }},
                         kabupaten: {{ Js::from(old('kabupaten_kota', $sekolah->kabupaten_kota ?? '')) }},
                         kecamatan: {{ Js::from(old('kecamatan', $sekolah->kecamatan ?? '')) }},

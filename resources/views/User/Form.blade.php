@@ -368,6 +368,18 @@
 
                         <div class="form-grid col-2">
                             <div class="form-group">
+                                <label for="pulau">Pulau <span class="required">*</span></label>
+                                <div class="select-wrapper">
+                                    <select id="pulau" name="pulau" required>
+                                        <option value="" disabled>Pilih Pulau</option>
+                                    </select>
+                                </div>
+                                @error('pulau')
+                                    <span class="text-danger"
+                                        style="color: #ef4444; font-size: 12px;">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="form-group">
                                 <label for="provinsi">Provinsi <span class="required">*</span></label>
                                 <div class="select-wrapper">
                                     <select id="provinsi" name="provinsi" required>
@@ -495,13 +507,19 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             if (typeof window.initWilayahCascade === 'function') {
+                const savedPulau = {{ Js::from(old('pulau', $sekolah->pulau ?? '')) }};
+                const provinsi = {{ Js::from(old('provinsi', $sekolah->provinsi ?? '')) }};
+                const pulau = savedPulau || (provinsi ? await window.wilayahRefApi.fetchPulauByProvinsi(provinsi) : '');
+
                 window.initWilayahCascade({
+                    pulau: '#pulau',
                     provinsi: '#provinsi',
                     kabupaten: '#kabupaten_kota',
                     kecamatan: '#kecamatan',
                     initial: {
+                        pulau: pulau,
                         provinsi: {{ Js::from(old('provinsi', $sekolah->provinsi ?? '')) }},
                         kabupaten: {{ Js::from(old('kabupaten_kota', $sekolah->kabupaten_kota ?? '')) }},
                         kecamatan: {{ Js::from(old('kecamatan', $sekolah->kecamatan ?? '')) }},

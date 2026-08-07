@@ -20,8 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
         ]);
 
-        $middleware->trustProxies(at: '*');
-
         $middleware->web(append: [
             SetRlsContext::class,
             SecurityHeaders::class,

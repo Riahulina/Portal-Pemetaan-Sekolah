@@ -67,6 +67,7 @@ class AdminSekolahController extends Controller
             'jenjang' => 'nullable|string|max:20',
             'status' => 'nullable|string|max:20|in:NEGERI,SWASTA',
             'akreditasi' => 'nullable|string|max:5',
+            'pulau' => 'required|string|max:100',
             'provinsi' => 'nullable|string|max:100',
             'kabupaten_kota' => 'nullable|string|max:100',
             'kecamatan' => 'nullable|string|max:100',

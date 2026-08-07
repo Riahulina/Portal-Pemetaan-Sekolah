@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('ref')->name('ref.')->group(function () {
+Route::middleware('throttle:public_api')->prefix('ref')->name('ref.')->group(function () {
     Route::get('/pulau', [RefWilayahController::class, 'pulau'])->name('pulau');
     Route::get('/provinsi', [RefWilayahController::class, 'provinsi'])->name('provinsi');
     Route::get('/kabupaten', [RefWilayahController::class, 'kabupaten'])->name('kabupaten');
