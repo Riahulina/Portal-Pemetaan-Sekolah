@@ -906,55 +906,67 @@ async function applyFilters() {
     btnText.style.display = "none";
     btnLoading.style.display = "flex";
 
-    closeSchoolDetail();
-    invalidateFilterCache();
-    detailLayer.clearLayers();
-    _detailMarkerSchoolId = null;
+    try {
+        closeSchoolDetail();
+        invalidateFilterCache();
+        detailLayer.clearLayers();
+        _detailMarkerSchoolId = null;
 
-    const filters = {
-        pulau: tomSelectInstances["filter-pulau"].getValue(),
-        jenjang: tomSelectInstances["filter-jenjang"].getValue(),
-        status: tomSelectInstances["filter-status"].getValue(),
-        provinsi: tomSelectInstances["filter-provinsi"].getValue(),
-        kabupaten: tomSelectInstances["filter-kabupaten"].getValue(),
-        kecamatan: tomSelectInstances["filter-kecamatan"].getValue(),
-    };
+        const filters = {
+            pulau: tomSelectInstances["filter-pulau"].getValue(),
+            jenjang: tomSelectInstances["filter-jenjang"].getValue(),
+            status: tomSelectInstances["filter-status"].getValue(),
+            provinsi: tomSelectInstances["filter-provinsi"].getValue(),
+            kabupaten: tomSelectInstances["filter-kabupaten"].getValue(),
+            kecamatan: tomSelectInstances["filter-kecamatan"].getValue(),
+        };
 
-    currentFilters = Object.fromEntries(
-        Object.entries(filters).filter(([_, v]) => v && v !== "Semua"),
-    );
-    pendingPopupSchoolId = null;
+        currentFilters = Object.fromEntries(
+            Object.entries(filters).filter(([_, v]) => v && v !== "Semua"),
+        );
+        pendingPopupSchoolId = null;
 
-    if (!hasRegionFilter(currentFilters)) {
-        schools = [];
+        if (!hasRegionFilter(currentFilters)) {
+            schools = [];
+            summaryLayer.clearLayers();
+            renderAggregatedMarkers(schools);
+            updateSummaryCards(currentFilters.pulau || "");
+            updateLegend(filters.jenjang);
+            renderTable(schools);
+            map.setView([-2.5, 118.0], 5);
+
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            btnLoading.style.display = "none";
+            return;
+        }
+
         summaryLayer.clearLayers();
-        renderAggregatedMarkers(schools);
-        updateSummaryCards(currentFilters.pulau || "");
+        const resultCount = document.getElementById("result-count");
+        if (resultCount) resultCount.textContent = "Memuat...";
+        schools = await fetchFilteredSchools(currentFilters);
+
+        renderMarkers(schools);
+        if (schools.length > 0) {
+            const midLat =
+                schools.reduce((s, x) => s + x.lat, 0) / schools.length;
+            const midLng =
+                schools.reduce((s, x) => s + x.lng, 0) / schools.length;
+            map.setView([midLat, midLng], schools.length === 1 ? 15 : 10);
+        }
+
+        updateStatCards(schools);
         updateLegend(filters.jenjang);
         renderTable(schools);
-        map.setView([-2.5, 118.0], 5);
-        return;
+
+        btn.disabled = false;
+        btnText.style.display = "inline";
+        btnLoading.style.display = "none";
+    } finally {
+        btn.disabled = false;
+        btnText.style.display = "inline";
+        btnLoading.style.display = "none";
     }
-
-    summaryLayer.clearLayers();
-    const resultCount = document.getElementById("result-count");
-    if (resultCount) resultCount.textContent = "Memuat...";
-    schools = await fetchFilteredSchools(currentFilters);
-
-    renderMarkers(schools);
-    if (schools.length > 0) {
-        const midLat = schools.reduce((s, x) => s + x.lat, 0) / schools.length;
-        const midLng = schools.reduce((s, x) => s + x.lng, 0) / schools.length;
-        map.setView([midLat, midLng], schools.length === 1 ? 15 : 10);
-    }
-
-    updateStatCards(schools);
-    updateLegend(filters.jenjang);
-    renderTable(schools);
-
-    btn.disabled = false;
-    btnText.style.display = "inline";
-    btnLoading.style.display = "none";
 }
 
 function resetFilters() {
