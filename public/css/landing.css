@@ -1230,7 +1230,7 @@ footer ul li a:hover {
 =========================== */
 
 .dev-section {
-    padding: 40px 20px 50px;
+    padding: 40px 20px 20px;
     background: #fff;
     overflow: hidden;
     position: relative;
@@ -1449,6 +1449,7 @@ footer ul li a:hover {
     color: #64748b;
 
     font-family: "Space Mono", monospace;
+    margin-bottom: 25px;
 }
 
 .dev-coord svg {
