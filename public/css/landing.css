@@ -1223,3 +1223,261 @@ footer ul li a:hover {
         min-height: 300px;
     }
 }
+
+//Pengembang
+   /* ===========================
+   DEV SECTION
+=========================== */
+
+.dev-section {
+    padding: 40px 20px 50px;
+    background: #fff;
+    overflow: hidden;
+    position: relative;
+    font-family: "Inter", sans-serif;
+}
+
+.dev-container {
+    max-width: 1200px;
+    margin: auto;
+    position: relative;
+}
+
+.dev-header {
+    max-width: 600px;
+    margin: 0 auto 10px;
+    text-align: center;
+}
+
+.dev-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 14px;
+}
+
+.dev-title span {
+    color: #f2a53e;
+}
+
+.dev-subtitle {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.7;
+}
+
+/* ===========================
+   MAP
+=========================== */
+
+.dev-map-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: flex-start;
+    padding-top: 40px;
+}
+
+.dev-route {
+    position: absolute;
+    top: 25px;
+    left: 0;
+    width: 100%;
+    height: 220px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.dev-pin-wrap {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dev-pin-wrap.p1 {
+    margin-top: 18px;
+}
+
+.dev-pin-wrap.p2 {
+    margin-top: -18px;
+}
+
+.dev-pin-wrap.p3 {
+    margin-top: 18px;
+}
+
+/* ===========================
+   PIN NUMBER
+=========================== */
+
+.dev-pin-num {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 10px;
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+
+    color: #dd8b1f;
+    font-family: "Space Mono", monospace;
+}
+
+.dev-pin-num .dash {
+    width: 18px;
+    height: 1px;
+    background: #f2a53e;
+}
+
+/* ===========================
+   PIN
+=========================== */
+
+.dev-pin {
+    width: 150px;
+    height: 150px;
+
+    transform: rotate(-45deg);
+
+    border-radius: 50% 50% 50% 0;
+
+    overflow: hidden;
+
+    border: 5px solid #fff;
+
+    background: #0d7a75;
+
+    box-shadow: 0 15px 28px rgba(13, 122, 117, 0.25);
+
+    margin-bottom: 34px;
+}
+
+.dev-pin-inner {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transform: rotate(45deg) scale(1.5);
+}
+
+.dev-pin-inner img {
+    width: 120%;
+    height: 120%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1);
+}
+
+.dev-img-riah {
+    transform: scale(1);
+    object-position: center 8%;
+}
+.dev-img-sugi {
+    transform: scale(1);
+    object-position: center 1%;
+}
+.dev-img-yedith {
+    transform: scale(1);
+    object-position: center 8%;
+}
+
+/* ===========================
+   SHADOW
+=========================== */
+
+.dev-pin-shadow {
+    width: 60px;
+    height: 10px;
+
+    background: rgba(13, 122, 117, 0.18);
+
+    border-radius: 50%;
+
+    margin-top: -25px;
+
+    filter: blur(2px);
+}
+
+/* ===========================
+   INFO
+=========================== */
+
+.dev-info {
+    margin-top: 10px;
+    text-align: center;
+    max-width: 220px;
+}
+
+.dev-name {
+    font-family: "Fraunces", serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 5px;
+}
+
+.dev-role {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0d7a75;
+    margin-bottom: 10px;
+}
+
+.dev-coord {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 5px 12px;
+
+    border-radius: 30px;
+
+    border: 1px solid #e5e7eb;
+
+    background: #fff;
+
+    font-size: 10px;
+
+    color: #64748b;
+
+    font-family: "Space Mono", monospace;
+}
+
+.dev-coord svg {
+    width: 10px;
+    height: 10px;
+    fill: #f2a53e;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width: 900px) {
+    .dev-map-row {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .dev-route {
+        display: none;
+    }
+
+    .dev-pin-wrap.p1,
+    .dev-pin-wrap.p2,
+    .dev-pin-wrap.p3 {
+        margin-top: 0;
+    }
+
+    .dev-title {
+        font-size: 28px;
+    }
+}

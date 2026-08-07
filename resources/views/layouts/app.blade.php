@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'SatuPeta')</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('assets/logo.png') }}?v=3">
+
     <!-- 1. CSS Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 

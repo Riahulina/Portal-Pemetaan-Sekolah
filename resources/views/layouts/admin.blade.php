@@ -5,7 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Panel') - SatuPeta</title>
+<<<<<<< Updated upstream
     @vite(['resources/css/app.css', 'resources/js/wilayah.js'])
+=======
+    <link rel="icon" type="image/png" href="{{ asset('assets/logo.png') }}?v=3">
+    @vite(['resources/css/app.css'])
+>>>>>>> Stashed changes
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {{-- Leaflet CSS & JS --}}
@@ -24,7 +29,8 @@
     @yield('styles')
 </head>
 
-<body class="bg-gray-50 font-sans text-gray-900 min-h-screen" x-data="{ sidebarOpen: false }" :class="{ 'overflow-hidden lg:overflow-auto': sidebarOpen }">
+<body class="bg-gray-50 font-sans text-gray-900 min-h-screen" x-data="{ sidebarOpen: false }"
+    :class="{ 'overflow-hidden lg:overflow-auto': sidebarOpen }">
 
     <div class="flex min-h-screen">
 
@@ -39,7 +45,8 @@
                     <button @click="sidebarOpen = !sidebarOpen"
                         class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
                         <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
                     <h1 class="text-xl font-bold text-gray-900">@yield('title', 'Admin Panel')</h1>

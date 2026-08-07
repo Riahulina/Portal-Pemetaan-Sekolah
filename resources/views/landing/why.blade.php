@@ -35,6 +35,110 @@
         </div>
     </div>
 
+
+    <!-- ============================================= -->
+    <!-- SECTION: PENGEMBANG / CORE TEAM (MAP-PIN STYLE) -->
+    <!-- Tempel section ini menggantikan section dev-section lama kamu -->
+    <!-- Ganti src foto di .dev-pin-inner img dengan foto asli tiap orang -->
+    <!-- ============================================= -->
+
+    <section class="dev-section" id="pengembang">
+        <div class="dev-container">
+
+            <div class="dev-header">
+
+                <h2 class="dev-title">Tim Pengembang <span>Satu Peta</span></h2>
+                <p class="dev-subtitle">
+                    Dibangun oleh tim pengembang yang berfokus pada inovasi, kolaborasi, dan teknologi untuk
+                    menghadirkan platform pemetaan pendidikan Indonesia yang akurat dan bermanfaat.
+                </p>
+            </div>
+
+            <div class="dev-map-row">
+
+                <svg class="dev-route" viewBox="0 0 1420 340" preserveAspectRatio="none">
+                    <path d="M 236 175 C 400 60, 520 60, 710 130 C 900 200, 1020 200, 1184 190" fill="none"
+                        stroke="#f2a53e" stroke-width="2.5" stroke-dasharray="2 10" stroke-linecap="round" />
+                    <circle cx="236" cy="175" r="4" fill="#f2a53e" />
+                    <circle cx="710" cy="130" r="4" fill="#f2a53e" />
+                    <circle cx="1184" cy="190" r="4" fill="#f2a53e" />
+                </svg>
+
+                <!-- PIN 01 -->
+                <div class="dev-pin-wrap p1">
+                    <div class="dev-pin-num"><span class="dash"></span>PENGEMBANG 1</div>
+                    <div class="dev-pin">
+                        <div class="dev-pin-inner">
+                            <img class="dev-img-riah" src="{{ asset('assets/riahtes.png') }}" alt="Riah Ulina">
+                        </div>
+                    </div>
+                    <div class="dev-pin-shadow"></div>
+                    <div class="dev-info">
+                        <div class="dev-name">Riah Ulina Hutasoit</div>
+                        <div class="dev-role">UI/UX • Frontend • Backend</div>
+                        <div class="dev-coord">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" />
+                            </svg>
+                            Politeknik Negeri Medan
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PIN 02 -->
+                <div class="dev-pin-wrap p2">
+                    <div class="dev-pin-num"><span class="dash"></span>FOUNDER SAE DIGITAL AKADEMI</div>
+                    <div class="dev-pin">
+                        <div class="dev-pin-inner">
+                            <img class="dev-img-sugi" src="{{ asset('assets/sugites.png') }}" alt="Sugianto">
+                        </div>
+                    </div>
+                    <div class="dev-pin-shadow"></div>
+                    <div class="dev-info">
+                        <div class="dev-name">Sugianto, S.T., M.Kom.</div>
+
+                        <div class="dev-coord">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" />
+                            </svg>
+                            Sae Digital Akademi Medan
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- PIN 03 -->
+                <div class="dev-pin-wrap p3">
+                    <div class="dev-pin-num"><span class="dash"></span>PENGEMBANG 2</div>
+                    <div class="dev-pin">
+                        <div class="dev-pin-inner">
+                            <img class="dev-img-yedith" src="{{ asset('assets/yedithtes.png') }}" alt="Yedith Yah">
+                        </div>
+                    </div>
+                    <div class="dev-pin-shadow"></div>
+                    <div class="dev-info">
+                        <div class="dev-name">Yedith Yah Jeconiah Purba</div>
+                        <div class="dev-role">Data Management • Frontend • Backend</div>
+                        <div class="dev-coord">
+                            <svg viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8zm0 11a3 3 0 110-6 3 3 0 010 6z" />
+                            </svg>
+                            Politeknik Negeri Medan
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
     <!-- STATS BAND -->
     <div class="stats-band">
         <div class="container">
@@ -71,7 +175,7 @@
                             <circle cx="12" cy="9" r="2.4" />
                         </svg></div>
                     <div>
-                        <div class="stat-num">10</div>
+                        <div class="stat-num">38</div>
                         <div class="stat-label">Provinsi Terpetakan</div>
                     </div>
                 </div>
