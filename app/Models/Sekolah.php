@@ -88,4 +88,21 @@ class Sekolah extends Model
     {
         return $this->hasMany(LaporanKoreksi::class, 'sekolah_npsn', 'npsn');
     }
+
+    /**
+     * Create the school, or restore a previously soft-deleted record with the
+     * same NPSN instead of colliding with the primary key unique constraint.
+     */
+    public static function createOrRestore(array $attributes): self
+    {
+        $school = static::withTrashed()->find($attributes['npsn']);
+
+        if ($school) {
+            $school->fill($attributes)->restore();
+        } else {
+            $school = static::create($attributes);
+        }
+
+        return $school;
+    }
 }

@@ -68,8 +68,12 @@ class AdminPendaftaranController extends Controller
      */
     public function verifikasi(Request $request, $id)
     {
-        $sekolahTemp = SekolahTemporary::findOrFail($id);
-        $status = $request->input('status'); // 'approved' atau 'rejected'
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected',
+        ]);
+
+        $sekolahTemp = SekolahTemporary::where('id', $id)->where('status_verifikasi', 'pending')->firstOrFail();
+        $status = $validated['status']; // 'approved' atau 'rejected'
 
         if ($status === 'approved') {
             $catatanAdmin = $request->input('catatan_admin', 'Pendaftaran sekolah telah disetujui oleh admin.');
@@ -82,7 +86,7 @@ class AdminPendaftaranController extends Controller
                 ])->save();
 
                 // PROSES COPY DATA: Memindahkan data dari temporary ke tabel sekolah utama
-                $sekolahBaru = Sekolah::create([
+                $sekolahBaru = Sekolah::createOrRestore([
                     'npsn' => $sekolahTemp->npsn,
                     'nama_sekolah' => $sekolahTemp->nama_sekolah,
                     'jenjang' => $sekolahTemp->jenjang,
@@ -117,7 +121,7 @@ class AdminPendaftaranController extends Controller
 
             Cache::forget('admin_dashboard_data');
             Cache::forget('sekolah_wilayah_v2');
-            Cache::forget('sekolah_provinsi_summary_v1');
+            Cache::forget('sekolah_provinsi_summary_v2');
 
             $filters = [$sekolahTemp->provinsi, '', '', '', ''];
             Cache::forget('sekolah_map_v5_'.md5(implode('_', $filters)));
@@ -151,8 +155,6 @@ class AdminPendaftaranController extends Controller
 
             return redirect()->route('admin.pendaftaran.index')->with('success', 'Pendaftaran sekolah telah ditolak.');
         }
-
-        return back()->with('error', 'Aksi tidak valid.');
     }
 
     /**
@@ -197,8 +199,10 @@ class AdminPendaftaranController extends Controller
         $request->validate([
             'npsn' => [
                 'required', 'string', 'max:10',
-                Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
-                Rule::unique('sekolah_temporary', 'npsn')->whereNull('deleted_at'),
+                Rule::unique('sekolah', 'npsn')->withoutTrashed(),
+                Rule::unique('sekolah_temporary', 'npsn')
+                    ->whereNot('status_verifikasi', 'rejected')
+                    ->withoutTrashed(),
             ],
             'nama_sekolah' => 'required|string|max:150',
             'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
@@ -221,7 +225,7 @@ class AdminPendaftaranController extends Controller
         $totalSiswa = (int) $request->siswa_laki + (int) $request->siswa_perempuan;
 
         DB::transaction(function () use ($request, $totalSiswa) {
-            Sekolah::create([
+            Sekolah::createOrRestore([
                 'npsn' => $request->npsn,
                 'nama_sekolah' => $request->nama_sekolah,
                 'jenjang' => $request->jenjang,
@@ -251,7 +255,7 @@ class AdminPendaftaranController extends Controller
 
         Cache::forget('admin_dashboard_data');
         Cache::forget('sekolah_wilayah_v2');
-        Cache::forget('sekolah_provinsi_summary_v1');
+        Cache::forget('sekolah_provinsi_summary_v2');
 
         return redirect()->route('admin.sekolah.index')
             ->with('success', 'Data sekolah berhasil ditambahkan!');

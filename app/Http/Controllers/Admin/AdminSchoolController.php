@@ -6,16 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Sekolah;
 use App\Models\SekolahTemporary;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class AdminSchoolController extends Controller
 {
-    public function approve(Request $request, $id)
+    public function approve($id)
     {
-        $sekolah = SekolahTemporary::findOrFail($id);
+        $sekolah = SekolahTemporary::where('id', $id)->where('status_verifikasi', 'pending')->firstOrFail();
 
         DB::transaction(function () use ($sekolah) {
             ActivityLog::create([
@@ -24,7 +23,7 @@ class AdminSchoolController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            $sekolahBaru = Sekolah::create([
+            $sekolahBaru = Sekolah::createOrRestore([
                 'npsn' => $sekolah->npsn,
                 'nama_sekolah' => $sekolah->nama_sekolah,
                 'jenjang' => $sekolah->jenjang,
@@ -58,7 +57,7 @@ class AdminSchoolController extends Controller
 
         // Bust static wilayah + summary caches
         Cache::forget('sekolah_wilayah_v2');
-        Cache::forget('sekolah_provinsi_summary_v1');
+        Cache::forget('sekolah_provinsi_summary_v2');
 
         // Bust dynamic map caches affected by this school's location
         $filters = [$sekolah->provinsi, '', '', '', ''];
@@ -73,9 +72,9 @@ class AdminSchoolController extends Controller
         return redirect()->route('admin.dashboard')->with('success', "Sekolah \"{$sekolah->nama_sekolah}\" berhasil disetujui.");
     }
 
-    public function reject(Request $request, $id)
+    public function reject($id)
     {
-        $sekolah = SekolahTemporary::findOrFail($id);
+        $sekolah = SekolahTemporary::where('id', $id)->where('status_verifikasi', 'pending')->firstOrFail();
 
         DB::transaction(function () use ($sekolah) {
             ActivityLog::create([
