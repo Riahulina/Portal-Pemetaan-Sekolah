@@ -2,7 +2,12 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import TomSelect from "tom-select";
 import "tom-select/dist/css/tom-select.default.css";
-import { fetchPulau, fetchProvinsi, fetchKabupaten, fetchKecamatan } from "./wilayah";
+import {
+    fetchPulau,
+    fetchProvinsi,
+    fetchKabupaten,
+    fetchKecamatan,
+} from "./wilayah";
 
 const tomSelectInstances = {};
 
@@ -208,7 +213,8 @@ async function updateSummaryCards(pulau) {
     const totalMuridEl = document.getElementById("total-murid");
 
     const apply = (sekolah, siswa) => {
-        if (totalSekolahEl) totalSekolahEl.textContent = sekolah.toLocaleString();
+        if (totalSekolahEl)
+            totalSekolahEl.textContent = sekolah.toLocaleString();
         if (totalMuridEl) totalMuridEl.textContent = siswa.toLocaleString();
     };
 
@@ -825,7 +831,10 @@ async function loadKabupatenOptions(prov) {
     try {
         kabList = await fetchKabupaten(prov);
     } catch (err) {
-        console.error("[SatuPeta] Gagal memuat kabupaten/kota:", err.message || err);
+        console.error(
+            "[SatuPeta] Gagal memuat kabupaten/kota:",
+            err.message || err,
+        );
     }
     if (seq !== _cascadeSeq) return;
 
@@ -889,6 +898,14 @@ function setSidebarState(state) {
 }
 
 async function applyFilters() {
+    const btn = document.getElementById("btn-terapkan");
+    const btnText = btn.querySelector(".btn-text");
+    const btnLoading = btn.querySelector(".btn-loading");
+
+    btn.disabled = true;
+    btnText.style.display = "none";
+    btnLoading.style.display = "flex";
+
     closeSchoolDetail();
     invalidateFilterCache();
     detailLayer.clearLayers();
@@ -934,6 +951,10 @@ async function applyFilters() {
     updateStatCards(schools);
     updateLegend(filters.jenjang);
     renderTable(schools);
+
+    btn.disabled = false;
+    btnText.style.display = "inline";
+    btnLoading.style.display = "none";
 }
 
 function resetFilters() {

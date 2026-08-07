@@ -467,7 +467,9 @@
     font-weight: 500;
     color: #4b5563;
     pointer-events: none;
-    transition: opacity 0.3s, transform 0.3s;
+    transition:
+        opacity 0.3s,
+        transform 0.3s;
     white-space: nowrap;
 }
 
@@ -1195,9 +1197,9 @@
 
 /* === RESPONSIVE — Tablet (max-width: 1024px) === */
 @media (max-width: 1024px) {
-
     /* Force body and html to allow scrolling */
-    html, body {
+    html,
+    body {
         height: auto !important;
         min-height: 100% !important;
         overflow: visible !important;
@@ -1282,7 +1284,6 @@
 
 /* === RESPONSIVE — Mobile (max-width: 640px) === */
 @media (max-width: 640px) {
-
     #legend-bar {
         display: flex;
         justify-content: center;
@@ -1374,4 +1375,31 @@
 
 .ts-wrapper.has-options .ts-control {
     padding-right: 36px !important;
+}
+
+.btn-apply {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-apply:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
