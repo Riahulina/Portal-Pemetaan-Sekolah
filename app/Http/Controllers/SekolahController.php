@@ -30,7 +30,7 @@ class SekolahController extends Controller
      */
     public function getWilayah()
     {
-        $wilayah = Cache::rememberForever('sekolah_wilayah_v2', function () {
+        $wilayah = Cache::remember('sekolah_wilayah_v2', now()->addDays(30), function () {
             return DB::table('sekolah')
                 ->select('provinsi', 'kabupaten_kota', 'kecamatan')
                 ->whereNull('deleted_at')
@@ -62,7 +62,7 @@ class SekolahController extends Controller
             return response()->json([]);
         }
 
-        $cacheKey = 'sekolah_map_v5_' . md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
+        $cacheKey = 'sekolah_map_v5_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
 
         $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan, $jenjang, $status) {
             $query = DB::table('sekolah')
@@ -153,17 +153,17 @@ class SekolahController extends Controller
      * Tanpa parameter `pulau`: ringkasan nasional untuk tampilan awal peta.
      * Dengan parameter `pulau`: ringkasan hanya untuk provinsi di pulau tersebut,
      * dipakai untuk memperbarui kartu ringkasan ("Total Sekolah" / "Total Siswa").
-     * Cache permanen karena data historis tidak sering berubah.
+     * Seluruh data disimpan dalam SATU key cache (di-filter per pulau di PHP),
+     * sehingga satu Cache::forget cukup untuk membatalkan semua variannya.
      */
     public function getProvinsiSummary(Request $request)
     {
         $pulau = $request->query('pulau');
 
-        $cacheKey = 'sekolah_provinsi_summary_v2_'.($pulau ?: 'nasional');
-
-        $summary = Cache::rememberForever($cacheKey, function () use ($pulau) {
-            $query = DB::table('sekolah')
+        $summary = Cache::remember('sekolah_provinsi_summary_v2', now()->addDays(30), function () {
+            return DB::table('sekolah')
                 ->selectRaw('
+                    pulau,
                     provinsi,
                     COUNT(npsn) as total_sekolah,
                     SUM(CAST(total_siswa AS INTEGER)) as total_siswa,
@@ -173,14 +173,18 @@ class SekolahController extends Controller
                 ->whereNotNull('provinsi')
                 ->whereNull('deleted_at')
                 ->whereNotNull('latitude')
-                ->whereNotNull('longitude');
-
-            if ($pulau) {
-                $query->where('pulau', $pulau);
-            }
-
-            return $query->groupBy('provinsi')->get()->toArray();
+                ->whereNotNull('longitude')
+                ->groupBy('pulau', 'provinsi')
+                ->get()
+                ->toArray();
         });
+
+        if ($pulau) {
+            $summary = array_values(array_filter(
+                $summary,
+                fn ($row) => $row->pulau === $pulau
+            ));
+        }
 
         return response()->json($summary);
     }
@@ -200,8 +204,10 @@ class SekolahController extends Controller
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('sekolah_temporary', 'npsn')->whereNull('deleted_at'),
-                Rule::unique('sekolah', 'npsn')->whereNull('deleted_at'),
+                Rule::unique('sekolah_temporary', 'npsn')
+                    ->whereNot('status_verifikasi', 'rejected')
+                    ->withoutTrashed(),
+                Rule::unique('sekolah', 'npsn')->withoutTrashed(),
             ],
             'nama_sekolah' => 'required|string|max:150',
             'jenjang' => 'required|in:KB,TK,SD,SMP,SMA,SMK',
@@ -246,6 +252,11 @@ class SekolahController extends Controller
                 'total_siswa' => $request->siswa_laki + $request->siswa_perempuan,
                 'status_verifikasi' => 'pending',
             ]);
+
+            SekolahTemporary::where('npsn', $request->npsn)
+                ->where('user_id', Auth::id())
+                ->where('status_verifikasi', 'rejected')
+                ->delete();
 
             ActivityLog::create([
                 'school_name' => $request->nama_sekolah,
@@ -370,14 +381,24 @@ class SekolahController extends Controller
     {
         $sekolah = SekolahTemporary::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
-        if (in_array($sekolah->status_verifikasi, ['approved'])) {
+        if ($sekolah->status_verifikasi === 'approved') {
             return back()->with('error', 'Data yang sudah disetujui tidak dapat dihapus.');
         }
 
-        $sekolah->delete();
+        if ($sekolah->status_verifikasi === 'pending') {
+            ActivityLog::create([
+                'school_name' => $sekolah->nama_sekolah,
+                'action' => 'dihapus',
+                'user_id' => Auth::id(),
+            ]);
 
-        \Cache::forget('sekolah_provinsi_summary_v1');
-        \Cache::forget('sekolah_wilayah_v2');
+            $sekolah->forceDelete();
+        } else {
+            $sekolah->delete();
+        }
+
+        Cache::forget('sekolah_provinsi_summary_v2');
+        Cache::forget('sekolah_wilayah_v2');
 
         return back()->with('success', 'Data berhasil dihapus.');
     }

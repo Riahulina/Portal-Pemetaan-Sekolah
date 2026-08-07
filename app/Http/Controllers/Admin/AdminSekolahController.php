@@ -102,7 +102,7 @@ class AdminSekolahController extends Controller
 
         // Bust static wilayah + summary caches
         Cache::forget('sekolah_wilayah_v2');
-        Cache::forget('sekolah_provinsi_summary_v1');
+        Cache::forget('sekolah_provinsi_summary_v2');
 
         // Bust dynamic map caches affected by this school's location
         $filters = [$sekolah->provinsi, '', '', '', ''];

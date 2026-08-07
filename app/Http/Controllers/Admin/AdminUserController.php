@@ -36,6 +36,11 @@ class AdminUserController extends Controller
         }
 
         $user = User::findOrFail($id);
+
+        if ($user->is_admin && User::where('is_admin', true)->count() <= 1) {
+            return back()->with('error', 'Tidak dapat menghapus admin terakhir.');
+        }
+
         $user->delete();
 
         return redirect()->route('admin.pengguna.index')->with('success', 'Pengguna berhasil dihapus.');
