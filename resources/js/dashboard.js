@@ -289,7 +289,12 @@ function createClusterIcon(cluster) {
 }
 
 function hasRegionFilter(filters) {
-    return !!(filters.provinsi || filters.kabupaten || filters.kecamatan);
+    return !!(
+        filters.pulau ||
+        filters.provinsi ||
+        filters.kabupaten ||
+        filters.kecamatan
+    );
 }
 
 function flyToSchool(lat, lng, schoolId) {
@@ -897,6 +902,31 @@ function setSidebarState(state) {
     sidebarState = state;
 }
 
+function showFilterWarning(message) {
+    const warning = document.getElementById("filter-warning");
+
+    if (!warning) {
+        alert(message);
+        return;
+    }
+
+    warning.textContent = message;
+    warning.style.display = "block";
+
+    clearTimeout(warning._timer);
+
+    warning._timer = setTimeout(() => {
+        warning.style.display = "none";
+    }, 3000);
+}
+
+function hideFilterWarning() {
+    const el = document.getElementById("filter-warning");
+    if (!el) return;
+
+    el.classList.remove("show");
+}
+
 async function applyFilters() {
     const btn = document.getElementById("btn-terapkan");
     const btnText = btn.querySelector(".btn-text");
@@ -921,9 +951,38 @@ async function applyFilters() {
             kecamatan: tomSelectInstances["filter-kecamatan"].getValue(),
         };
 
+        // Belum pilih Pulau
+        if (!filters.jenjang) {
+            showFilterWarning("Silakan pilih Jenjang terlebih dahulu.");
+
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            btnLoading.style.display = "none";
+            return;
+        }
+        if (!filters.status) {
+            showFilterWarning("Silakan pilih Status terlebih dahulu.");
+
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            btnLoading.style.display = "none";
+            return;
+        }
+
+        // Sudah pilih Pulau tapi belum pilih Provinsi
+        if (!filters.pulau) {
+            showFilterWarning("Silakan pilih Pulau terlebih dahulu.");
+
+            btn.disabled = false;
+            btnText.style.display = "inline";
+            btnLoading.style.display = "none";
+            return;
+        }
+
         currentFilters = Object.fromEntries(
             Object.entries(filters).filter(([_, v]) => v && v !== "Semua"),
         );
+
         pendingPopupSchoolId = null;
 
         if (!hasRegionFilter(currentFilters)) {
@@ -934,34 +993,31 @@ async function applyFilters() {
             updateLegend(filters.jenjang);
             renderTable(schools);
             map.setView([-2.5, 118.0], 5);
-
-            btn.disabled = false;
-            btnText.style.display = "inline";
-            btnLoading.style.display = "none";
             return;
         }
 
         summaryLayer.clearLayers();
+
         const resultCount = document.getElementById("result-count");
         if (resultCount) resultCount.textContent = "Memuat...";
+
         schools = await fetchFilteredSchools(currentFilters);
 
         renderMarkers(schools);
+
         if (schools.length > 0) {
             const midLat =
                 schools.reduce((s, x) => s + x.lat, 0) / schools.length;
+
             const midLng =
                 schools.reduce((s, x) => s + x.lng, 0) / schools.length;
+
             map.setView([midLat, midLng], schools.length === 1 ? 15 : 10);
         }
 
         updateStatCards(schools);
         updateLegend(filters.jenjang);
         renderTable(schools);
-
-        btn.disabled = false;
-        btnText.style.display = "inline";
-        btnLoading.style.display = "none";
     } finally {
         btn.disabled = false;
         btnText.style.display = "inline";
