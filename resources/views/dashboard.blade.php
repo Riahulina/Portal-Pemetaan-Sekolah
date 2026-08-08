@@ -79,6 +79,7 @@
                         Memuat...
                     </span>
                 </button>
+                <p id="filter-warning" class="filter-warning" style="display:none"></p>
                 <button id="btn-reset" class="btn-reset">Mulai Ulang</button>
                 <a href="/"> <button class="btn-back">Kembali Kehalaman Utama</button></a>
             </div>
