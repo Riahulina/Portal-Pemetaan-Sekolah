@@ -114,6 +114,7 @@ function mapSekolahRecord(row) {
 async function fetchFilteredSchools(filters) {
     try {
         const params = new URLSearchParams();
+        if (filters.pulau) params.set("pulau", filters.pulau);
         if (filters.provinsi) params.set("provinsi", filters.provinsi);
         if (filters.kabupaten) params.set("kabupaten", filters.kabupaten);
         if (filters.kecamatan) params.set("kecamatan", filters.kecamatan);
@@ -208,44 +209,96 @@ async function fetchAndRenderSummary() {
     }
 }
 
-async function updateSummaryCards(pulau) {
+async function updateSummaryCards(filters = {}) {
     const totalSekolahEl = document.getElementById("total-sekolah");
     const totalMuridEl = document.getElementById("total-murid");
 
     const apply = (sekolah, siswa) => {
-        if (totalSekolahEl)
-            totalSekolahEl.textContent = sekolah.toLocaleString();
-        if (totalMuridEl) totalMuridEl.textContent = siswa.toLocaleString();
+        if (totalSekolahEl) {
+            totalSekolahEl.textContent = Number(sekolah || 0).toLocaleString();
+        }
+
+        if (totalMuridEl) {
+            totalMuridEl.textContent = Number(siswa || 0).toLocaleString();
+        }
     };
 
-    if (!pulau) {
+    // Belum pilih pulau → tampilkan total nasional
+    if (!filters.pulau) {
         apply(nationalTotals.sekolah, nationalTotals.siswa);
         return;
     }
 
     try {
-        const res = await fetch(
-            `/api/sekolah/summary?pulau=${encodeURIComponent(pulau)}`,
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const ct = res.headers.get("content-type") || "";
-        if (!ct.includes("application/json")) {
-            throw new Error("Response bukan JSON (kemungkinan HTML error)");
+        const params = new URLSearchParams();
+
+        // WAJIB: Pulau
+        params.set("pulau", filters.pulau);
+
+        // Jenjang
+        if (filters.jenjang && filters.jenjang !== "Semua") {
+            params.set("jenjang", filters.jenjang);
         }
+
+        // Status
+        if (filters.status && filters.status !== "Semua") {
+            params.set("status", filters.status);
+        }
+
+        // Provinsi OPTIONAL
+        if (filters.provinsi) {
+            params.set("provinsi", filters.provinsi);
+        }
+
+        // Kabupaten OPTIONAL
+        if (filters.kabupaten) {
+            params.set("kabupaten", filters.kabupaten);
+        }
+
+        // Kecamatan OPTIONAL
+        if (filters.kecamatan) {
+            params.set("kecamatan", filters.kecamatan);
+        }
+
+        console.log(
+            "[SatuPeta] Summary request:",
+            `/api/sekolah/summary?${params.toString()}`,
+        );
+
+        const res = await fetch(`/api/sekolah/summary?${params.toString()}`);
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        const ct = res.headers.get("content-type") || "";
+
+        if (!ct.includes("application/json")) {
+            throw new Error("Response bukan JSON");
+        }
+
         const rows = await res.json();
+
+        console.log("[SatuPeta] Summary response:", rows);
+
         let totalSekolah = 0;
         let totalSiswa = 0;
+
         (rows || []).forEach((row) => {
             totalSekolah += parseInt(row.total_sekolah, 10) || 0;
             totalSiswa += parseInt(row.total_siswa, 10) || 0;
         });
+
         apply(totalSekolah, totalSiswa);
+
+        console.log("[SatuPeta] Total:", {
+            sekolah: totalSekolah,
+            siswa: totalSiswa,
+        });
     } catch (err) {
-        console.error(
-            "[SatuPeta] Gagal memuat ringkasan pulau:",
-            err.message || err,
-        );
-        apply(nationalTotals.sekolah, nationalTotals.siswa);
+        console.error("[SatuPeta] Gagal memuat summary:", err.message || err);
+
+        apply(0, 0);
     }
 }
 
@@ -984,12 +1037,13 @@ async function applyFilters() {
         );
 
         pendingPopupSchoolId = null;
+        await updateSummaryCards(currentFilters);
 
         if (!hasRegionFilter(currentFilters)) {
             schools = [];
             summaryLayer.clearLayers();
             renderAggregatedMarkers(schools);
-            updateSummaryCards(currentFilters.pulau || "");
+            updateSummaryCards(currentFilters);
             updateLegend(filters.jenjang);
             renderTable(schools);
             map.setView([-2.5, 118.0], 5);
@@ -1256,6 +1310,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     let pulauRequestSeq = 0;
     tomSelectInstances["filter-pulau"].on("change", async function (value) {
         const seq = ++pulauRequestSeq;
+        if (value) {
+            const jenjang = tomSelectInstances["filter-jenjang"].getValue();
+            const status = tomSelectInstances["filter-status"].getValue();
+
+            if (jenjang && status) {
+                await updateSummaryCards({
+                    pulau: value,
+                    jenjang: jenjang,
+                    status: status,
+                });
+            }
+        }
         _cascadeSeq++;
         let provs = [];
         if (value) {
