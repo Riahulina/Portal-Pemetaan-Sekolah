@@ -52,19 +52,28 @@ class SekolahController extends Controller
      */
     public function apiPeta(Request $request)
     {
+        $pulau = $request->query('pulau');
         $provinsi = $request->query('provinsi');
         $kabupaten = $request->query('kabupaten');
         $kecamatan = $request->query('kecamatan');
         $jenjang = $request->query('jenjang');
         $status = $request->query('status');
 
-        if (! $provinsi) {
+        // Wajib minimal salah satu dari pulau/provinsi
+        if (! $pulau && ! $provinsi) {
             return response()->json([]);
         }
 
-        $cacheKey = 'sekolah_map_v5_'.md5(implode('_', [$provinsi, $kabupaten ?? '', $kecamatan ?? '', $jenjang ?? '', $status ?? '']));
+        $cacheKey = 'sekolah_map_v5_' . md5(implode('_', [
+            $pulau ?? '',
+            $provinsi ?? '',
+            $kabupaten ?? '',
+            $kecamatan ?? '',
+            $jenjang ?? '',
+            $status ?? '',
+        ]));
 
-        $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($provinsi, $kabupaten, $kecamatan, $jenjang, $status) {
+        $sekolah = Cache::remember($cacheKey, now()->addHours(4), function () use ($pulau, $provinsi, $kabupaten, $kecamatan, $jenjang, $status) {
             $query = DB::table('sekolah')
                 ->select(
                     'npsn',
@@ -80,10 +89,17 @@ class SekolahController extends Controller
                     'longitude'
                 )
                 ->selectRaw('total_siswa::integer as total_siswa')
-                ->where('provinsi', $provinsi)
                 ->whereNull('deleted_at')
                 ->whereNotNull('latitude')
                 ->whereNotNull('longitude');
+
+            // Kalau provinsi dipilih, filter by provinsi (lebih spesifik).
+            // Kalau cuma pulau, filter by pulau.
+            if ($provinsi) {
+                $query->where('provinsi', $provinsi);
+            } elseif ($pulau) {
+                $query->where('pulau', $pulau);
+            }
 
             if ($kabupaten) {
                 $query->where('kabupaten_kota', $kabupaten);
@@ -182,7 +198,7 @@ class SekolahController extends Controller
         if ($pulau) {
             $summary = array_values(array_filter(
                 $summary,
-                fn ($row) => $row->pulau === $pulau
+                fn($row) => $row->pulau === $pulau
             ));
         }
 
