@@ -69,7 +69,7 @@
                         </div>
                         <div class="item-text">
                             <h4>Telepon / WhatsApp</h4>
-                            <a href="https://wa.me/6281264620118" target="_blank">+62 81264620118 </a>
+                            <a href="https://wa.me/6281264620118" target="_blank">+62 812-6462-0118 </a>
                         </div>
                     </div>
 

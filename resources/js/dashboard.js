@@ -1310,18 +1310,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let pulauRequestSeq = 0;
     tomSelectInstances["filter-pulau"].on("change", async function (value) {
         const seq = ++pulauRequestSeq;
-        if (value) {
-            const jenjang = tomSelectInstances["filter-jenjang"].getValue();
-            const status = tomSelectInstances["filter-status"].getValue();
-
-            if (jenjang && status) {
-                await updateSummaryCards({
-                    pulau: value,
-                    jenjang: jenjang,
-                    status: status,
-                });
-            }
-        }
         _cascadeSeq++;
         let provs = [];
         if (value) {
