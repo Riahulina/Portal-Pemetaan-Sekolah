@@ -13,7 +13,7 @@
                     <!-- Header -->
                     <tr>
                         <td style="padding: 32px 32px 16px 32px; text-align: center;">
-                            <div style="text-align: center; margin-bottom: 20px;"><img src="{{ asset('assets/logo.png') }}" alt="SatuPeta Logo" style="max-height: 50px; width: auto;"></div>
+                            <div style="text-align: center; margin-bottom: 20px;"><img src="{{ $message->embed(public_path('assets/logo.png')) }}" alt="SatuPeta Logo" style="max-height: 50px; width: auto;"></div>
                             <div style="display: inline-block; padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; color: #ffffff; background-color: {{ $status === 'disetujui' ? '#059669' : '#dc2626' }};">
                                 {{ $status === 'disetujui' ? 'DISETUJUI' : 'DITOLAK' }}
                             </div>
