@@ -596,7 +596,7 @@ async function openSchoolDetail(school) {
     document.getElementById("panel-murid").textContent =
         school.murid.toLocaleString() + " Siswa";
     document.getElementById("panel-address").textContent =
-        `${school.kelurahan}, ${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
+        `${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
     document.getElementById("panel-telepon").textContent = "Memuat...";
     document.getElementById("panel-email").textContent = "Memuat...";
 
@@ -676,7 +676,7 @@ async function openSchoolDetail(school) {
         document.getElementById("panel-telepon").textContent = telepon;
         document.getElementById("panel-email").textContent = email;
         document.getElementById("panel-address").textContent =
-            `${alamat}, ${school.kelurahan}, ${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
+            `${alamat}, ${school.kecamatan}, ${school.kabupaten}, ${school.provinsi}`;
 
         let social = {};
         try {
@@ -1310,18 +1310,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let pulauRequestSeq = 0;
     tomSelectInstances["filter-pulau"].on("change", async function (value) {
         const seq = ++pulauRequestSeq;
-        if (value) {
-            const jenjang = tomSelectInstances["filter-jenjang"].getValue();
-            const status = tomSelectInstances["filter-status"].getValue();
-
-            if (jenjang && status) {
-                await updateSummaryCards({
-                    pulau: value,
-                    jenjang: jenjang,
-                    status: status,
-                });
-            }
-        }
         _cascadeSeq++;
         let provs = [];
         if (value) {

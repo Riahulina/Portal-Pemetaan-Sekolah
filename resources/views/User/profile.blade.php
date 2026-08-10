@@ -190,6 +190,16 @@
             font-weight: 500;
         }
 
+        .alert-warning {
+            background-color: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 0.875rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
         /* Responsive untuk Tablet / Mobile */
         @media (max-width: 768px) {
             .profile-main-content {
@@ -224,6 +234,12 @@
             @if (session('status') === 'info-updated')
                 <div class="alert-success">
                     ✓ Informasi Akun Berhasil Diperbarui!
+                </div>
+            @endif
+
+            @if (session('warning'))
+                <div class="alert-warning" role="alert">
+                    ⚠️ {{ session('warning') }}
                 </div>
             @endif
 
