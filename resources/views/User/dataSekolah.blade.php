@@ -258,28 +258,30 @@
                                             </a>
                                         @endif
 
-                                        <div class="action-dropdown" style="position: relative; display: inline-block;">
-                                            <button onclick="toggleDropdown(event, 'dropdown-{{ $item->id }}')"
-                                                style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; padding: 4px 8px; font-weight: bold;">
-                                                ⋮
-                                            </button>
+                                        @if ($item->status_verifikasi !== 'approved')
+                                            <div class="action-dropdown" style="position: relative; display: inline-block;">
+                                                <button onclick="toggleDropdown(event, 'dropdown-{{ $item->id }}')"
+                                                    style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; padding: 4px 8px; font-weight: bold;">
+                                                    ⋮
+                                                </button>
 
-                                            <div id="dropdown-{{ $item->id }}" class="dropdown-content"
-                                                style="display: none; position: absolute; right: 0; top: 100%; background-color: #ffffff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-radius: 6px; z-index: 50;">
-                                                @if ($item->status_verifikasi !== 'approved')
-                                                    <form action="{{ route('sekolah.destroy', $item->id) }}" method="POST"
-                                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan sekolah ini? Data tidak dapat dikembalikan.')"
-                                                        style="margin: 0;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            style="color: #ef4444; padding: 10px 16px; text-decoration: none; display: block; width: 100%; text-align: left; background: none; border: none; font-size: 13px; cursor: pointer; font-weight: 500; border-radius: 6px;">
-                                                            🗑️ Hapus Data
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                                <div id="dropdown-{{ $item->id }}" class="dropdown-content"
+                                                    style="display: none; position: absolute; right: 0; top: 100%; background-color: #ffffff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-radius: 6px; z-index: 50;">
+                                                    @if ($item->status_verifikasi !== 'approved')
+                                                        <form action="{{ route('sekolah.destroy', $item->id) }}" method="POST"
+                                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan sekolah ini? Data tidak dapat dikembalikan.')"
+                                                            style="margin: 0;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
+                                                                style="color: #ef4444; padding: 10px 16px; text-decoration: none; display: block; width: 100%; text-align: left; background: none; border: none; font-size: 13px; cursor: pointer; font-weight: 500; border-radius: 6px;">
+                                                                🗑️ Hapus Data
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
