@@ -314,19 +314,18 @@
                 </div>
             </div>
 
-            {{-- Box Informasi / Tips --}}
-            <div class="info-box"
-                style="background: #f0fdfa; border: 1px solid #ccfbf1; padding: 20px 25px; border-radius: 12px; display: flex; gap: 20px; align-items: justify;">
-                <div
-                    style="width: 48px; height: 48px; background: #ccfbf1; border-radius: 50%; display: flex; align-items: justify; justify-content: center; flex-shrink: 0; margin: 0 auto;">
-                    <svg width="24" height="24" fill="none" stroke="#0d9488" stroke-width="2" viewBox="0 0 24 24">
+            {{-- Box Informasi Bawah --}}
+            <div
+                style="background: #f0fdfa; border: 1px solid #ccfbf1; padding: 20px 24px; border-radius: 12px; display: flex; gap: 15px; align-items: center;">
+                <div style="color: #0d9488; flex-shrink: 0;">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 0A3.75 3.75 0 0 0 12 18Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v1.5m0 1.5h.008m-3.008-3h6M9 15h6" />
+                            d="M12 18v-5.25m0 -3a.75.75 0 1 1 0 -1.5a.75.75 0 0 1 0 1.5m6.75 2.25a6.75 6.75 0 1 1 -13.5 0a6.75 6.75 0 0 1 13.5 0Z" />
                     </svg>
                 </div>
                 <div>
-                    <p style="font-size: 14px; color: #115e59; font-weight: 500; margin: 0; line-height: 1.5;">
+                    <p style="font-size: 14px; color: #115e59; margin: 0;">
                         Status sekolah akan berubah setelah proses verifikasi oleh admin selesai. <br>
                         Pastikan data yang anda isi sudah benar dan sesuai.
                     </p>
