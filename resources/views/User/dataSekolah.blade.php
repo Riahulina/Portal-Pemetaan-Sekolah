@@ -101,7 +101,7 @@
 
             .info-box {
                 flex-direction: column !important;
-                text-align: center;
+                text-align: justify;
                 padding: 15px !important;
             }
         }
@@ -268,7 +268,8 @@
                                                 <div id="dropdown-{{ $item->id }}" class="dropdown-content"
                                                     style="display: none; position: absolute; right: 0; top: 100%; background-color: #ffffff; min-width: 140px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; border-radius: 6px; z-index: 50;">
                                                     @if ($item->status_verifikasi !== 'approved')
-                                                        <form action="{{ route('sekolah.destroy', $item->id) }}" method="POST"
+                                                        <form action="{{ route('sekolah.destroy', $item->id) }}"
+                                                            method="POST"
                                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan sekolah ini? Data tidak dapat dikembalikan.')"
                                                             style="margin: 0;">
                                                             @csrf
@@ -305,19 +306,19 @@
                         <button disabled
                             style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 8px; color: #cbd5e1; cursor: not-allowed;">
                             &lt;&lt;</button>
-                                <button
-                                    style="background: #008080; border: 1px solid #008080; border-radius: 4px; padding: 3px 8px; color: #fff; font-weight: bold;">1</button>
-                                <button disabled
-                                    style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 8px; color: #cbd5e1; cursor: not-allowed;">></button>
+                        <button
+                            style="background: #008080; border: 1px solid #008080; border-radius: 4px; padding: 3px 8px; color: #fff; font-weight: bold;">1</button>
+                        <button disabled
+                            style="background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 3px 8px; color: #cbd5e1; cursor: not-allowed;">></button>
                     </div>
                 </div>
             </div>
 
             {{-- Box Informasi / Tips --}}
             <div class="info-box"
-                style="background: #f0fdfa; border: 1px solid #ccfbf1; padding: 20px 25px; border-radius: 12px; display: flex; gap: 20px; align-items: center;">
+                style="background: #f0fdfa; border: 1px solid #ccfbf1; padding: 20px 25px; border-radius: 12px; display: flex; gap: 20px; align-items: justify;">
                 <div
-                    style="width: 48px; height: 48px; background: #ccfbf1; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0 auto;">
+                    style="width: 48px; height: 48px; background: #ccfbf1; border-radius: 50%; display: flex; align-items: justify; justify-content: center; flex-shrink: 0; margin: 0 auto;">
                     <svg width="24" height="24" fill="none" stroke="#0d9488" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 0A3.75 3.75 0 0 0 12 18Z" />
