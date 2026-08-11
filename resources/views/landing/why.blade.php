@@ -69,7 +69,7 @@
                     <div class="dev-pin-num"><span class="dash"></span>PENGEMBANG 1</div>
                     <div class="dev-pin">
                         <div class="dev-pin-inner">
-                            <img class="dev-img-riah" src="{{ asset('assets/riahtes.png') }}" alt="Riah Ulina">
+                            <img class="dev-img-riah" src="{{ asset('assets/Riah.png') }}" alt="Riah Ulina">
                         </div>
                     </div>
                     <div class="dev-pin-shadow"></div>
@@ -115,7 +115,7 @@
                     <div class="dev-pin-num"><span class="dash"></span>PENGEMBANG 2</div>
                     <div class="dev-pin">
                         <div class="dev-pin-inner">
-                            <img class="dev-img-yedith" src="{{ asset('assets/yedithtes.png') }}" alt="Yedith Yah">
+                            <img class="dev-img-yedith" src="{{ asset('assets/Yedith.png') }}" alt="Yedith Yah">
                         </div>
                     </div>
                     <div class="dev-pin-shadow"></div>
