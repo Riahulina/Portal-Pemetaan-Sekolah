@@ -206,6 +206,37 @@ header.nav {
     );
 }
 
+.hero-mockup-img {
+    display: block;
+    width: 100%;
+    border-radius: 18px;
+    box-shadow:
+        0 35px 70px -20px rgba(15, 61, 60, 0.45),
+        0 0 0 8px rgba(255, 255, 255, 0.55);
+    transition: transform 0.3s ease;
+    will-change: transform;
+}
+
+@keyframes idle-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+.hero-image-col {
+    animation: idle-float 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-image-col {
+        animation: none;
+    }
+}
+
 .hero-grid {
     display: grid;
     grid-template-columns: 1fr 1.15fr;
@@ -423,6 +454,21 @@ header.nav {
     font-size: 12.5px;
     opacity: 0.85;
     font-weight: 500;
+}
+
+.stat-block--highlight {
+    transform: scale(1.12);
+}
+
+.stat-block--highlight .stat-num {
+    font-size: 44px;
+    color: var(--orange-500);
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.stat-block--highlight .stat-label {
+    font-size: 14px;
+    font-weight: 700;
 }
 
 /* ---------- CTA / DOWNLOAD ---------- */
@@ -1456,6 +1502,50 @@ footer ul li a:hover {
     width: 10px;
     height: 10px;
     fill: #f2a53e;
+}
+
+/* ===========================
+   HOVER FLOAT
+=========================== */
+
+@media (hover: hover) {
+    .dev-pin-wrap {
+        transition: transform 0.35s ease;
+        will-change: transform;
+    }
+
+    .dev-pin-wrap:hover {
+        transform: translateY(-14px);
+    }
+
+    .dev-pin-wrap:hover .dev-pin {
+        box-shadow: 0 24px 44px rgba(13, 122, 117, 0.38);
+    }
+
+    .dev-pin-wrap:hover .dev-pin-shadow {
+        transform: scale(0.85);
+        opacity: 0.7;
+    }
+}
+
+/* ===========================
+   RESPONSIVE / MOBILE
+=========================== */
+
+@media (max-width: 768px) {
+    .stat-block--highlight {
+        transform: scale(1.03);
+    }
+
+    .stat-block--highlight .stat-num {
+        font-size: 32px;
+    }
+
+    .hero-mockup-img {
+        box-shadow:
+            0 20px 40px -15px rgba(15, 61, 60, 0.35),
+            0 0 0 5px rgba(255, 255, 255, 0.5);
+    }
 }
 
 /* ===========================
